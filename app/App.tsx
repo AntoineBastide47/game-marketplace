@@ -49,14 +49,7 @@ function App() {
 
         {view === "skin" && <SkinPage />}
 
-        {view === "skin" && (
-          <button
-            onClick={handleBackToGame}
-            className="mt-6 px-4 py-2 bg-gray-200 hover:bg-gray-300 rounded font-bold"
-          >
-            ← Back to Game
-          </button>
-        )}
+        
       </div>
     </div>
   );
