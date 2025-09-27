@@ -1,10 +1,11 @@
 "use client";
 import { useState } from "react";
-import { Menu, X, Home, Gamepad2 } from "lucide-react";
+import { Menu as MenuIcon, X, Home, Gamepad2 } from "lucide-react";
+import Link from "next/link";
 
 const items = [
   { id: "home", label: "Home", href: "/", Icon: Home },
-  { id: "games", label: "My Games", href: "#", Icon: Gamepad2 },
+  { id: "games", label: "My Games", href: "/my-games", Icon: Gamepad2 },
 ];
 
 export default function Sidebar() {
@@ -21,32 +22,34 @@ export default function Sidebar() {
         style={{ width: asideW }}
         aria-label="Sidebar"
       >
-        {/* Header */}
+        {/* Header avec padding-top et "Menu" aligné à gauche quand ouvert */}
         <div
-          className={`h-16 flex items-center w-full border-b border-zinc-800 ${
+          className={`h-16 pt-2 flex items-center w-full border-b border-zinc-800 ${
             open ? "justify-between px-3" : "justify-start pl-3"
           }`}
         >
+          {open && <span className="font-bold text-lg select-none">Menu</span>}
+
           <button
             type="button"
             onClick={() => setOpen(!open)}
             className="p-2 rounded-md hover:bg-zinc-800 focus:outline-none"
             aria-label={open ? "Close menu" : "Open menu"}
           >
-            {open ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+            {open ? <X className="h-5 w-5" /> : <MenuIcon className="h-5 w-5" />}
           </button>
-          {open && <span className="font-bold text-lg">Menu</span>}
         </div>
 
-        {/* Navigation: une seule liste, un lien par ligne couvrant icône + label */}
+        {/* Navigation: un seul lien par ligne (icône + label) */}
         <nav className="flex-1 py-4 w-full">
           <ul className="flex flex-col gap-2">
             {items.map(({ id, href, label, Icon }) => (
               <li key={id}>
-                <a
+                <Link
                   href={href}
                   aria-label={label}
                   tabIndex={open ? 0 : -1}
+                  onClick={() => setOpen(false)}
                   className="group grid grid-cols-[4rem_1fr] items-center h-10 rounded-md
                              text-zinc-200 hover:bg-zinc-800 transition-colors"
                 >
@@ -55,7 +58,7 @@ export default function Sidebar() {
                     <Icon className="h-5 w-5 transition-colors group-hover:text-white" />
                   </div>
 
-                  {/* Colonne label, animée en largeur + fade/slide, sans wrap */}
+                  {/* Colonne label animée */}
                   <span
                     className="px-3 text-sm font-medium whitespace-nowrap overflow-hidden text-ellipsis
                                transition-[opacity,transform,width] duration-300 ease-out transform-gpu"
@@ -67,7 +70,7 @@ export default function Sidebar() {
                   >
                     {label}
                   </span>
-                </a>
+                </Link>
               </li>
             ))}
           </ul>

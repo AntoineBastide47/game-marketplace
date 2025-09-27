@@ -2,6 +2,7 @@ import "@mysten/dapp-kit/dist/index.css";
 import "./globals.css";
 import { Providers } from "./providers";
 import Navbar from "./components/Navbar";
+import Sidebar from "./components/Sidebar";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
@@ -15,17 +16,22 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <body
         className="
           h-full min-h-screen w-full
-          flex flex-col          /* colonne pleine hauteur */
-          bg-white text-black 
+          flex flex-col
+          bg-white text-black
           overflow-x-hidden
           antialiased
         "
       >
         <Providers>
           <Navbar />
-          <main className="flex-1 w-full">  {/* prend tout l’espace dispo */}
-            {children}
-          </main>
+          <div className="flex flex-1 w-full">
+            {/* Sidebar fixe à gauche */}
+            <Sidebar />
+            {/* Contenu principal décalé et compensé par la navbar fixe */}
+            <main className="flex-1 ml-16 pt-[64px] md:pt-[68px]">
+              {children}
+            </main>
+          </div>
         </Providers>
       </body>
     </html>
