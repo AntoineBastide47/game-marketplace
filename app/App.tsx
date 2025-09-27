@@ -10,12 +10,8 @@ import { Button } from "@/components/ui/button";
 import SkinPage from "./components/SkinPage";
 import GamePage from "./components/GamePage";
 import Overview from "./components/Overview";
+import { Game } from "./types/game";
 
-type Game = {
-  id: number;
-  name: string;
-  // tu pourras rajouter d’autres champs (image, description, etc.)
-};
 
 function App() {
   const [view, setView] = useState<'overview' | 'game' | 'skin'>('overview');
@@ -31,20 +27,42 @@ function App() {
     setView("overview");
   };
 
+  const handleGoToSkin = () => {
+    setView("skin");
+  };
+
+  const handleBackToGame = () => {
+    setView("game");
+  };
+
   return (
     <div className="container mx-auto p-6">
       <Card className="min-h-[500px]">
         <CardContent className="pt-6">
-          {/* Conditional rendering */}
           {view === "overview" && (
             <Overview onSelectGame={handleSelectGame} />
           )}
 
           {view === "game" && selectedGame && (
-            <GamePage game={selectedGame} onBack = {handleBackToOverview} />
+            <GamePage
+              game={selectedGame}
+              onBack={handleBackToOverview}
+              onGoToSkin={handleGoToSkin}
+            />
           )}
 
-          {view === "skin" && <SkinPage />}
+          {view === "skin" && (
+            <SkinPage />
+          )}
+
+          {view === "skin" && (
+            <button
+              onClick={handleBackToGame}
+              className="mt-6 px-4 py-2 bg-gray-200 hover:bg-gray-300 rounded font-bold"
+            >
+              ← Back to Game
+            </button>
+          )}
         </CardContent>
       </Card>
     </div>
