@@ -73,3 +73,21 @@ public fun burn_game(_game: Game) {
 public fun transfer_game(_game: Game, _newOwner: address) {
     transfer::public_transfer(_game, _newOwner)
 }
+
+// Pour les tests uniquement
+#[test_only]
+public fun mk_game_for_test(
+    name: vector<u8>,
+    description: vector<u8>,
+    imageUrl: vector<u8>,
+    pageUrl: vector<u8>,
+    ctx: &mut TxContext
+    ): Game {
+        Game {
+            id: object::new(ctx),
+            name: string::utf8(name),
+            description: string::utf8(description),
+            imageUrl: string::utf8(imageUrl),
+            pageUrl: string::utf8(pageUrl),
+        }
+}
