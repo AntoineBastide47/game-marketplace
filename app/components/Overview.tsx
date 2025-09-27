@@ -2,7 +2,6 @@
 "use client";
 import React, { useMemo, useState } from "react";
 import { games as initialGames } from "../constants/game";
-import { Plus } from "lucide-react";
 import AddGameModal from "./addGameModal";
 import { useCurrentAccount } from "@mysten/dapp-kit";
 import { SuiClient } from "@mysten/sui/client";
@@ -23,7 +22,7 @@ export default async function Overview({ onSelectGame }: OverviewProps) {
   const [showAdd, setShowAdd] = useState(false);
   const [localGames, setLocalGames] = useState<Game[]>([]);
 
-  const account = useCurrentAccount()
+  const account = useCurrentAccount();
   const selection = useMemo(() => localGames.slice(0), [localGames]);
 
   const nodeUrl = useNetworkVariable("nodeUrl")
@@ -59,22 +58,11 @@ export default async function Overview({ onSelectGame }: OverviewProps) {
 
   return (
     <main className="min-h-screen w-full bg-white text-black">
-      {/* Header avec bouton + */}
-      <header className="w-full pt-16 pb-8 px-4 md:px-8 lg:px-12 flex items-center justify-between">
-        <h2 className="text-center flex-1 text-5xl md:text-6xl font-extrabold tracking-tight">
+      {/* Header sans bouton + */}
+      <header className="w-full pt-16 pb-8 px-4 md:px-8 lg:px-12 flex items-center justify-center">
+        <h2 className="text-center text-5xl md:text-6xl font-extrabold tracking-tight">
           Featured Games
         </h2>
-
-        {account && (
-          <button
-            type="button"
-            onClick={() => setShowAdd(true)}
-            aria-label="Ajouter un nouveau jeu"
-            className="ml-4 flex items-center justify-center rounded-full p-3 bg-indigo-600 text-white hover:bg-indigo-700 shadow-md hover:shadow-lg focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2"
-          >
-            <Plus className="h-6 w-6" />
-          </button>
-        )}
       </header>
 
       {/* Grille des jeux */}
@@ -111,7 +99,7 @@ export default async function Overview({ onSelectGame }: OverviewProps) {
         </div>
       </section>
 
-      {/* Modal d'ajout */}
+      {/* Modal d'ajout (optionnel, tu peux aussi le virer si inutile) */}
       <AddGameModal
         open={showAdd}
         onClose={() => setShowAdd(false)}

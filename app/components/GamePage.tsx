@@ -21,14 +21,14 @@ const rarityBadgeClass: Record<Rarity, string> = {
 };
 
 const rarityBgGradient: Record<Rarity, string> = {
-  common: "from-zinc-800 via-zinc-500 to-white",
-  rare: "from-violet-800 via-violet-400 to-white",
-  legendary: "from-amber-600 via-amber-300 to-white",
+  common: "from-zinc-800 via-zinc-500 to-zinc-100",
+  rare: "from-violet-800 via-violet-400 to-violet-100",
+  legendary: "from-amber-600 via-amber-300 to-amber-100",
 };
 
 const Badge: React.FC<{ rarity: Rarity }> = ({ rarity }) => (
   <span
-    className={`px-2 py-1 rounded-full text-[10px] tracking-wide font-extrabold uppercase ${rarityBadgeClass[rarity]}`}
+    className={`px-3 py-1.5 rounded-full text-xs md:text-sm tracking-wide font-extrabold uppercase ${rarityBadgeClass[rarity]}`}
   >
     {rarity}
   </span>
@@ -99,37 +99,44 @@ const SkinCard: React.FC<{ item: GameItem; onClick: (item: GameItem) => void }> 
         type="button"
         aria-label={`Voir ${item.name}`}
         onClick={() => onClick(item)}
-        className={`group text-left cursor-pointer focus:outline-none rounded-2xl ${glowBorder} transition-transform duration-200 hover:-translate-y-1`}
+        className={`group relative text-left cursor-pointer focus:outline-none rounded-2xl ${glowBorder} 
+          transition-transform duration-300 hover:-translate-y-1 hover:scale-105`}
       >
-        <div
-          className={`bg-gradient-to-b ${rarityBgGradient[item.rarity]} p-[2px] rounded-2xl shadow-lg`}
-        >
-          <div className="rounded-[16px] bg-white/90 backdrop-blur-md border border-white/60">
+        {/* Bordure lumineuse au hover */}
+        <span
+          aria-hidden
+          className="pointer-events-none absolute inset-0 rounded-2xl border-2 border-transparent transition-all duration-300 group-hover:border-indigo-500"
+        />
 
-            {/* IMAGE agrandie */}
-            <div className="aspect-[3/4] w-full overflow-hidden rounded-t-[16px] grid place-items-center">
-              {/* IMAGE agrandie */}
-              <div className="aspect-[3/4] w-full overflow-hidden rounded-t-[16px]">
-                <img
-                  src={item.image || "https://picsum.photos/600/800"} // fallback si pas d’image
-                  alt={item.name}
-                  className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
-                />
-              </div>
+        <div
+          className={`relative bg-gradient-to-b ${rarityBgGradient[item.rarity]} p-[3px] rounded-2xl shadow-xl`}
+        >
+          <div className="rounded-[18px] bg-white/50 backdrop-blur-md border border-white/60">
+
+            {/* IMAGE */}
+            <div className="aspect-[3/4] w-full overflow-hidden rounded-t-[18px] grid place-items-center p-3">
+              <img
+                src={item.image || "https://picsum.photos/600/800"}
+                alt={item.name}
+                className="w-full h-full object-contain transition-transform duration-300 group-hover:scale-110"
+              />
             </div>
 
-            {/* TEXTE plus gros */}
-            <div className="p-4">
-              <div className="flex items-start justify-between gap-2">
+            {/* TEXTE */}
+            <div className="p-5">
+              <div className="flex items-start justify-between gap-3">
+                {/* Nom plus grand */}
                 <h3
-                  className="font-bold text-base md:text-lg text-zinc-900 truncate"
+                  className="font-bold text-lg md:text-xl text-zinc-900 truncate"
                   title={item.name}
                 >
                   {item.name}
                 </h3>
+                {/* Badge un peu plus gros */}
                 <Badge rarity={item.rarity} />
               </div>
-              <p className="text-zinc-700 text-sm mt-2">
+              {/* Prix plus grand */}
+              <p className="text-zinc-700 text-base md:text-lg mt-3 font-medium">
                 {formatPrice(item.price)}
               </p>
             </div>
@@ -196,7 +203,7 @@ const GamePage: React.FC<GamePageProps> = ({ game, onBack, onGoToSkin }) => {
           <div className="w-full h-[220px] md:h-[260px] overflow-hidden rounded-3xl border border-white/60 bg-white/70 backdrop-blur-md shadow-xl ${glowBorder}">
             <img src={game.coverImage} alt={game.name} className="w-full h-full object-cover" />
           </div>
-          <div className="mt-4 flex flex-wrap items-center justify-center gap-2 text-sm text-zinc-600">
+          <div className="mt-4 flex flex-wrap items-center justify-center gap-2 text-xl text-zinc-600">
             {game.genres?.length ? (
               <span>Genres: {game.genres.join(", ")}</span>
             ) : null}
