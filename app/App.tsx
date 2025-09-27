@@ -45,13 +45,6 @@ function App() {
         )}
 
         {view === "skin" && <SkinPage />}
-
-
-      </div>
-        
-        {view === "skin" && (
-          <SkinPage onBack={handleBackToGame} />
-        )}
       </main>
     </div>
   );
