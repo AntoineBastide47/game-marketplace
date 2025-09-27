@@ -1,14 +1,11 @@
 'use client'
-import { useCurrentAccount } from "@mysten/dapp-kit";
-import { isValidSuiObjectId } from "@mysten/sui/utils";
-import { useState, useEffect } from "react";
-import { Counter } from "./Counter";
-import { CreateCounter } from "./CreateCounter";
-import { CounterList } from "./components/CounterList";
-import SkinPage from "./components/SkinPage";
-import GamePage from "./components/GamePage";
+import { useState } from "react";
+import Navbar from "./components/Navbar";
+import Sidebar from "./components/Sidebar";
 import Overview from "./components/Overview";
-import { Game } from "./types/game";
+import GamePage from "./components/GamePage";
+import SkinPage from "./components/SkinPage";
+import type { Game } from "./types/game";
 
 function App() {
   const [view, setView] = useState<'overview' | 'game' | 'skin'>('overview');
@@ -24,21 +21,21 @@ function App() {
     setView("overview");
   };
 
-  const handleGoToSkin = () => {
-    setView("skin");
-  };
-
-  const handleBackToGame = () => {
-    setView("game");
-  };
+  const handleGoToSkin = () => setView("skin");
+  const handleBackToGame = () => setView("game");
 
   return (
-    <div className="w-full h-screen p-6">
-      <div className="w-full h-full pt-6">
-        {view === "overview" && (
-          <Overview onSelectGame={handleSelectGame} />
-        )}
+    <div className="min-h-screen bg-white text-black flex">
+      <Navbar />
+      <Sidebar />
 
+      {/* Contenu principal décalé par le rail étroit (ml-16) */}
+      <main className="flex-1 ml-16">
+        {/* Spacer sous la navbar */}
+        <div className="h-[64px] md:h-[68px]" aria-hidden />
+
+        {view === "overview" && <Overview onSelectGame={handleSelectGame} />}
+        
         {view === "game" && selectedGame && (
           <GamePage
             game={selectedGame}
@@ -46,11 +43,11 @@ function App() {
             onGoToSkin={handleGoToSkin}
           />
         )}
-
-        {view === "skin" && <SkinPage onBack={handleBackToGame} />}
-
         
-      </div>
+        {view === "skin" && (
+          <SkinPage onBack={handleBackToGame} />
+        )}
+      </main>
     </div>
   );
 }
