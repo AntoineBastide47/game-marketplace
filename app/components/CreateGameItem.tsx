@@ -6,7 +6,7 @@ import { Plus } from "lucide-react";
 import { useCurrentAccount } from "@mysten/dapp-kit";
 import type { GameItem } from "@/types/gameItem";
 import { gameItems as initialItems } from "../constants/gameItem";
-import AddGameItemModal from "./addGameItemModal";
+import AddGameItemModal from "./AddGameItemModal";
 
 interface Props {
   onSelectItem: (item: GameItem) => void;

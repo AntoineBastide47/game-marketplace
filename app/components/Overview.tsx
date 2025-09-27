@@ -1,8 +1,7 @@
 // app/components/Overview.tsx
 "use client";
 import React, { useMemo, useState } from "react";
-import { games as initialGames } from "../constants/game";
-import AddGameModal from "./addGameModal";
+import AddGameModal from "./AddGameModal";
 import { useCurrentAccount } from "@mysten/dapp-kit";
 import { SuiClient } from "@mysten/sui/client";
 import { useNetworkVariable } from "@/networkConfig";

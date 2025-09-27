@@ -1,57 +1,6 @@
 // app/constants/games.ts
-import type { Game } from "@/types/game";
 import type { GameItem } from "@/types/gameItem";
 
-export const games: Game[] = [
-  {
-    id: 1,
-    name: "Elder Blades",
-    description:
-      "RPG heroic-fantasy où dragons rancuniers et guildes louches se disputent des artefacts pas du tout maudits.",
-    coverImage: "https://images.unsplash.com/photo-1606112219348-204d7d8b94ee?q=80&w=1200",
-    bannerImage: "https://images.unsplash.com/photo-1546443046-ed1ce6ffd1ad?q=80&w=1600",
-    genres: ["RPG", "Action", "Fantasy"],
-    releaseYear: 2025,
-    developer: "Moonforge Studio",
-    rating: 4.6,
-  },
-  {
-    id: 2,
-    name: "Mystic Quest",
-    description:
-      "Aventure magique à énigmes où chaque rune est un puzzle, et chaque porte cache une autre porte.",
-    coverImage: "https://images.unsplash.com/photo-1519681393784-d120267933ba?q=80&w=1200",
-    bannerImage: "https://images.unsplash.com/photo-1496307042754-b4aa456c4a2d?q=80&w=1600",
-    genres: ["Puzzle", "Aventure"],
-    releaseYear: 2024,
-    developer: "Arcana Works",
-    rating: 4.2,
-  },
-  {
-    id: 3,
-    name: "Cyber Hunt",
-    description:
-      "Shooter futuriste en néon où on hacke des drones pendant qu’ils essaient poliment de t’éliminer.",
-    coverImage: "https://images.unsplash.com/photo-1498050108023-c5249f4df085?q=80&w=1200",
-    bannerImage: "https://images.unsplash.com/photo-1461749280684-dccba630e2f6?q=80&w=1600",
-    genres: ["Shooter", "Sci-Fi"],
-    releaseYear: 2026,
-    developer: "Vector9",
-    rating: 4.4,
-  },
-  {
-    id: 4,
-    name: "Cyber Hunt",
-    description:
-      "Shooter futuriste en néon où on hacke des drones pendant qu’ils essaient poliment de t’éliminer.",
-    coverImage: "https://images.unsplash.com/photo-1498050108023-c5249f4df085?q=80&w=1200",
-    bannerImage: "https://images.unsplash.com/photo-1461749280684-dccba630e2f6?q=80&w=1600",
-    genres: ["Shooter", "Sci-Fi"],
-    releaseYear: 2026,
-    developer: "Vector9",
-    rating: 4.4,
-  },
-];
 
 export const gameItemsByGameId: Record<number, GameItem[]> = {
   1: [

@@ -3,7 +3,7 @@
 import React, { useMemo, useState } from "react";
 import type { Game } from "@/types/game";
 import { games as initialGames } from "../constants/game";
-import AddGameModal from "./addGameModal";
+import AddGameModal from "./AddGameModal";
 import { useCurrentAccount } from "@mysten/dapp-kit";
 import { Plus } from "lucide-react";
 
