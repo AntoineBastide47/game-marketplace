@@ -11,13 +11,6 @@ export interface Game {
   releaseYear?: number;
   developer?: string;
   rating?: number;      // 0..5
+  gameLink?: string;  // URL vers le jeu
 }
 
-export interface GameItem {
-  id: number;
-  name: string;
-  image: string;         // emoji ou URL d’image
-  description: string;
-  rarity: Rarity;
-  price: number;         // EUR
-}

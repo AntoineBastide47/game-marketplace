@@ -2,8 +2,61 @@
 
 import * as React from "react";
 import Link from "next/link";
-import { ConnectButton } from "@mysten/dapp-kit";
 import { Search, Wallet } from "lucide-react";
+import { ConnectModal, useCurrentAccount, useDisconnectWallet } from '@mysten/dapp-kit';
+import '@mysten/dapp-kit/dist/index.css';
+
+export function FancyConnectButton() {
+  const account = useCurrentAccount();
+  const { mutate: disconnect, isPending } = useDisconnectWallet();
+
+  return account ? (
+    <button
+      type="button"
+      onClick={() => disconnect()}
+      disabled={isPending}
+      className="group w-full bg-gradient-to-r from-green-400 to-green-500 hover:from-green-500 hover:to-green-600 text-white font-bold py-6 px-8 rounded-xl transition-all duration-300 shadow-md hover:shadow-xl relative overflow-hidden"
+    >
+      <div className="absolute inset-0 w-full h-full bg-gradient-to-r from-green-300 to-green-400 transform scale-x-0 origin-left group-hover:scale-x-100 transition-transform duration-500 ease-out"></div>
+
+      <div className="absolute top-0 left-0 w-full h-full flex items-center justify-center gap-4 transform group-hover:translate-y-0 group-hover:scale-105 transition-all duration-300 z-10">
+        <Wallet
+          size={20}
+          className="transform group-hover:rotate-12 transition-transform duration-300"
+        />
+        <span className="text-l font-semibold group-hover:tracking-wider transition-all duration-300">
+          Sign Out
+        </span>
+      </div>
+
+      <div className="absolute inset-0 w-6 h-full bg-white/20 transform -skew-x-12 translate-x-full group-hover:translate-x-[-1000%] transition-transform duration-1000 ease-in-out"></div>
+    </button>
+  ) : (
+    <ConnectModal
+      trigger={
+        <button
+          type="button"
+          className="group w-full bg-gradient-to-r from-blue-400 to-blue-500 hover:from-blue-500 hover:to-blue-600 text-white font-bold py-6 px-8 rounded-xl transition-all duration-300 shadow-md hover:shadow-xl relative overflow-hidden"
+        >
+          <div className="absolute inset-0 w-full h-full bg-gradient-to-r from-blue-300 to-blue-400 transform scale-x-0 origin-left group-hover:scale-x-100 transition-transform duration-500 ease-out"></div>
+
+          <div className="absolute top-0 left-0 w-full h-full flex items-center justify-center gap-4 transform group-hover:translate-y-0 group-hover:scale-105 transition-all duration-300 z-10">
+            <Wallet
+              size={20}
+              className="transform group-hover:rotate-12 transition-transform duration-300"
+            />
+            <span className="text-l font-semibold group-hover:tracking-wider transition-all duration-300">
+              Connect your wallet
+            </span>
+          </div>
+
+          <div className="absolute inset-0 w-6 h-full bg-white/20 transform -skew-x-12 translate-x-full group-hover:translate-x-[-1000%] transition-transform duration-1000 ease-in-out"></div>
+        </button>
+      }
+    />
+  );
+}
+
 
 export default function Navbar() {
   return (
@@ -52,11 +105,7 @@ export default function Navbar() {
 
             {/* Droite: Wallet largeur fixe */}
             <div className="w-48 md:w-56 shrink-0">
-              <ConnectButton>
-                <div className="w-full inline-flex items-center justify-center gap-2 rounded-xl border border-white/20 bg-white text-slate-900 px-3 py-2 text-sm hover:bg-white/90 transition select-none overflow-hidden">
-                  <span className="truncate">Connect Wallet</span>
-                </div>
-              </ConnectButton>
+              <FancyConnectButton />
             </div>
           </div>
         </div>

@@ -1,25 +1,43 @@
+// app/components/Overview.tsx
 "use client";
-import React from "react";
+import React, { useMemo, useState } from "react";
 import type { Game } from "@/types/game";
-import { games } from "@/constants/game";
+import { games as initialGames } from "../constants/game";
+import { Plus } from "lucide-react";
+import AddGameModal from "./addGameModal";
+import { useCurrentAccount } from "@mysten/dapp-kit";
 
 interface OverviewProps {
   onSelectGame: (game: Game) => void;
 }
 
 export default function Overview({ onSelectGame }: OverviewProps) {
-  const selection: Game[] = games.slice(0);
+  const [showAdd, setShowAdd] = useState(false);
+  const [localGames, setLocalGames] = useState<Game[]>(initialGames);
+
+  const account = useCurrentAccount()
+  const selection = useMemo(() => localGames.slice(0), [localGames]);
 
   return (
     <main className="min-h-screen w-full bg-white text-black">
-      {/* Titre centré */}
-      <header className="w-full pt-16 pb-8">
-        <h2 className="text-center text-5xl md:text-6xl font-extrabold tracking-tight">
+      {/* Header avec bouton + */}
+      <header className="w-full pt-16 pb-8 px-4 md:px-8 lg:px-12 flex items-center justify-between">
+        <h2 className="text-center flex-1 text-5xl md:text-6xl font-extrabold tracking-tight">
           Featured Games
         </h2>
+        {account && (
+          <button
+            type="button"
+            onClick={() => setShowAdd(true)}
+            aria-label="Ajouter un nouveau jeu"
+            className="ml-4 flex items-center justify-center rounded-full p-3 bg-indigo-600 text-white hover:bg-indigo-700 shadow-md hover:shadow-lg focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2"
+          >
+            <Plus className="h-6 w-6" />
+          </button>
+        )}
       </header>
 
-      {/* Grille responsive */}
+      {/* Grille des jeux */}
       <section className="w-full px-4 md:px-8 lg:px-12 pb-16">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           {selection.map((game) => (
@@ -28,41 +46,23 @@ export default function Overview({ onSelectGame }: OverviewProps) {
               type="button"
               onClick={() => onSelectGame(game)}
               aria-label={`Voir ${game.name}`}
-              className="
-                group relative w-full overflow-hidden text-left
-                rounded-2xl bg-white
-                shadow-md hover:shadow-xl
-                transition-transform duration-300 hover:-translate-y-1
-                focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2
-              "
+              className="group relative w-full overflow-hidden text-left rounded-2xl bg-white shadow-md hover:shadow-xl transition-transform duration-300 hover:-translate-y-1 focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2"
             >
-              {/* Image + overlay */}
               <div className="relative w-full aspect-[4/5]">
                 <img
-                  src={game.coverImage}
+                  src={game.coverImage || "https://picsum.photos/600/800"}
                   alt={game.name}
                   className="absolute inset-0 h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent" />
               </div>
 
-              {/* Contenu en bas de la carte */}
               <div className="absolute inset-x-0 bottom-0 p-4 text-white">
                 <h3 className="text-xl font-bold">{game.name}</h3>
                 <p className="mt-1 text-sm text-gray-200 line-clamp-2">
                   {game.description}
                 </p>
-
-                {/* Faux bouton visuel (pas interactif, toute la carte l'est) */}
-                <span
-                  className="
-                    mt-3 inline-flex w-full justify-center
-                    rounded-full px-4 py-2
-                    bg-black/80 group-hover:bg-black
-                    text-sm font-semibold
-                    transition-colors
-                  "
-                >
+                <span className="mt-3 inline-flex w-full justify-center rounded-full px-4 py-2 bg-black/80 group-hover:bg-black text-sm font-semibold transition-colors">
                   View game
                 </span>
               </div>
@@ -70,6 +70,13 @@ export default function Overview({ onSelectGame }: OverviewProps) {
           ))}
         </div>
       </section>
+
+      {/* Modal d'ajout */}
+      <AddGameModal
+        open={showAdd}
+        onClose={() => setShowAdd(false)}
+        onCreated={(g) => setLocalGames((prev) => [...prev, g as Game])}
+      />
     </main>
   );
 }

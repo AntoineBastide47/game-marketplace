@@ -1,8 +1,9 @@
 "use client";
 import React, { useMemo, useState } from "react";
-import type { Game, GameItem, Rarity } from "@/types/game";
+import type { Game, Rarity } from "@/types/game";
 import { gameItemsByGameId } from "@/constants/game"; // ← vérifie bien le nom du fichier
 import { ArrowLeft, Search, ChevronDown } from "lucide-react";
+import type { GameItem } from "@/types/gameItem";
 
 interface GamePageProps {
   game: Game;
@@ -20,9 +21,9 @@ const rarityBadgeClass: Record<Rarity, string> = {
 };
 
 const rarityBgGradient: Record<Rarity, string> = {
-  common: "from-zinc-400 via-zinc-500 to-zinc-700",
-  rare: "from-indigo-400 via-violet-500 to-fuchsia-600",
-  legendary: "from-amber-400 via-orange-500 to-rose-500",
+  common: "from-zinc-800 to-white",        // gris foncé → blanc
+  rare: "from-violet-800 to-white",        // violet foncé → blanc
+  legendary: "from-amber-400 to-white",    // or foncé → blanc
 };
 
 const Badge: React.FC<{ rarity: Rarity }> = ({ rarity }) => (
@@ -98,28 +99,32 @@ const SkinCard: React.FC<{ item: GameItem; onClick: (item: GameItem) => void }> 
         type="button"
         aria-label={`Voir ${item.name}`}
         onClick={() => onClick(item)}
-        className={`group text-left cursor-pointer focus:outline-none rounded-2xl ${glowBorder} transition-transform duration-200 will-change-transform hover:-translate-y-1 active:translate-y-0`}
+        className={`group text-left cursor-pointer focus:outline-none rounded-2xl ${glowBorder} transition-transform duration-200 hover:-translate-y-1`}
       >
         <div
-          className={`bg-gradient-to-br ${rarityBgGradient[item.rarity]} p-[1px] rounded-2xl shadow-lg transition-shadow hover:shadow-xl`}
+          className={`bg-gradient-to-b ${rarityBgGradient[item.rarity]} p-[2px] rounded-2xl shadow-lg`}
         >
-          <div className="rounded-[14px] bg-white/80 backdrop-blur-md border border-white/60">
-            <div className="aspect-[4/3] w-full overflow-hidden rounded-t-[14px] grid place-items-center">
-              <span className="text-5xl md:text-6xl" aria-hidden>
+          <div className="rounded-[16px] bg-white/90 backdrop-blur-md border border-white/60">
+            
+            {/* IMAGE agrandie */}
+            <div className="aspect-[1/1] w-full overflow-hidden rounded-t-[16px] grid place-items-center">
+              <span className="text-7xl md:text-8xl" aria-hidden>
                 {item.image}
               </span>
             </div>
-            <div className="p-3">
+
+            {/* TEXTE plus gros */}
+            <div className="p-4">
               <div className="flex items-start justify-between gap-2">
                 <h3
-                  className="font-bold text-sm md:text-[15px] text-zinc-900 truncate"
+                  className="font-bold text-base md:text-lg text-zinc-900 truncate"
                   title={item.name}
                 >
                   {item.name}
                 </h3>
                 <Badge rarity={item.rarity} />
               </div>
-              <p className="text-zinc-700 text-xs mt-1">
+              <p className="text-zinc-700 text-sm mt-2">
                 {formatPrice(item.price)}
               </p>
             </div>
@@ -278,7 +283,7 @@ const GamePage: React.FC<GamePageProps> = ({ game, onBack, onGoToSkin }) => {
               Aucun résultat. Essayez un autre terme ou filtre.
             </div>
           ) : (
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-7 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
               {filtered.map((item) => (
                 <SkinCard key={item.id} item={item} onClick={onGoToSkin} />
               ))}
