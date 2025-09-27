@@ -56,3 +56,12 @@
     color: hsl(var(--foreground));
   }
 }
+
+/* Empêche le débordement horizontal global */
+html, body {
+  max-width: 100%;
+  overflow-x: hidden;
+}
+
+/* Ne pas mettre outline: none partout, merci. 
+   On laisse Tailwind gérer les focus rings. */
