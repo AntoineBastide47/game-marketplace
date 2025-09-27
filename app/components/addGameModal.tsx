@@ -1,6 +1,9 @@
 import React, { useState, useTransition } from "react";
 import { addGameAction } from "../actions/addGame";
 import { X } from "lucide-react";
+import { useNetworkVariable } from "@/networkConfig";
+import { Transaction } from "@mysten/sui/transactions";
+import { useSignAndExecuteTransaction, useSuiClient } from "@mysten/dapp-kit";
 
 interface AddGameModalProps {
   open: boolean;
@@ -14,7 +17,10 @@ export default function AddGameModal({ open, onClose, onCreated }: AddGameModalP
   const [coverImage, setCoverImage] = useState("");
   const [gameLink, setGameLink] = useState("");
   const [error, setError] = useState<string | null>(null);
-  const [isPending, startTransition] = useTransition();
+  const packageId = useNetworkVariable("packageId");
+  const suiClient = useSuiClient();
+  const { mutate: signAndExecute, isSuccess, isPending } = useSignAndExecuteTransaction();
+  const tx = new Transaction();
 
   if (!open) return null;
 
@@ -28,6 +34,7 @@ export default function AddGameModal({ open, onClose, onCreated }: AddGameModalP
     return null;
   }
 
+
   const onSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     const v = validate();
@@ -37,23 +44,36 @@ export default function AddGameModal({ open, onClose, onCreated }: AddGameModalP
     }
 
     setError(null);
-    startTransition(async () => {
-      try {
-        const res = await addGameAction({ name, description, coverImage, gameLink });
-        if (res?.ok) {
-          onCreated?.({ id: res.id, name, description, coverImage: coverImage || undefined, gameLink: gameLink || undefined });
-          onClose();
-          setName("");
-          setDescription("");
-          setCoverImage("");
-          setGameLink("");
-        } else {
-          setError("Échec de la création côté serveur");
-        }
-      } catch (err: any) {
-        setError(err?.message || "Erreur inconnue");
-      }
+
+    tx.moveCall({
+      target: `${packageId}::game::create_game`,
+      arguments: [tx.pure.string(name), tx.pure.string(description), tx.pure.string(coverImage), tx.pure.string(gameLink)],
     });
+
+    signAndExecute(
+      {
+        transaction: tx,
+      },
+      {
+        onSuccess: async ({ digest }) => {
+          const { effects } = await suiClient.waitForTransaction({
+            digest: digest,
+            options: {
+              showEffects: true,
+            },
+          });
+
+          try {
+            console.log(effects?.created?.[0]?.reference?.objectId);
+          } catch (e) {
+            if (e instanceof Error)
+              setError(e.message);
+            else
+              setError(String(e));
+          }
+        },
+      },
+    );
   };
 
   return (
