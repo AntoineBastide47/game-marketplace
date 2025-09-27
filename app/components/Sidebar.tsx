@@ -11,18 +11,18 @@ const items = [
 export default function Sidebar() {
   const [open, setOpen] = useState(false);
 
-  // Largeurs animées
-  const labelW = open ? "12rem" : "0rem";
   const asideW = open ? "16rem" : "4rem"; // w-64 vs w-16
+  const labelW = open ? "12rem" : "0rem";
+  const labelPad = open ? "0.75rem" : "0"; // équiv. px-3 quand ouvert
 
   return (
     <>
       <aside
-        className="fixed top-[64px] md:top-[68px] left-0 bottom-0 z-40 bg-zinc-900 text-white border-r border-zinc-800 transition-[width] duration-300 ease-out contain-layout"
+        className="fixed top-[64px] md:top-[68px] left-0 bottom-0 z-40 bg-zinc-900 text-white border-r border-zinc-800 transition-[width] duration-300 ease-out contain-layout overflow-hidden"
         style={{ width: asideW }}
         aria-label="Sidebar"
       >
-        {/* Header avec padding-top et "Menu" aligné à gauche quand ouvert */}
+        {/* Header */}
         <div
           className={`h-16 pt-2 flex items-center w-full border-b border-zinc-800 ${
             open ? "justify-between px-3" : "justify-start pl-3"
@@ -58,18 +58,23 @@ export default function Sidebar() {
                     <Icon className="h-5 w-5 transition-colors group-hover:text-white" />
                   </div>
 
-                  {/* Colonne label animée */}
-                  <span
-                    className="px-3 text-sm font-medium whitespace-nowrap overflow-hidden text-ellipsis
-                               transition-[opacity,transform,width] duration-300 ease-out transform-gpu"
-                    style={{
-                      width: labelW,
-                      opacity: open ? 1 : 0,
-                      transform: `translateX(${open ? "0px" : "-6px"})`,
-                    }}
+                  {/* Colonne label: conteneur à largeur animée + overflow hidden */}
+                  <div
+                    className="overflow-hidden transition-[width] duration-300 ease-out"
+                    style={{ width: labelW }}
                   >
-                    {label}
-                  </span>
+                    <span
+                      className="text-sm font-medium whitespace-nowrap overflow-hidden text-ellipsis
+                                 transition-[opacity,transform] duration-300 ease-out transform-gpu block"
+                      style={{
+                        paddingInlineStart: labelPad,
+                        opacity: open ? 1 : 0,
+                        transform: `translateX(${open ? "0px" : "-6px"})`,
+                      }}
+                    >
+                      {label}
+                    </span>
+                  </div>
                 </Link>
               </li>
             ))}
