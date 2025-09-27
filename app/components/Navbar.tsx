@@ -12,7 +12,7 @@ import { Search, Wallet } from "lucide-react";
 export default function Navbar() {
   return (
     <>
-      <header className="fixed top-0 inset-x-0 z-50 bg-black/60 backdrop-blur-md border-b border-white/10">
+      <header className="fixed top-0 inset-x-0 z-50 bg-black/90 backdrop-blur-md border-b border-white/10">
         <div className="w-full px-3 md:px-6 py-3">
           <div className="min-h-14 flex items-center gap-3 md:gap-4">
             {/* Gauche: Logo + Nom */}
