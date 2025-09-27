@@ -1,6 +1,6 @@
 "use client";
 import { useState } from "react";
-import { Menu, X, Home, Gamepad2 } from "lucide-react";
+import { MenuIcon, X, Home, Gamepad2 } from "lucide-react";
 import { useCurrentAccount } from "@mysten/dapp-kit";
 
 const items = [
@@ -76,7 +76,7 @@ export default function Sidebar() {
                       {label}
                     </span>
                   </div>
-                </Link>
+                </a>
               </li>
             ))}
           </ul>
