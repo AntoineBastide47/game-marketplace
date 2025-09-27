@@ -8,7 +8,7 @@ import { Game } from "@/other/types/game";
 interface AddGameModalProps {
   open: boolean;
   onClose: () => void;
-  onCreated?: (game: Game) => void;
+  onCreated: () => void;
 }
 
 export default function AddGameModal({ open, onClose, onCreated }: AddGameModalProps) {
@@ -33,7 +33,6 @@ export default function AddGameModal({ open, onClose, onCreated }: AddGameModalP
     if (gameLink && !urlish(gameLink)) return "Game link doit être une URL valide (https://...)";
     return null;
   }
-
 
   const onSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -64,7 +63,7 @@ export default function AddGameModal({ open, onClose, onCreated }: AddGameModalP
           });
 
           try {
-            console.log(effects?.created?.[0]?.reference?.objectId);
+            onCreated()
           } catch (e) {
             if (e instanceof Error)
               setError(e.message);
