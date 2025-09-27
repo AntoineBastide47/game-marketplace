@@ -1,16 +1,12 @@
 // app/types/game.ts
 export type Rarity = "common" | "rare" | "legendary";
 
-export interface Game {
-  id: number;
+export type Game = {
+  id: string;
+  owner: string;
   name: string;
   description: string;
-  coverImage: string;   // URL d’image
-  bannerImage?: string;
-  genres?: string[];
-  releaseYear?: number;
-  developer?: string;
-  rating?: number;      // 0..5
-  gameLink?: string;  // URL vers le jeu
-}
+  imageUrl: string | null;
+  pageUrl: string | null;
+};
 

@@ -4,11 +4,12 @@ import { X } from "lucide-react";
 import { useNetworkVariable } from "@/networkConfig";
 import { Transaction } from "@mysten/sui/transactions";
 import { useSignAndExecuteTransaction, useSuiClient } from "@mysten/dapp-kit";
+import { Game } from "@/types/game";
 
 interface AddGameModalProps {
   open: boolean;
   onClose: () => void;
-  onCreated?: (game: { id: number; name: string; description: string; coverImage?: string; gameLink?: string }) => void;
+  onCreated?: (game: Game) => void;
 }
 
 export default function AddGameModal({ open, onClose, onCreated }: AddGameModalProps) {

@@ -8,18 +8,21 @@ const { networkConfig, useNetworkVariable, useNetworkVariables } =
       url: getFullnodeUrl("devnet"),
       variables: {
         packageId: DEVNET_COUNTER_PACKAGE_ID,
+        nodeUrl: "https://fullnode.devnet.sui.io"
       },
     },
     testnet: {
       url: getFullnodeUrl("testnet"),
       variables: {
         packageId: TESTNET_COUNTER_PACKAGE_ID,
+        nodeUrl: "https://fullnode.testnet.sui.io"
       },
     },
     mainnet: {
       url: getFullnodeUrl("mainnet"),
       variables: {
         packageId: MAINNET_COUNTER_PACKAGE_ID,
+        nodeUrl: "https://fullnode.mainnet.sui.io"
       },
     },
   });

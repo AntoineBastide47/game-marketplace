@@ -1,22 +1,61 @@
 // app/components/Overview.tsx
 "use client";
 import React, { useMemo, useState } from "react";
-import type { Game } from "@/types/game";
 import { games as initialGames } from "../constants/game";
 import { Plus } from "lucide-react";
 import AddGameModal from "./addGameModal";
 import { useCurrentAccount } from "@mysten/dapp-kit";
+import { SuiClient } from "@mysten/sui/client";
+import { useNetworkVariable } from "@/networkConfig";
+import { Game } from "@/types/game";
 
 interface OverviewProps {
   onSelectGame: (game: Game) => void;
 }
 
-export default function Overview({ onSelectGame }: OverviewProps) {
+type GameCreatedEvent = {
+  game_id: string;
+  creator: string;
+  name: string;
+};
+
+export default async function Overview({ onSelectGame }: OverviewProps) {
   const [showAdd, setShowAdd] = useState(false);
-  const [localGames, setLocalGames] = useState<Game[]>(initialGames);
+  const [localGames, setLocalGames] = useState<Game[]>([]);
 
   const account = useCurrentAccount()
   const selection = useMemo(() => localGames.slice(0), [localGames]);
+
+  const nodeUrl = useNetworkVariable("nodeUrl")
+  const packageId = useNetworkVariable("packageId")
+  const client = new SuiClient({ url: nodeUrl })
+
+  const { data } = await client.queryEvents({
+    query: { MoveEventType: `${packageId}::game::GameCreated` },
+  });
+
+  const gameIds = data.map(e => {
+    const ev = e.parsedJson as GameCreatedEvent;
+    return ev.game_id;
+  });
+
+  const games: Game[] = await Promise.all(
+  gameIds.map(async (id) => {
+    const res = await client.getObject({ id, options: { showContent: true } });
+
+    const fields = (res.data?.content as any).fields;
+
+    return {
+      id,
+      owner: fields.owner as string,
+      name: fields.name as string,
+      description: fields.description as string,
+      imageUrl: fields.imageUrl as string,
+      pageUrl: fields.pageUrl as string,
+    };
+  })
+);
+
 
   return (
     <main className="min-h-screen w-full bg-white text-black">
@@ -41,7 +80,7 @@ export default function Overview({ onSelectGame }: OverviewProps) {
       {/* Grille des jeux */}
       <section className="w-full px-4 md:px-8 lg:px-12 pb-16">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {selection.map((game) => (
+          {games.map((game) => (
             <button
               key={game.id}
               type="button"
@@ -51,7 +90,7 @@ export default function Overview({ onSelectGame }: OverviewProps) {
             >
               <div className="relative w-full aspect-[4/5]">
                 <img
-                  src={game.coverImage || "https://picsum.photos/600/800"}
+                  src={game.imageUrl || "https://picsum.photos/600/800"}
                   alt={game.name}
                   className="absolute inset-0 h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
                 />
