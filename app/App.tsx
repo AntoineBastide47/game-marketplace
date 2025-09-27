@@ -7,6 +7,7 @@ import { CreateCounter } from "./CreateCounter";
 import { CounterList } from "./components/CounterList";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import SkinPage from "./components/SkinPage";
 
 function App() {
   const currentAccount = useCurrentAccount();
@@ -111,4 +112,4 @@ function App() {
   );
 }
 
-export default App;
+export default SkinPage;
