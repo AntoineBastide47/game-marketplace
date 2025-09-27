@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Star, ShoppingCart, Heart } from 'lucide-react';
+import { Star, ShoppingCart, Heart, Wallet } from 'lucide-react';
 
 // Définition du type Skin
 export type Skin = {
@@ -51,6 +51,8 @@ const SkinPage = ({
         onPurchase(skin.id);
     };
 
+    const [isWalletConnected, setIsWalletConnected] = useState(false);
+
     const toggleWishlist = () => {
         const newWishlistState = !isWishlisted;
         setIsWishlisted(newWishlistState);
@@ -65,7 +67,8 @@ const SkinPage = ({
     };
 
     return (
-        <div className="min-h-screen bg-gradient-to-b from-blue-50 to-purple-50 p-8 pt-20"> {/* Ajout de pt-20 pour laisser de l'espace pour le navbar */}
+        
+        <div className="min-h-screen p-8 pt-20"> {/* Ajout de pt-20 pour laisser de l'espace pour le navbar */}
             <div className="max-w-6xl mx-auto">
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
 
@@ -140,25 +143,50 @@ const SkinPage = ({
                         </div>
 
                         {/* Bouton Achat avec animation améliorée - plus grand et plus haut */}
-                        <button
-                            onClick={handlePurchase}
-                            className="group w-full bg-gradient-to-r from-orange-400 to-orange-500 hover:from-orange-500 hover:to-orange-600 text-white font-bold py-6 px-8 rounded-xl transition-all duration-300 shadow-md hover:shadow-xl relative overflow-hidden"
-                        >
-                            <div className="absolute inset-0 w-full h-full bg-gradient-to-r from-orange-300 to-orange-400 transform scale-x-0 origin-left group-hover:scale-x-100 transition-transform duration-500 ease-out"></div>
+                        {isWalletConnected ? (
+                            // Bouton "Acheter maintenant" (orange) - exactement le même que vous aviez déjà
+                            <button
+                                onClick={handlePurchase}
+                                className="group w-full bg-gradient-to-r from-orange-400 to-orange-500 hover:from-orange-500 hover:to-orange-600 text-white font-bold py-6 px-8 rounded-xl transition-all duration-300 shadow-md hover:shadow-xl relative overflow-hidden"
+                            >
+                                <div className="absolute inset-0 w-full h-full bg-gradient-to-r from-orange-300 to-orange-400 transform scale-x-0 origin-left group-hover:scale-x-100 transition-transform duration-500 ease-out"></div>
 
-                            <div className="absolute top-0 left-0 w-full h-full flex items-center justify-center gap-4 transform group-hover:translate-y-0 group-hover:scale-105 transition-all duration-300 z-10">
-                                <ShoppingCart
-                                    size={28}
-                                    className="transform group-hover:rotate-12 transition-transform duration-300"
-                                />
-                                <span className="text-xl font-semibold group-hover:tracking-wider transition-all duration-300">
-                                    Acheter maintenant
-                                </span>
-                            </div>
+                                <div className="absolute top-0 left-0 w-full h-full flex items-center justify-center gap-4 transform group-hover:translate-y-0 group-hover:scale-105 transition-all duration-300 z-10">
+                                    <ShoppingCart
+                                        size={28}
+                                        className="transform group-hover:rotate-12 transition-transform duration-300"
+                                    />
+                                    <span className="text-xl font-semibold group-hover:tracking-wider transition-all duration-300">
+                                        Acheter maintenant
+                                    </span>
+                                </div>
 
-                            {/* Effet de brillance au survol */}
-                            <div className="absolute inset-0 w-6 h-full bg-white/20 transform -skew-x-12 translate-x-full group-hover:translate-x-[-1000%] transition-transform duration-1000 ease-in-out"></div>
-                        </button>
+                                {/* Effet de brillance au survol */}
+                                <div className="absolute inset-0 w-6 h-full bg-white/20 transform -skew-x-12 translate-x-full group-hover:translate-x-[-1000%] transition-transform duration-1000 ease-in-out"></div>
+                            </button>
+                        ) : (
+                            // Bouton "Connect your wallet" (bleu) - même style mais couleurs différentes
+                            <button
+                                onClick={handlePurchase}
+                                className="group w-full bg-gradient-to-r from-blue-400 to-blue-500 hover:from-blue-500 hover:to-blue-600 text-white font-bold py-6 px-8 rounded-xl transition-all duration-300 shadow-md hover:shadow-xl relative overflow-hidden"
+                            >
+                                <div className="absolute inset-0 w-full h-full bg-gradient-to-r from-blue-300 to-blue-400 transform scale-x-0 origin-left group-hover:scale-x-100 transition-transform duration-500 ease-out"></div>
+
+                                <div className="absolute top-0 left-0 w-full h-full flex items-center justify-center gap-4 transform group-hover:translate-y-0 group-hover:scale-105 transition-all duration-300 z-10">
+                                    <Wallet
+                                        size={28}
+                                        className="transform group-hover:rotate-12 transition-transform duration-300"
+                                    />
+                                    <span className="text-xl font-semibold group-hover:tracking-wider transition-all duration-300">
+                                        Connect your wallet
+                                    </span>
+                                </div>
+
+                                {/* Effet de brillance au survol */}
+                                <div className="absolute inset-0 w-6 h-full bg-white/20 transform -skew-x-12 translate-x-full group-hover:translate-x-[-1000%] transition-transform duration-1000 ease-in-out"></div>
+                            </button>
+                        )}
+
 
                         {/* Informations supplémentaires avec animation au hover */}
                         <div className="bg-gradient-to-r from-indigo-50 via-purple-50 to-pink-50 rounded-xl shadow-md border border-gray-100 p-6 transition-all hover:shadow-lg">
