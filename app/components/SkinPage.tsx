@@ -65,12 +65,12 @@ const SkinPage = ({
     };
 
     return (
-        <div className="min-h-screen bg-gradient-to-b from-blue-50 to-purple-50 p-8">
+        <div className="min-h-screen bg-gradient-to-b from-blue-50 to-purple-50 p-8 pt-20"> {/* Ajout de pt-20 pour laisser de l'espace pour le navbar */}
             <div className="max-w-6xl mx-auto">
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
 
-                    {/* Image du skin - Côté gauche (fixe) */}
-                    <div className="lg:sticky lg:top-8">
+                    {/* Image du skin - Côté gauche (fixe mais avec espace pour la navbar) */}
+                    <div className="lg:sticky lg:top-24"> {/* Modifié de top-8 à top-24 pour éviter le conflit avec la navbar */}
                         <div className="bg-white rounded-xl shadow-lg border border-gray-100 overflow-hidden">
                             <div className="aspect-square bg-gradient-to-br from-purple-600 via-purple-500 to-blue-600 relative flex items-center justify-center">
                                 {/* Affichage de l'image si disponible, sinon placeholder */}
@@ -139,13 +139,25 @@ const SkinPage = ({
                             <div className="absolute -right-4 -bottom-4 w-24 h-24 bg-gradient-to-tl from-orange-100 to-transparent rounded-full opacity-50"></div>
                         </div>
 
-                        {/* Bouton Achat */}
+                        {/* Bouton Achat avec animation améliorée - plus grand et plus haut */}
                         <button
                             onClick={handlePurchase}
-                            className="w-full bg-gradient-to-r from-orange-400 to-orange-500 hover:from-orange-500 hover:to-orange-600 text-white font-semibold py-4 px-6 rounded-xl transition-all duration-300 shadow-md hover:shadow-lg transform hover:-translate-y-1 flex items-center justify-center gap-3 text-lg"
+                            className="group w-full bg-gradient-to-r from-orange-400 to-orange-500 hover:from-orange-500 hover:to-orange-600 text-white font-bold py-6 px-8 rounded-xl transition-all duration-300 shadow-md hover:shadow-xl relative overflow-hidden"
                         >
-                            <ShoppingCart size={22} />
-                            Acheter maintenant
+                            <div className="absolute inset-0 w-full h-full bg-gradient-to-r from-orange-300 to-orange-400 transform scale-x-0 origin-left group-hover:scale-x-100 transition-transform duration-500 ease-out"></div>
+
+                            <div className="absolute top-0 left-0 w-full h-full flex items-center justify-center gap-4 transform group-hover:translate-y-0 group-hover:scale-105 transition-all duration-300 z-10">
+                                <ShoppingCart
+                                    size={28}
+                                    className="transform group-hover:rotate-12 transition-transform duration-300"
+                                />
+                                <span className="text-xl font-semibold group-hover:tracking-wider transition-all duration-300">
+                                    Acheter maintenant
+                                </span>
+                            </div>
+
+                            {/* Effet de brillance au survol */}
+                            <div className="absolute inset-0 w-6 h-full bg-white/20 transform -skew-x-12 translate-x-full group-hover:translate-x-[-1000%] transition-transform duration-1000 ease-in-out"></div>
                         </button>
 
                         {/* Informations supplémentaires avec animation au hover */}
