@@ -1,8 +1,9 @@
 "use client";
 import React, { useMemo, useState } from "react";
-import type { Game, GameItem, Rarity } from "@/types/game";
+import type { Game, Rarity } from "@/types/game";
 import { gameItemsByGameId } from "@/constants/game"; // ← vérifie bien le nom du fichier
 import { ArrowLeft, Search, ChevronDown } from "lucide-react";
+import type { GameItem } from "@/types/gameItem";
 
 interface GamePageProps {
   game: Game;
