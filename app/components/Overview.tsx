@@ -4,17 +4,13 @@ import React, { useMemo, useState } from "react";
 import type { Game } from "@/types/game";
 import { games as initialGames } from "../constants/game";
 import AddGameModal from "./addGameModal";
-import { useCurrentAccount } from "@mysten/dapp-kit";
+import { useNavigate } from "react-router-dom";
 
-interface OverviewProps {
-  onSelectGame: (game: Game) => void;
-}
-
-export default function Overview({ onSelectGame }: OverviewProps) {
+export default function Overview() {
   const [showAdd, setShowAdd] = useState(false);
   const [localGames, setLocalGames] = useState<Game[]>(initialGames);
 
-  const account = useCurrentAccount();
+  const navigate = useNavigate();
   const selection = useMemo(() => localGames.slice(0), [localGames]);
 
   return (
@@ -33,7 +29,7 @@ export default function Overview({ onSelectGame }: OverviewProps) {
             <button
               key={game.id}
               type="button"
-              onClick={() => onSelectGame(game)}
+              onClick={() => navigate(`/game/${game.id}`)}
               aria-label={`Voir ${game.name}`}
               className="group relative w-full overflow-hidden text-left rounded-2xl bg-white shadow-md hover:shadow-xl transition-transform duration-300 hover:-translate-y-1 focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2"
             >
