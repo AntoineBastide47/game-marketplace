@@ -71,13 +71,13 @@ export default function Navbar() {
                 alt="Logo"
                 className="h-8 w-8 rounded-full bg-white/10"
               />
-              <Link
+              <a
                 href="/"
                 className="font-semibold tracking-wide text-white text-base md:text-lg"
                 aria-label="Accueil GAME-MARKETPLACE"
               >
                 GAME-MARKETPLACE
-              </Link>
+              </a>
             </div>
 
             {/* Centre: Recherche pleine largeur */}

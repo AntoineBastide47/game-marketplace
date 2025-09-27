@@ -21,9 +21,9 @@ const rarityBadgeClass: Record<Rarity, string> = {
 };
 
 const rarityBgGradient: Record<Rarity, string> = {
-  common: "from-zinc-800 to-white",        // gris foncé → blanc
-  rare: "from-violet-800 to-white",        // violet foncé → blanc
-  legendary: "from-amber-400 to-white",    // or foncé → blanc
+  common: "from-zinc-800 via-zinc-500 to-white",
+  rare: "from-violet-800 via-violet-400 to-white",
+  legendary: "from-amber-600 via-amber-300 to-white",
 };
 
 const Badge: React.FC<{ rarity: Rarity }> = ({ rarity }) => (
@@ -105,12 +105,17 @@ const SkinCard: React.FC<{ item: GameItem; onClick: (item: GameItem) => void }> 
           className={`bg-gradient-to-b ${rarityBgGradient[item.rarity]} p-[2px] rounded-2xl shadow-lg`}
         >
           <div className="rounded-[16px] bg-white/90 backdrop-blur-md border border-white/60">
-            
+
             {/* IMAGE agrandie */}
-            <div className="aspect-[1/1] w-full overflow-hidden rounded-t-[16px] grid place-items-center">
-              <span className="text-7xl md:text-8xl" aria-hidden>
-                {item.image}
-              </span>
+            <div className="aspect-[3/4] w-full overflow-hidden rounded-t-[16px] grid place-items-center">
+              {/* IMAGE agrandie */}
+              <div className="aspect-[3/4] w-full overflow-hidden rounded-t-[16px]">
+                <img
+                  src={item.image || "https://picsum.photos/600/800"} // fallback si pas d’image
+                  alt={item.name}
+                  className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+                />
+              </div>
             </div>
 
             {/* TEXTE plus gros */}
@@ -176,7 +181,7 @@ const GamePage: React.FC<GamePageProps> = ({ game, onBack, onGoToSkin }) => {
   const showUnifiedGrid = rarityFilter !== "all" || query.trim() || sort !== "popular";
 
   return (
-    <div className="min-h-screen bg-[radial-gradient(1200px_600px_at_10%_-10%,rgba(99,102,241,0.20),transparent),radial-gradient(1000px_500px_at_90%_-20%,rgba(236,72,153,0.18),transparent)] from-zinc-50 via-white to-zinc-50 text-zinc-800">
+    <div className="min-h-screen bg-white text-zinc-800">
       <div className="container mx-auto px-4 md:px-6 py-6 md:py-8">
         {/* Barre du haut */}
         <div className="flex flex-col items-center gap-3 mb-6 mt-6 md:mt-8">
@@ -191,30 +196,19 @@ const GamePage: React.FC<GamePageProps> = ({ game, onBack, onGoToSkin }) => {
           <div className="w-full h-[220px] md:h-[260px] overflow-hidden rounded-3xl border border-white/60 bg-white/70 backdrop-blur-md shadow-xl ${glowBorder}">
             <img src={game.coverImage} alt={game.name} className="w-full h-full object-cover" />
           </div>
-          <div>
-            <p className="text-zinc-700 text-base md:text-lg leading-relaxed">
-              {game.description}
-            </p>
-            <div className="mt-4 flex flex-wrap items-center justify-center gap-x-4 gap-y-2 text-sm text-zinc-600">
-              {game.genres?.length ? (
-                <span>Genres: {game.genres.join(", ")}</span>
-              ) : null}
-              {game.releaseYear ? (
-                <span className="relative pl-4 before:content-['•'] before:absolute before:left-1 before:top-1/2 before:-translate-y-1/2 before:text-zinc-400">
-                  Sortie: {game.releaseYear}
-                </span>
-              ) : null}
-              {game.developer ? (
-                <span className="relative pl-4 before:content-['•'] before:absolute before:left-1 before:top-1/2 before:-translate-y-1/2 before:text-zinc-400">
-                  Dev: {game.developer}
-                </span>
-              ) : null}
-              {typeof game.rating === "number" ? (
-                <span className="relative pl-4 before:content-['•'] before:absolute before:left-1 before:top-1/2 before:-translate-y-1/2 before:text-zinc-400">
-                  Note: {game.rating}/5
-                </span>
-              ) : null}
-            </div>
+          <div className="mt-4 flex flex-wrap items-center justify-center gap-2 text-sm text-zinc-600">
+            {game.genres?.length ? (
+              <span>Genres: {game.genres.join(", ")}</span>
+            ) : null}
+            {game.releaseYear ? (
+              <span>• Sortie: {game.releaseYear}</span>
+            ) : null}
+            {game.developer ? (
+              <span>• Dev: {game.developer}</span>
+            ) : null}
+            {typeof game.rating === "number" ? (
+              <span>• Note: {game.rating}/5</span>
+            ) : null}
           </div>
         </div>
 
@@ -245,11 +239,10 @@ const GamePage: React.FC<GamePageProps> = ({ game, onBack, onGoToSkin }) => {
                       type="button"
                       onClick={() => setRarityFilter(r)}
                       aria-pressed={active}
-                      className={`h-9 px-4 rounded-xl text-sm font-semibold transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 ${
-                        active
+                      className={`h-9 px-4 rounded-xl text-sm font-semibold transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 ${active
                           ? "bg-zinc-900 text-white shadow"
                           : "text-zinc-800 hover:bg-white"
-                      }`}
+                        }`}
                     >
                       {labelByFilter[r]}
                     </button>
@@ -283,7 +276,7 @@ const GamePage: React.FC<GamePageProps> = ({ game, onBack, onGoToSkin }) => {
               Aucun résultat. Essayez un autre terme ou filtre.
             </div>
           ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-4 gap-6">
               {filtered.map((item) => (
                 <SkinCard key={item.id} item={item} onClick={onGoToSkin} />
               ))}
@@ -293,7 +286,7 @@ const GamePage: React.FC<GamePageProps> = ({ game, onBack, onGoToSkin }) => {
           <div className="space-y-10">
             <section>
               <SectionHeader title="Communs" gradientClass="from-zinc-400 to-zinc-700" />
-              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-7 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-4 gap-6">
                 {categorized.common.map((s) => (
                   <SkinCard key={s.id} item={s} onClick={onGoToSkin} />
                 ))}
@@ -302,7 +295,7 @@ const GamePage: React.FC<GamePageProps> = ({ game, onBack, onGoToSkin }) => {
 
             <section>
               <SectionHeader title="Rares" gradientClass="from-indigo-400 to-fuchsia-600" />
-              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-7 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-4 gap-6">
                 {categorized.rare.map((s) => (
                   <SkinCard key={s.id} item={s} onClick={onGoToSkin} />
                 ))}
@@ -311,7 +304,7 @@ const GamePage: React.FC<GamePageProps> = ({ game, onBack, onGoToSkin }) => {
 
             <section>
               <SectionHeader title="Légendaires" gradientClass="from-amber-400 to-rose-500" />
-              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-7 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-4 gap-6">
                 {categorized.legendary.map((s) => (
                   <SkinCard key={s.id} item={s} onClick={onGoToSkin} />
                 ))}
@@ -319,11 +312,6 @@ const GamePage: React.FC<GamePageProps> = ({ game, onBack, onGoToSkin }) => {
             </section>
           </div>
         )}
-
-        {/* Pied léger */}
-        <div className="mt-10 text-center text-xs text-zinc-500">
-          <span className="inline-block px-2 py-1 rounded bg-white/60 border border-white/70 backdrop-blur">{allItems.length} objets</span>
-        </div>
       </div>
     </div>
   );
