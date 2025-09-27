@@ -10,8 +10,8 @@ const items = [
 export default function Sidebar() {
   const [open, setOpen] = useState(false);
 
-  // Largeur de la colonne label animée en CSS. 0rem fermé, 12rem ouvert.
-  const labelCol = open ? "12rem" : "0rem";
+  // Largeurs animées
+  const labelW = open ? "12rem" : "0rem";
   const asideW = open ? "16rem" : "4rem"; // w-64 vs w-16
 
   return (
@@ -38,42 +38,35 @@ export default function Sidebar() {
           {open && <span className="font-bold text-lg">Menu</span>}
         </div>
 
-        {/* Navigation: grille 2 colonnes. Colonne 1 = icône (4rem). Colonne 2 = label (animée). */}
-        <nav
-          className="flex-1 py-4 w-full transition-[grid-template-columns] duration-300 ease-out"
-          style={{ display: "grid", gridTemplateColumns: `4rem ${labelCol}` }}
-        >
-          {/* Colonne icônes */}
-          <ul className="flex flex-col items-center gap-2">
-            {items.map(({ id, href, Icon }) => (
-              <li key={id} className="w-16">
+        {/* Navigation: une seule liste, un lien par ligne couvrant icône + label */}
+        <nav className="flex-1 py-4 w-full">
+          <ul className="flex flex-col gap-2">
+            {items.map(({ id, href, label, Icon }) => (
+              <li key={id}>
                 <a
                   href={href}
-                  className="flex h-10 items-center justify-center rounded-md text-zinc-200 hover:bg-zinc-800 transition-colors"
-                  aria-label={id}
-                >
-                  <Icon className="h-5 w-5" />
-                </a>
-              </li>
-            ))}
-          </ul>
-
-          {/* Colonne labels */}
-          <ul className="flex flex-col gap-2 pr-3 overflow-hidden">
-            {items.map(({ id, href, label }) => (
-              <li key={`label-${id}`} className="h-10">
-                <a
-                  href={href}
+                  aria-label={label}
                   tabIndex={open ? 0 : -1}
-                  className="flex h-10 items-center rounded-md text-sm font-medium text-zinc-200 hover:bg-zinc-800 px-3
-                             whitespace-nowrap overflow-hidden text-ellipsis
-                             transition-[opacity,transform] duration-300 ease-out transform-gpu"
-                  style={{
-                    opacity: open ? 1 : 0,
-                    transform: `translateX(${open ? "0px" : "-6px"})`,
-                  }}
+                  className="group grid grid-cols-[4rem_1fr] items-center h-10 rounded-md
+                             text-zinc-200 hover:bg-zinc-800 transition-colors"
                 >
-                  {label}
+                  {/* Colonne icône */}
+                  <div className="flex items-center justify-center">
+                    <Icon className="h-5 w-5 transition-colors group-hover:text-white" />
+                  </div>
+
+                  {/* Colonne label, animée en largeur + fade/slide, sans wrap */}
+                  <span
+                    className="px-3 text-sm font-medium whitespace-nowrap overflow-hidden text-ellipsis
+                               transition-[opacity,transform,width] duration-300 ease-out transform-gpu"
+                    style={{
+                      width: labelW,
+                      opacity: open ? 1 : 0,
+                      transform: `translateX(${open ? "0px" : "-6px"})`,
+                    }}
+                  >
+                    {label}
+                  </span>
                 </a>
               </li>
             ))}
@@ -81,7 +74,7 @@ export default function Sidebar() {
         </nav>
       </aside>
 
-      {/* Overlay qui BLOQUE les clics quand open, et ferme au clic */}
+      {/* Overlay qui bloque les clics quand open, et ferme au clic */}
       <div
         onClick={() => setOpen(false)}
         className={`fixed inset-0 z-30 bg-black/40 transition-opacity duration-300 ${
