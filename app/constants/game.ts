@@ -38,6 +38,18 @@ export const games: Game[] = [
     developer: "Vector9",
     rating: 4.4,
   },
+  {
+    id: 4,
+    name: "Cyber Hunt",
+    description:
+      "Shooter futuriste en néon où on hacke des drones pendant qu’ils essaient poliment de t’éliminer.",
+    coverImage: "https://images.unsplash.com/photo-1498050108023-c5249f4df085?q=80&w=1200",
+    bannerImage: "https://images.unsplash.com/photo-1461749280684-dccba630e2f6?q=80&w=1600",
+    genres: ["Shooter", "Sci-Fi"],
+    releaseYear: 2026,
+    developer: "Vector9",
+    rating: 4.4,
+  },
 ];
 
 export const gameItemsByGameId: Record<number, GameItem[]> = {
