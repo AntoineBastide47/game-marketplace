@@ -105,7 +105,7 @@ export default function Navbar() {
 
             {/* Droite: Wallet largeur fixe */}
             <div className="w-48 md:w-56 shrink-0">
-              <FancyConnectButton></FancyConnectButton>
+              <FancyConnectButton />
             </div>
           </div>
         </div>
