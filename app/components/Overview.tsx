@@ -5,6 +5,7 @@ import type { Game } from "@/types/game";
 import { games as initialGames } from "../constants/game";
 import { Plus } from "lucide-react";
 import AddGameModal from "./addGameModal";
+import { useCurrentAccount } from "@mysten/dapp-kit";
 
 interface OverviewProps {
   onSelectGame: (game: Game) => void;
@@ -14,6 +15,7 @@ export default function Overview({ onSelectGame }: OverviewProps) {
   const [showAdd, setShowAdd] = useState(false);
   const [localGames, setLocalGames] = useState<Game[]>(initialGames);
 
+  const account = useCurrentAccount()
   const selection = useMemo(() => localGames.slice(0), [localGames]);
 
   return (
@@ -23,14 +25,16 @@ export default function Overview({ onSelectGame }: OverviewProps) {
         <h2 className="text-center flex-1 text-5xl md:text-6xl font-extrabold tracking-tight">
           Featured Games
         </h2>
-        <button
-          type="button"
-          onClick={() => setShowAdd(true)}
-          aria-label="Ajouter un nouveau jeu"
-          className="ml-4 flex items-center justify-center rounded-full p-3 bg-indigo-600 text-white hover:bg-indigo-700 shadow-md hover:shadow-lg focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2"
-        >
-          <Plus className="h-6 w-6" />
-        </button>
+        {account && (
+          <button
+            type="button"
+            onClick={() => setShowAdd(true)}
+            aria-label="Ajouter un nouveau jeu"
+            className="ml-4 flex items-center justify-center rounded-full p-3 bg-indigo-600 text-white hover:bg-indigo-700 shadow-md hover:shadow-lg focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2"
+          >
+            <Plus className="h-6 w-6" />
+          </button>
+        )}
       </header>
 
       {/* Grille des jeux */}
