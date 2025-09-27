@@ -1,6 +1,6 @@
 import React from "react";
 
-export default function GamePage() {
+export default function Overview() {
   const categories = [
     { title: "Jeux populaires" },
     { title: "RPG" },
