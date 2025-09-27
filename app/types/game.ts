@@ -11,6 +11,7 @@ export interface Game {
   releaseYear?: number;
   developer?: string;
   rating?: number;      // 0..5
+  gameLink?: string;  // URL vers le jeu
 }
 
 export interface GameItem {
