@@ -26,8 +26,9 @@ export default function Overview({ onSelectGame }: OverviewProps) {
               key={game.id}
               onClick={() => onSelectGame(game)}
               className="group relative flex-shrink-0 w-[280px] md:w-[320px] h-[360px] md:h-[400px]
-                         rounded-2xl bg-white shadow-md hover:shadow-lg transition
-                         active:scale-[0.98] focus:outline-none focus:ring-2 focus:ring-pink-600/40 snap-start"
+           rounded-2xl bg-white shadow-md hover:shadow-lg transition-transform duration-300
+           hover:scale-[1.03] active:scale-[0.98]
+           focus:outline-none focus:ring-2 focus:ring-pink-600/40 snap-start"
               aria-label={`Ouvrir ${game.name}`}
             >
               <div className="relative z-10 flex flex-col w-full h-full p-3 md:p-4">
