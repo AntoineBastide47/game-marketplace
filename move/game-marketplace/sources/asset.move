@@ -10,6 +10,19 @@ const ASSET_INVALID_PRICE: u64 = 4;
 const ASSET_EMPTY_NAME: u64 = 5;
 const ASSET_EMPTY_DESCRIPTION: u64 = 6;
 
+#[allow(unused_field)]
+public struct MetaData has store, copy, drop {
+    name: string::String,
+    value: string::String,
+}
+
+#[allow(unused_field)]
+public struct AssetMetaData has store, copy, drop {
+    name: string::String,
+    value: string::String,
+    renderingMetaData: vector<MetaData>
+}
+
 public struct Asset has key, store {
     id: UID,
     name: string::String,
@@ -18,6 +31,7 @@ public struct Asset has key, store {
     price: u64,
     gameId: ID,
     gameOwner: address,
+    metaData: vector<AssetMetaData>
 }
 
 public fun id(_asset: &Asset): ID { object::id(_asset) }
@@ -42,6 +56,7 @@ public fun create_asset(
     _price: u64,
     _gameId: ID,
     _gameOwner: address,
+    _metaData: vector<AssetMetaData>,
     ctx: &mut TxContext,
 ) {
     let name = string::utf8(_name);
@@ -61,12 +76,13 @@ public fun create_asset(
         price: _price,
         gameId: _gameId,
         gameOwner: _gameOwner,
+        metaData: _metaData
     };
 
     transfer::public_transfer(asset, tx_context::sender(ctx));
 }
 
-public fun check_permissions(_game: &game::Game, _asset: &mut Asset, ctx: &mut TxContext) {
+fun check_permissions(_game: &game::Game, _asset: &mut Asset, ctx: &TxContext) {
     assert!(game::id(_game) == _asset.gameId, ASSET_WRONG_GAME);
     assert!(game::owner(_game) == tx_context::sender(ctx), ASSET_NOT_OWNER);
 }
@@ -94,6 +110,11 @@ public fun set_name(_game: &game::Game, _asset: &mut Asset, _name: vector<u8>, c
     let name = string::utf8(_name);
     assert!(!string::is_empty(&name), ASSET_EMPTY_NAME);
     _asset.name = name;
+}
+
+public fun set_metadata(_game: &game::Game, _asset: &mut Asset, _metaData: vector<AssetMetaData>, ctx: &mut TxContext) {
+    check_permissions(_game, _asset, ctx);
+    _asset.metaData = _metaData
 }
 
 public fun increase_by(_game: &game::Game, _asset: &mut Asset, _amount: u64, ctx: &mut TxContext) {

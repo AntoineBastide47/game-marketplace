@@ -3,8 +3,9 @@ module game_marketplace::game;
 use std::string;
 use sui::event;
 
-const GAME_EMPTY_NAME: u64 = 1;
-const GAME_EMPTY_DESCRIPTION: u64 = 2;
+const GAME_NOT_OWNER: u64 = 1;
+const GAME_EMPTY_NAME: u64 = 2;
+const GAME_EMPTY_DESCRIPTION: u64 = 3;
 
 public struct Game has key, store {
     id: UID,
@@ -74,12 +75,13 @@ public fun burn_game(_game: Game) {
     id.delete();
 }
 
-public fun set_owner(_game: &mut Game, _newOwner: address) {
-    _game.owner = _newOwner
-}
-
 public fun transfer_game(_game: Game, _newOwner: address) {
     transfer::public_transfer(_game, _newOwner)
+}
+
+public fun set_owner(_game: &mut Game, _newOwner: address, ctx: &mut TxContext) {
+    assert!(_game.owner == tx_context::sender(ctx), GAME_NOT_OWNER);
+    _game.owner = _newOwner
 }
 
 // Pour les tests uniquement
