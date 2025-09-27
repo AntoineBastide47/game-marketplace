@@ -1,9 +1,9 @@
 import "@mysten/dapp-kit/dist/index.css";
 import "./globals.css";
 import { Providers } from "./providers";
-import { SuiClientProvider } from "./contexts/SuiClientContext";
-import Navbar from "./components/Navbar";
-import Sidebar from "./components/Sidebar";
+import { SuiClientProvider } from "./other/contexts/SuiClientContext";
+import Navbar from "./other/components/Navbar";
+import Sidebar from "./other/components/Sidebar";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {

@@ -1,14 +1,14 @@
 // app/components/myGames.tsx
 "use client";
 import React, { useEffect, useMemo, useState } from "react";
-import type { Game } from "@/types/game";
-import AddGameModal from "../../components/AddGameModal";
+import type { Game } from "@/other/types/game";
+import AddGameModal from "../../other/components/AddGameModal";
 import { useCurrentAccount } from "@mysten/dapp-kit";
 import { Plus } from "lucide-react";
 import { useNetworkVariable } from "@/networkConfig";
 import { GameCreatedEvent } from "../../page";
 import { useRouter } from "next/navigation";
-import { useSuiClient } from "@/contexts/SuiClientContext";
+import { useSuiClient } from "@/other/contexts/SuiClientContext";
 
 export default function MyGames() {
   const account = useCurrentAccount();

@@ -4,7 +4,7 @@
 import React, { useMemo, useState } from "react";
 import { Plus } from "lucide-react";
 import { useCurrentAccount } from "@mysten/dapp-kit";
-import type { GameItem } from "@/types/gameItem";
+import type { GameItem } from "@/other/types/gameItem";
 import { gameItems as initialItems } from "../constants/gameItem";
 import AddGameItemModal from "./AddGameItemModal";
 

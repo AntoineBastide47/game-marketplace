@@ -3,7 +3,7 @@ import { X } from "lucide-react";
 import { useNetworkVariable } from "@/networkConfig";
 import { Transaction } from "@mysten/sui/transactions";
 import { useSignAndExecuteTransaction, useSuiClient } from "@mysten/dapp-kit";
-import { Game } from "@/types/game";
+import { Game } from "@/other/types/game";
 
 interface AddGameModalProps {
   open: boolean;

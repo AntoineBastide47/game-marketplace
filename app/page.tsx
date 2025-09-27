@@ -1,10 +1,10 @@
 // app/components/Overview.tsx
 "use client";
 import React, { useEffect, useState } from "react";
-import type { Game } from "@/types/game";
+import type { Game } from "@/other/types/game";
 import { useRouter } from "next/navigation";
 import { useNetworkVariable } from "@/networkConfig";
-import { useSuiClient } from "@/contexts/SuiClientContext";
+import { useSuiClient } from "@/other/contexts/SuiClientContext";
 
 export type GameCreatedEvent = {
   game_id: string;

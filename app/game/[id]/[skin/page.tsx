@@ -4,7 +4,7 @@ import React, { useState } from 'react';
 import { Star, ShoppingCart, Heart } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useCurrentAccount } from '@mysten/dapp-kit';
-import { FancyConnectButton } from '../../../components/Navbar';
+import { FancyConnectButton } from '../../../other/components/Navbar';
 
 
 

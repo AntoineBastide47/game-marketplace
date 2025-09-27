@@ -1,11 +1,11 @@
 "use client";
 import React, { useEffect, useMemo, useState } from "react";
-import type { Game, Rarity } from "@/types/game";
-import { gameItemsByGameId } from "@/constants/game";
+import type { Game, Rarity } from "@/other/types/game";
+import { gameItemsByGameId } from "@/other/constants/game";
 import { ArrowLeft, Search, ChevronDown } from "lucide-react";
-import type { GameItem } from "@/types/gameItem";
+import type { GameItem } from "@/other/types/gameItem";
 import { useParams, useRouter } from "next/navigation";
-import { useSuiClient } from "@/contexts/SuiClientContext";
+import { useSuiClient } from "@/other/contexts/SuiClientContext";
 
 const formatPrice = (v: number, locale = "fr-FR", currency = "EUR") =>
   new Intl.NumberFormat(locale, { style: "currency", currency }).format(v);

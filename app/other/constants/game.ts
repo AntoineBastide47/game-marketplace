@@ -1,5 +1,5 @@
 // app/constants/games.ts
-import type { GameItem } from "@/types/gameItem";
+import type { GameItem } from "@/other/types/gameItem";
 
 
 export const gameItemsByGameId: Record<string, GameItem[]> = {

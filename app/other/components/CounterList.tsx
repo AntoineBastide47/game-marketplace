@@ -1,7 +1,7 @@
 'use client'
 import { SuiClient, getFullnodeUrl } from '@mysten/sui/client';
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/other/components/ui/card";
+import { Button } from "@/other/components/ui/button";
 import { useState } from "react";
 
 interface CounterData {

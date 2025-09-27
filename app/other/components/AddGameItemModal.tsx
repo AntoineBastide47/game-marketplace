@@ -1,8 +1,8 @@
 // app/components/AddGameItemModal.tsx
 "use client";
 import * as React from "react";
-import type { GameItem } from "@/types/gameItem";
-import type { Rarity } from "@/types/game";
+import type { GameItem } from "@/other/types/gameItem";
+import type { Rarity } from "@/other/types/game";
 import { X, Plus, Trash2 } from "lucide-react";
 
 type Props = {
