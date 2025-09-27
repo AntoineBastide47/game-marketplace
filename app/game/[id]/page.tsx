@@ -4,8 +4,8 @@ import type { Game, Rarity } from "@/types/game";
 import { gameItemsByGameId } from "@/constants/game";
 import { ArrowLeft, Search, ChevronDown } from "lucide-react";
 import type { GameItem } from "@/types/gameItem";
-import { useParams, useNavigate } from "react-router-dom";
-import { SuiClient } from "@mysten/sui/client";
+import { useParams, useRouter } from "next/navigation";
+import { useSuiClient } from "@/contexts/SuiClientContext";
 
 const formatPrice = (v: number, locale = "fr-FR", currency = "EUR") =>
   new Intl.NumberFormat(locale, { style: "currency", currency }).format(v);
@@ -87,11 +87,10 @@ const labelByFilter: Record<"all" | Rarity, string> = {
   legendary: "Légendaire",
 };
 
-type SuiClientProps = { client: SuiClient };
-
-export default function GamePage({ client }: SuiClientProps) {
-  const navigate = useNavigate();
+export default function GamePage() {
+  const router = useRouter();
   const { id } = useParams<{ id: string }>();
+  const client = useSuiClient();
 
   const [query, setQuery] = useState("");
   const [rarityFilter, setRarityFilter] = useState<Rarity | "all">("all");
@@ -174,7 +173,7 @@ export default function GamePage({ client }: SuiClientProps) {
     <div className="min-h-screen bg-white text-zinc-800">
       <div className="container mx-auto px-4 md:px-6 py-6 md:py-8">
         <div className="flex flex-col items-center gap-3 mb-6 mt-6 md:mt-8">
-          <BackButton onClick={() => navigate("/")} />
+          <BackButton onClick={() => router.push("/")} />
           <h1 className="text-3xl md:text-5xl font-extrabold bg-gradient-to-r from-violet-500 via-fuchsia-500 to-rose-500 bg-clip-text text-transparent drop-shadow-sm tracking-tight text-center">
             {game.name}
           </h1>
@@ -247,7 +246,7 @@ export default function GamePage({ client }: SuiClientProps) {
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-4 gap-6">
               {filtered.map((s) => (
-                <SkinCard key={s.id} item={s} onClick={() => navigate(`/game/${game.id}/${s.id}`)} />
+                <SkinCard key={s.id} item={s} onClick={() => router.push(`/game/${game.id}/${s.id}`)} />
               ))}
             </div>
           )
@@ -257,7 +256,7 @@ export default function GamePage({ client }: SuiClientProps) {
               <SectionHeader title="Communs" gradientClass="from-zinc-400 to-zinc-700" />
               <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-4 gap-6">
                 {categorized.common.map((s) => (
-                  <SkinCard key={s.id} item={s} onClick={() => navigate(`/game/${game.id}/${s.id}`)} />
+                  <SkinCard key={s.id} item={s} onClick={() => router.push(`/game/${game.id}/${s.id}`)} />
                 ))}
               </div>
             </section>
@@ -266,7 +265,7 @@ export default function GamePage({ client }: SuiClientProps) {
               <SectionHeader title="Rares" gradientClass="from-indigo-400 to-fuchsia-600" />
               <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-4 gap-6">
                 {categorized.rare.map((s) => (
-                  <SkinCard key={s.id} item={s} onClick={() => navigate(`/game/${game.id}/${s.id}`)} />
+                  <SkinCard key={s.id} item={s} onClick={() => router.push(`/game/${game.id}/${s.id}`)} />
                 ))}
               </div>
             </section>
@@ -275,7 +274,7 @@ export default function GamePage({ client }: SuiClientProps) {
               <SectionHeader title="Légendaires" gradientClass="from-amber-400 to-rose-500" />
               <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-4 gap-6">
                 {categorized.legendary.map((s) => (
-                  <SkinCard key={s.id} item={s} onClick={() => navigate(`/game/${game.id}/${s.id}`)} />
+                  <SkinCard key={s.id} item={s} onClick={() => router.push(`/game/${game.id}/${s.id}`)} />
               ))}
               </div>
             </section>

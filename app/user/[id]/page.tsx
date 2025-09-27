@@ -1,25 +1,61 @@
 // app/components/myGames.tsx
 "use client";
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import type { Game } from "@/types/game";
-import { games as initialGames } from "../constants/game";
-import AddGameModal from "./AddGameModal";
+import AddGameModal from "../../components/AddGameModal";
 import { useCurrentAccount } from "@mysten/dapp-kit";
 import { Plus } from "lucide-react";
+import { useNetworkVariable } from "@/networkConfig";
+import { GameCreatedEvent } from "../../page";
+import { useRouter } from "next/navigation";
+import { useSuiClient } from "@/contexts/SuiClientContext";
 
-interface MyGamesProps {
-  onSelectGame: (game: Game) => void;
-}
-
-export default function MyGames({ onSelectGame }: MyGamesProps) {
-  const [showAdd, setShowAdd] = useState(false);
-  const [localGames, setLocalGames] = useState<Game[]>(initialGames);
-
-  // Bouton + visible seulement si un compte est présent
+export default function MyGames() {
   const account = useCurrentAccount();
+  const router = useRouter();
+  const packageId = useNetworkVariable("packageId");
+  const [games, setGames] = useState<Game[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [showAdd, setShowAdd] = useState(false);
+  const client = useSuiClient();
 
-  // Copie défensive pour futurs tris/filters
-  const selection = useMemo(() => localGames.slice(0), [localGames]);
+  useEffect(() => {
+    let alive = true;
+    (async () => {
+      const { data } = await client.queryEvents({
+        query: { MoveEventType: `${packageId}::game::GameCreated` },
+      });
+
+      const ids = data.map((e) => (e.parsedJson as GameCreatedEvent).game_id);
+
+      const loaded: (Game | null)[] = await Promise.all(
+        ids.map(async (id) => {
+          const res = await client.getObject({ id, options: { showContent: true } });
+          const fields = (res.data?.content as any).fields;
+          return fields.owner == account?.address ? null : {
+            id,
+            owner: fields.owner as string,
+            name: fields.name as string,
+            description: fields.description as string,
+            imageUrl: fields.imageUrl as string,
+            pageUrl: fields.pageUrl as string,
+          };
+        })
+      );
+
+      if (alive) setGames(loaded.filter(g => g != null));
+    })()
+      .catch(console.error)
+      .finally(() => {
+        if (alive) setLoading(false);
+      });
+
+    return () => {
+      alive = false;
+    };
+  }, [client, packageId, account]);
+
+  if (loading) return <div>Loading…</div>;
 
   return (
     <main className="min-h-screen w-full bg-white text-black pt-12">
@@ -28,33 +64,22 @@ export default function MyGames({ onSelectGame }: MyGamesProps) {
         <h2 className="flex-1 text-center text-5xl md:text-6xl font-extrabold tracking-tight">
           My Games
         </h2>
-
-        {account && (
-          <button
-            type="button"
-            onClick={() => setShowAdd(true)}
-            aria-label="Ajouter un nouveau jeu"
-            className="ml-4 flex items-center justify-center rounded-full p-3 bg-indigo-600 text-white hover:bg-indigo-700 shadow-md hover:shadow-lg focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2"
-          >
-            <Plus className="h-6 w-6" />
-          </button>
-        )}
       </header>
 
       {/* Grille des jeux */}
       <section className="w-full px-4 md:px-8 lg:px-12 pb-20">
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-          {selection.map((game) => (
+          {games.map((game) => (
             <button
               key={game.id}
               type="button"
-              onClick={() => onSelectGame(game)}
+              onClick={() => router.push(`/my-games/edit/${game.id}`)}
               aria-label={`Voir ${game.name}`}
               className="group relative w-full overflow-hidden text-left rounded-2xl bg-white shadow-md hover:shadow-xl transition-transform duration-300 hover:-translate-y-1 focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2"
             >
               <div className="relative w-full aspect-[4/5]">
                 <img
-                  src={game.coverImage || "https://picsum.photos/600/800"}
+                  src={game.imageUrl || "https://picsum.photos/600/800"}
                   alt={game.name}
                   loading="lazy"
                   className="absolute inset-0 h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
@@ -88,13 +113,6 @@ export default function MyGames({ onSelectGame }: MyGamesProps) {
           </button>
         </div>
       </section>
-
-      {/* Modal d’ajout */}
-      <AddGameModal
-        open={showAdd}
-        onClose={() => setShowAdd(false)}
-        onCreated={(g) => setLocalGames((prev) => [...prev, g as Game])}
-      />
     </main>
   );
 }

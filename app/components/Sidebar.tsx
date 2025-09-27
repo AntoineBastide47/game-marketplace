@@ -1,14 +1,16 @@
 "use client";
 import { useState } from "react";
 import { Menu, X, Home, Gamepad2 } from "lucide-react";
+import { useCurrentAccount } from "@mysten/dapp-kit";
 
 const items = [
-  { id: "home", label: "Home", href: "/", Icon: Home },
-  { id: "games", label: "My Games", href: "#", Icon: Gamepad2 },
+  { id: "home", label: "Home", href: (id: string) => "/", Icon: Home },
+  { id: "games", label: "My Games", href: (id: string) => `/user/${id}`, Icon: Gamepad2 },
 ];
 
 export default function Sidebar() {
   const [open, setOpen] = useState(false);
+  const account = useCurrentAccount()
 
   // Largeurs animées
   const labelW = open ? "12rem" : "0rem";
@@ -44,7 +46,7 @@ export default function Sidebar() {
             {items.map(({ id, href, label, Icon }) => (
               <li key={id}>
                 <a
-                  href={href}
+                  href={href(account?.address || "")}
                   aria-label={label}
                   tabIndex={open ? 0 : -1}
                   className="group grid grid-cols-[4rem_1fr] items-center h-10 rounded-md

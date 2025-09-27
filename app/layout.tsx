@@ -1,7 +1,9 @@
 import "@mysten/dapp-kit/dist/index.css";
 import "./globals.css";
 import { Providers } from "./providers";
+import { SuiClientProvider } from "./contexts/SuiClientContext";
 import Navbar from "./components/Navbar";
+import Sidebar from "./components/Sidebar";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
@@ -22,10 +24,13 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         "
       >
         <Providers>
-          <Navbar />
-          <main className="flex-1 w-full">  {/* prend tout l’espace dispo */}
-            {children}
-          </main>
+          <SuiClientProvider>
+            <Navbar />
+            <Sidebar />
+            <main className="flex-1 ml-16">
+              {children}
+            </main>
+          </SuiClientProvider>
         </Providers>
       </body>
     </html>
