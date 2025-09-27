@@ -16,9 +16,10 @@ interface GameItem {
 
 interface GamePageProps {
   game: Game; // 👈 jeu reçu depuis App
+  onBack: () => void; // 👈 fonction pour revenir à l'overview
 }
 
-const GamePage: React.FC<GamePageProps> = ({ game }) => {
+const GamePage: React.FC<GamePageProps> = ({ game, onBack }) => {
   const [selectedGame, setSelectedGame] = useState<GameItem | null>(null);
 
   // Données d'exemple pour les skins
@@ -83,6 +84,12 @@ const GamePage: React.FC<GamePageProps> = ({ game }) => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-100 via-blue-50 to-purple-100 text-gray-800">
       <div className="container mx-auto px-6 py-8">
+        <button
+          onClick={onBack}
+          className="mb-6 px-4 py-2 bg-gray-200 hover:bg-gray-300 rounded font-bold"
+        >
+          ← 
+        </button>
         {/* Header */}
         <div className="text-center mb-12">
           <h1 className="text-5xl font-bold mb-4 bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">

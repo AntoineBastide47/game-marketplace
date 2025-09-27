@@ -23,62 +23,28 @@ function App() {
 
   const handleSelectGame = (game: Game) => {
     setSelectedGame(game);
-    setView('game');
+    setView("game");
   };
 
   const handleBackToOverview = () => {
     setSelectedGame(null);
-    setView('overview');
+    setView("overview");
   };
 
   return (
     <div className="container mx-auto p-6">
       <Card className="min-h-[500px]">
         <CardContent className="pt-6">
-          {/* Navigation */}
-          <div className="flex justify-center space-x-4 mb-6">
-            <Button
-              variant={view === 'overview' ? 'default' : 'outline'}
-              onClick={handleBackToOverview}
-              className={
-                view === 'overview'
-                  ? 'bg-blue-600 hover:bg-blue-700 text-white'
-                  : 'border-gray-300 text-gray-700 hover:bg-gray-50'
-              }
-            >
-              Overview
-            </Button>
-
-            <Button
-              variant={view === 'game' ? 'default' : 'outline'}
-              onClick={() => setView('game')}
-              disabled={!selectedGame}
-              className={
-                view === 'game'
-                  ? 'bg-blue-600 hover:bg-blue-700 text-white'
-                  : 'border-gray-300 text-gray-700 hover:bg-gray-50'
-              }
-            >
-              Game
-            </Button>
-
-            <Button
-              variant={view === 'skin' ? 'default' : 'outline'}
-              onClick={() => setView('skin')}
-              className={
-                view === 'skin'
-                  ? 'bg-blue-600 hover:bg-blue-700 text-white'
-                  : 'border-gray-300 text-gray-700 hover:bg-gray-50'
-              }
-            >
-              Skins
-            </Button>
-          </div>
-
           {/* Conditional rendering */}
-          {view === 'overview' && <Overview onSelectGame={handleSelectGame} />}
-          {view === 'game' && selectedGame && <GamePage game={selectedGame} />}
-          {view === 'skin' && <SkinPage />}
+          {view === "overview" && (
+            <Overview onSelectGame={handleSelectGame} />
+          )}
+
+          {view === "game" && selectedGame && (
+            <GamePage game={selectedGame} onBack = {handleBackToOverview} />
+          )}
+
+          {view === "skin" && <SkinPage />}
         </CardContent>
       </Card>
     </div>
