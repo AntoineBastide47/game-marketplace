@@ -34,7 +34,7 @@
     "**/*.ts",
     "**/*.tsx",
     ".next/types/**/*.ts"
-  ],
+, "app/page.tsx (Overview)", "app/game/[id]/page.tsx (Game Page)", "app/game/[id]/[skin]/page.tsx (Skin Page)", "app/edit/[id]/page.tsx (Edit Game)", "app/edit/[id]/[skin]/page.tsx (Edit Skin)", "app/user/[id]/page.tsx (Browse Games)"  ],
   "exclude": [
     "node_modules"
   ]
