@@ -2,6 +2,13 @@ import "@mysten/dapp-kit/dist/index.css";
 import "./globals.css";
 import { Providers } from "./providers";
 import Navbar from "./components/Navbar";
+import type { Metadata } from "next";
+
+// Utilise l'API Metadata du App Router
+export const metadata: Metadata = {
+  title: "Sui dApp Starter",
+  icons: { icon: "/favicon.svg" },
+};
 
 export default function RootLayout({
   children,
@@ -9,16 +16,19 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" className="dark">
-      <head>
-        <meta charSet="UTF-8" />
-        <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <title>Sui dApp Starter</title>
-      </head>
-      <body>
+    <html lang="fr" className="h-full"> 
+      <body
+        className="
+          h-full min-h-screen 
+          bg-white text-black 
+          overflow-x-hidden
+          antialiased
+        "
+      >
         <Providers>
+          {/* Si Navbar a des bordures/ombres noires, nettoie-le aussi */}
           <Navbar />
+          {/* Pas de wrapper avec width fixe: laisse les pages gérer leur layout */}
           {children}
         </Providers>
       </body>
