@@ -32,14 +32,16 @@ export default function MyGames() {
         ids.map(async (id) => {
           const res = await client.getObject({ id, options: { showContent: true } });
           const fields = (res.data?.content as any).fields;
-          return fields.owner == account?.address ? null : {
-            id,
-            owner: fields.owner as string,
-            name: fields.name as string,
-            description: fields.description as string,
-            imageUrl: fields.imageUrl as string,
-            pageUrl: fields.pageUrl as string,
-          };
+          return fields.owner === account?.address
+            ? {
+              id,
+              owner: fields.owner as string,
+              name: fields.name as string,
+              description: fields.description as string,
+              imageUrl: fields.imageUrl as string,
+              pageUrl: fields.pageUrl as string,
+            }
+            : null;
         })
       );
 
