@@ -1,5 +1,10 @@
 import React, { useState } from 'react';
 
+interface Game {
+  id: number;
+  name: string;
+}
+
 interface GameItem {
   id: number;
   name: string;
@@ -9,7 +14,11 @@ interface GameItem {
   price: number;
 }
 
-const GameMarketplace: React.FC = () => {
+interface GamePageProps {
+  game: Game; // 👈 jeu reçu depuis App
+}
+
+const GamePage: React.FC<GamePageProps> = ({ game }) => {
   const [selectedGame, setSelectedGame] = useState<GameItem | null>(null);
 
   // Données d'exemple pour les skins
@@ -47,10 +56,10 @@ const GameMarketplace: React.FC = () => {
 
   const SkinCard: React.FC<{ item: GameItem }> = ({ item }) => (
     <div 
-      className={`relative group cursor-pointer transform transition-all duration-300 hover:scale-105 hover:-translate-y-2`}
+      className="relative group cursor-pointer transform transition-all duration-300 hover:scale-105 hover:-translate-y-2"
       onClick={() => setSelectedGame(item)}
     >
-      <div className={`bg-gradient-to-br ${getRarityColor(item.rarity)} p-4 rounded-xl shadow-lg hover:shadow-2xl transition-all duration-300`}>
+      <div className={`bg-gradient-to-br ${getRarityColor(item.rarity)} p-4 rounded-xl shadow-lg hover:shadow-2xl`}>
         <div className="bg-white/90 backdrop-blur-sm rounded-lg p-6 h-32 flex items-center justify-center border border-gray-200">
           <span className="text-4xl">{item.image}</span>
         </div>
@@ -77,34 +86,15 @@ const GameMarketplace: React.FC = () => {
         {/* Header */}
         <div className="text-center mb-12">
           <h1 className="text-5xl font-bold mb-4 bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">
-            Game Marketplace
+            {game?.name || "Game Marketplace"}
           </h1>
-          <p className="text-xl text-gray-600">Découvrez les meilleurs skins et objets pour vos jeux favoris</p>
+          <p className="text-xl text-gray-600">
+            Découvrez les meilleurs skins et objets pour vos jeux favoris
+          </p>
         </div>
 
-        {/* Game Info Section */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-12">
-          <div className="bg-white/80 backdrop-blur-sm rounded-2xl p-6 border border-gray-200 shadow-lg">
-            <h2 className="text-2xl font-bold mb-4 text-center">Noms du jeux</h2>
-            <div className="bg-gradient-to-br from-purple-500 to-pink-500 rounded-xl p-8 flex items-center justify-center h-48">
-              <span className="text-6xl">🎮</span>
-            </div>
-          </div>
-          <div className="bg-white/80 backdrop-blur-sm rounded-2xl p-6 border border-gray-200 shadow-lg">
-            <h2 className="text-2xl font-bold mb-4 text-center">Description</h2>
-            <div className="bg-gradient-to-br from-indigo-500 to-purple-500 rounded-xl p-6 h-48 flex items-center">
-              <p className="text-lg leading-relaxed text-gray-700">
-                Plongez dans un univers épique où chaque objet raconte une histoire. 
-                Collectionnez des armes légendaires, des armures mystiques et des artefacts 
-                rares pour personnaliser votre aventure et dominer le champ de bataille.
-              </p>
-            </div>
-          </div>
-        </div>
-
-        {/* Skins Sections */}
+        {/* Sections Skins */}
         <div className="space-y-12">
-          {/* Skins Légendaires */}
           <section>
             <h2 className="text-3xl font-bold mb-6 flex items-center">
               <span className="bg-gradient-to-r from-yellow-400 to-orange-500 w-1 h-8 rounded mr-4"></span>
@@ -117,7 +107,6 @@ const GameMarketplace: React.FC = () => {
             </div>
           </section>
 
-          {/* Skins Communs */}
           <section>
             <h2 className="text-3xl font-bold mb-6 flex items-center">
               <span className="bg-gradient-to-r from-gray-400 to-gray-600 w-1 h-8 rounded mr-4"></span>
@@ -130,7 +119,6 @@ const GameMarketplace: React.FC = () => {
             </div>
           </section>
 
-          {/* Skins Rares */}
           <section>
             <h2 className="text-3xl font-bold mb-6 flex items-center">
               <span className="bg-gradient-to-r from-blue-400 to-purple-600 w-1 h-8 rounded mr-4"></span>
@@ -182,4 +170,4 @@ const GameMarketplace: React.FC = () => {
   );
 };
 
-export default GameMarketplace;
+export default GamePage;
