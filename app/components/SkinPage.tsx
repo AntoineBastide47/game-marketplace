@@ -37,129 +37,128 @@ const DEFAULT_SKIN: Skin = {
 
 // Props pour le composant SkinPage
 type SkinPageProps = {
-  skin?: Skin;
-  onPurchase?: (skinId: string) => void;
-  onWishlistToggle?: (skinId: string, isWishlisted: boolean) => void;
-  onBack?: () => void; // 👈 new prop
+    skin?: Skin;
+    onPurchase?: (skinId: string) => void;
+    onWishlistToggle?: (skinId: string, isWishlisted: boolean) => void;
+    onBack?: () => void; // 👈 new prop
 };
 
 
 const SkinPage = ({
-  skin = DEFAULT_SKIN,
-  onPurchase = (id) => alert(`Achat de "${id}" pour ${skin.price}€`),
-  onWishlistToggle,
-  onBack,
+    skin = DEFAULT_SKIN,
+    onPurchase = (id) => alert(`Achat de "${id}" pour ${skin.price}€`),
+    onWishlistToggle,
+    onBack,
 }: SkinPageProps) => {
-  const [isWishlisted, setIsWishlisted] = useState(false);
+    const [isWishlisted, setIsWishlisted] = useState(false);
 
-  const handlePurchase = () => {
-    onPurchase(skin.id);
-  };
+    const handlePurchase = () => {
+        onPurchase(skin.id);
+    };
 
-  const toggleWishlist = () => {
-    const newWishlistState = !isWishlisted;
-    setIsWishlisted(newWishlistState);
-    if (onWishlistToggle) {
-      onWishlistToggle(skin.id, newWishlistState);
-    }
-  };
+    const toggleWishlist = () => {
+        const newWishlistState = !isWishlisted;
+        setIsWishlisted(newWishlistState);
+        if (onWishlistToggle) {
+            onWishlistToggle(skin.id, newWishlistState);
+        }
+    };
 
-  const formatPrice = (price: number) => {
-    return price.toFixed(2).replace(".", ",");
-  };
+    const formatPrice = (price: number) => {
+        return price.toFixed(2).replace(".", ",");
+    };
 
-  return (
-    <div className="min-h-screen bg-gradient-to-b from-blue-50 to-purple-50 p-8 pt-20">
-      <div className="max-w-6xl mx-auto">
-        {/* Back button */}
-        {onBack && (
-          <button
-            onClick={onBack}
-            className="mb-6 px-4 py-2 bg-white border border-gray-300 rounded-lg shadow hover:bg-gray-100 transition"
-          >
-            ← Back to Game
-          </button>
-        )}
-
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
-          {/* Image */}
-          <div className="lg:sticky lg:top-24">
-            <div className="bg-white rounded-xl shadow-lg border border-gray-100 overflow-hidden">
-              <div className="aspect-square bg-gradient-to-br from-purple-600 via-purple-500 to-blue-600 relative flex items-center justify-center">
-                {skin.imageUrl ? (
-                  <img
-                    src={skin.imageUrl}
-                    alt={skin.name}
-                    className="w-80 h-80 object-contain transform transition-transform hover:scale-105 duration-300"
-                  />
-                ) : (
-                  <div className="w-80 h-80 bg-white/10 rounded-lg border-2 border-white/20 flex flex-col items-center justify-center">
-                    <span className="text-white text-xl font-bold">
-                      {skin.name}
-                    </span>
-                  </div>
+    return (
+        <div className="min-h-screen bg-gradient-to-b from-blue-50 to-purple-50 p-8 pt-20">
+            <div className="max-w-6xl mx-auto">
+                {/* Back button */}
+                {onBack && (
+                    <button
+                        onClick={onBack}
+                        className="mb-6 px-4 py-2 bg-white border border-gray-300 rounded-lg shadow hover:bg-gray-100 transition"
+                    >
+                        ← Back to Game
+                    </button>
                 )}
 
-                {/* Rarity badge */}
-                <div className="absolute top-4 left-4 bg-gradient-to-r from-yellow-400 to-amber-500 text-black px-3 py-1 rounded-full text-sm font-semibold flex items-center gap-1 shadow-md">
-                  <Star size={14} fill="currentColor" />
-                  {skin.rarity}
-                </div>
-              </div>
-            </div>
-          </div>
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
+                    {/* Image */}
+                    <div className="lg:sticky lg:top-24">
+                        <div className="bg-white rounded-xl shadow-lg border border-gray-100 overflow-hidden">
+                            <div className="aspect-square bg-gradient-to-br from-purple-600 via-purple-500 to-blue-600 relative flex items-center justify-center">
+                                {skin.imageUrl ? (
+                                    <img
+                                        src={skin.imageUrl}
+                                        alt={skin.name}
+                                        className="w-80 h-80 object-contain transform transition-transform hover:scale-105 duration-300"
+                                    />
+                                ) : (
+                                    <div className="w-80 h-80 bg-white/10 rounded-lg border-2 border-white/20 flex flex-col items-center justify-center">
+                                        <span className="text-white text-xl font-bold">
+                                            {skin.name}
+                                        </span>
+                                    </div>
+                                )}
 
-          {/* Infos */}
-          <div className="space-y-6">
-            {/* Title & wishlist */}
-            <div className="bg-white rounded-xl shadow-md border border-gray-100 p-6">
-              <div className="flex justify-between items-start">
-                <h1 className="text-3xl font-bold text-gray-800 mb-2">
-                  {skin.name}
-                </h1>
-                <button
-                  onClick={toggleWishlist}
-                  className={`rounded-full p-2 transition-colors ${
-                    isWishlisted
-                      ? "bg-red-50 text-red-500"
-                      : "bg-gray-100 text-gray-500 hover:bg-gray-200"
-                  }`}
-                >
-                  <Heart
-                    size={20}
-                    fill={isWishlisted ? "currentColor" : "none"}
-                  />
-                </button>
-              </div>
-              <p className="text-gray-600">{skin.description}</p>
-            </div>
+                                {/* Rarity badge */}
+                                <div className="absolute top-4 left-4 bg-gradient-to-r from-yellow-400 to-amber-500 text-black px-3 py-1 rounded-full text-sm font-semibold flex items-center gap-1 shadow-md">
+                                    <Star size={14} fill="currentColor" />
+                                    {skin.rarity}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
 
-            {/* Price */}
-            <div className="bg-white rounded-xl shadow-md border border-gray-100 p-6 relative overflow-hidden">
-              <div className="flex items-baseline gap-3 mb-2">
-                <span className="text-3xl font-bold text-gray-800">
-                  {formatPrice(skin.price)}€
-                </span>
-                {skin.originalPrice && (
-                  <>
-                    <span className="text-lg text-gray-500 line-through">
-                      {formatPrice(skin.originalPrice)}€
-                    </span>
-                    <span className="bg-red-500 text-white px-3 py-1 rounded-full text-sm font-medium animate-pulse">
-                      -
-                      {skin.discountPercentage ||
-                        Math.round(
-                          ((skin.originalPrice - skin.price) /
-                            skin.originalPrice) *
-                            100
-                        )}
-                      %
-                    </span>
-                  </>
-                )}
-              </div>
-              <p className="text-sm text-gray-500">TVA incluse</p>
-            </div>
+                    {/* Infos */}
+                    <div className="space-y-6">
+                        {/* Title & wishlist */}
+                        <div className="bg-white rounded-xl shadow-md border border-gray-100 p-6">
+                            <div className="flex justify-between items-start">
+                                <h1 className="text-3xl font-bold text-gray-800 mb-2">
+                                    {skin.name}
+                                </h1>
+                                <button
+                                    onClick={toggleWishlist}
+                                    className={`rounded-full p-2 transition-colors ${isWishlisted
+                                            ? "bg-red-50 text-red-500"
+                                            : "bg-gray-100 text-gray-500 hover:bg-gray-200"
+                                        }`}
+                                >
+                                    <Heart
+                                        size={20}
+                                        fill={isWishlisted ? "currentColor" : "none"}
+                                    />
+                                </button>
+                            </div>
+                            <p className="text-gray-600">{skin.description}</p>
+                        </div>
+
+                        {/* Price */}
+                        <div className="bg-white rounded-xl shadow-md border border-gray-100 p-6 relative overflow-hidden">
+                            <div className="flex items-baseline gap-3 mb-2">
+                                <span className="text-3xl font-bold text-gray-800">
+                                    {formatPrice(skin.price)}€
+                                </span>
+                                {skin.originalPrice && (
+                                    <>
+                                        <span className="text-lg text-gray-500 line-through">
+                                            {formatPrice(skin.originalPrice)}€
+                                        </span>
+                                        <span className="bg-red-500 text-white px-3 py-1 rounded-full text-sm font-medium animate-pulse">
+                                            -
+                                            {skin.discountPercentage ||
+                                                Math.round(
+                                                    ((skin.originalPrice - skin.price) /
+                                                        skin.originalPrice) *
+                                                    100
+                                                )}
+                                            %
+                                        </span>
+                                    </>
+                                )}
+                            </div>
+                            <p className="text-sm text-gray-500">TVA incluse</p>
+                        </div>
 
                         {/* Bouton Achat avec animation améliorée - plus grand et plus haut */}
                         {useCurrentAccount() ? (
@@ -183,7 +182,7 @@ const SkinPage = ({
                                 {/* Effet de brillance au survol */}
                                 <div className="absolute inset-0 w-6 h-full bg-white/20 transform -skew-x-12 translate-x-full group-hover:translate-x-[-1000%] transition-transform duration-1000 ease-in-out"></div>
                             </button>
-                        ) : (<FancyConnectButton></FancyConnectButton>)}
+                        ) : (<FancyConnectButton />)}
 
 
                         {/* Informations supplémentaires avec animation au hover */}
