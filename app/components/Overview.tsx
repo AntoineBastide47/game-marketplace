@@ -1,15 +1,10 @@
 // app/components/Overview.tsx
 "use client";
 import React, { useMemo, useState } from "react";
-import AddGameModal from "./AddGameModal";
-import { useCurrentAccount } from "@mysten/dapp-kit";
-import { SuiClient } from "@mysten/sui/client";
-import { useNetworkVariable } from "@/networkConfig";
-import { Game } from "@/types/game";
-
-interface OverviewProps {
-  onSelectGame: (game: Game) => void;
-}
+import type { Game } from "@/types/game";
+import { games as initialGames } from "../constants/game";
+import AddGameModal from "./addGameModal";
+import { useNavigate } from "react-router-dom";
 
 type GameCreatedEvent = {
   game_id: string;
@@ -17,11 +12,11 @@ type GameCreatedEvent = {
   name: string;
 };
 
-export default async function Overview({ onSelectGame }: OverviewProps) {
+export default async function Overview() {
   const [showAdd, setShowAdd] = useState(false);
   const [localGames, setLocalGames] = useState<Game[]>([]);
 
-  const account = useCurrentAccount();
+  const navigate = useNavigate();
   const selection = useMemo(() => localGames.slice(0), [localGames]);
 
   const nodeUrl = useNetworkVariable("nodeUrl")
@@ -71,7 +66,7 @@ export default async function Overview({ onSelectGame }: OverviewProps) {
             <button
               key={game.id}
               type="button"
-              onClick={() => onSelectGame(game)}
+              onClick={() => navigate(`/game/${game.id}`)}
               aria-label={`Voir ${game.name}`}
               className="group relative w-full overflow-hidden text-left rounded-2xl bg-white shadow-md hover:shadow-xl transition-transform duration-300 hover:-translate-y-1 focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2"
             >

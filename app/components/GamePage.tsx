@@ -4,12 +4,7 @@ import type { Game, Rarity } from "@/types/game";
 import { gameItemsByGameId } from "@/constants/game"; // ← vérifie bien le nom du fichier
 import { ArrowLeft, Search, ChevronDown } from "lucide-react";
 import type { GameItem } from "@/types/gameItem";
-
-interface GamePageProps {
-  game: Game;
-  onBack: () => void;
-  onGoToSkin: (item: GameItem) => void; // NEW: pass clicked skin
-}
+import { useParams } from "next/navigation";
 
 const formatPrice = (value: number, locale = "fr-FR", currency = "EUR") =>
   new Intl.NumberFormat(locale, { style: "currency", currency }).format(value);
@@ -153,12 +148,14 @@ const labelByFilter: Record<"all" | Rarity, string> = {
   legendary: "Légendaire",
 };
 
-const GamePage: React.FC<GamePageProps> = ({ game, onBack, onGoToSkin }) => {
+export default function GamePage() {
   const [query, setQuery] = useState("");
   const [rarityFilter, setRarityFilter] = useState<Rarity | "all">("all");
   const [sort, setSort] = useState<"popular" | "priceAsc" | "priceDesc">(
     "popular"
   );
+
+  const { id } = useParams<{ id: string }>();
 
   const allItems = useMemo(() => gameItemsByGameId[game.id] ?? [], [game.id]);
 
@@ -323,5 +320,3 @@ const GamePage: React.FC<GamePageProps> = ({ game, onBack, onGoToSkin }) => {
     </div>
   );
 };
-
-export default GamePage;

@@ -7,47 +7,21 @@ import GamePage from "./components/GamePage";
 import SkinPage from "./components/SkinPage";
 import type { Game } from "./types/game";
 
-function App() {
-  const [view, setView] = useState<'overview' | 'game' | 'skin'>('overview');
-  const [selectedGame, setSelectedGame] = useState<Game | null>(null);
+import { BrowserRouter, Routes, Route, useNavigate } from "react-router-dom";
 
-  const handleSelectGame = (game: Game) => {
-    setSelectedGame(game);
-    setView("game");
-  };
-
-  const handleBackToOverview = () => {
-    setSelectedGame(null);
-    setView("overview");
-  };
-
-  const handleGoToSkin = () => setView("skin");
-  const handleBackToGame = () => setView("game");
-
+export default function App() {
   return (
-    <div className="min-h-screen bg-white text-black flex">
+    <BrowserRouter>
       <Navbar />
       <Sidebar />
-
-      {/* Contenu principal décalé par le rail étroit (ml-16) */}
       <main className="flex-1 ml-16">
-        {/* Spacer sous la navbar */}
         <div className="h-[64px] md:h-[68px]" aria-hidden />
-
-        {view === "overview" && <Overview onSelectGame={handleSelectGame} />}
-        
-        {view === "game" && selectedGame && (
-          <GamePage
-            game={selectedGame}
-            onBack={handleBackToOverview}
-            onGoToSkin={handleGoToSkin}
-          />
-        )}
-
-        {view === "skin" && <SkinPage />}
+        <Routes>
+          <Route path="/" element={<Overview />} />
+          <Route path="/game/:id" element={<GamePage />} />
+          <Route path="/game/:id/skins" element={<SkinPage />} />
+        </Routes>
       </main>
-    </div>
+    </BrowserRouter>
   );
 }
-
-export default App;
