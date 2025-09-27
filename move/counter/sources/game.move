@@ -39,10 +39,10 @@ public fun create_game(
     ctx: &mut TxContext,
 ) {
     let name = string::utf8(_name);
-    assert!(string::length(&name) > 0, GAME_EMPTY_NAME);
+    assert!(!string::is_empty(&name), GAME_EMPTY_NAME);
 
     let description = string::utf8(_description);
-    assert!(string::length(&description) > 0, GAME_EMPTY_DESCRIPTION);
+    assert!(!string::is_empty(&description), GAME_EMPTY_DESCRIPTION);
 
     let imageUrl = string::utf8(_imageUrl);
     let pageUrl = string::utf8(_pageUrl);
