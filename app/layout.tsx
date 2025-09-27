@@ -17,10 +17,11 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <body
         className="
           h-full min-h-screen w-full
-          flex flex-col          /* colonne pleine hauteur */
+          flex flex-col
           bg-white text-black 
           overflow-x-hidden
           antialiased
+          pt-8                 /* ← espace en haut */
         "
       >
         <Providers>

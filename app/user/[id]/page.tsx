@@ -58,9 +58,9 @@ export default function MyGames() {
   if (loading) return <div>Loading…</div>;
 
   return (
-    <main className="min-h-screen w-full bg-white text-black pt-12">
+    <main className="min-h-screen w-full bg-white text-black">
       {/* En-tête */}
-      <header className="w-full pt-8 pb-8 px-4 md:px-8 lg:px-12 flex items-center justify-between">
+      <header className="w-full pt-16 pb-8 px-4 md:px-8 lg:px-12 flex items-center justify-between">
         <h2 className="flex-1 text-center text-5xl md:text-6xl font-extrabold tracking-tight">
           My Games
         </h2>
