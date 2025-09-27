@@ -21,8 +21,8 @@ const rarityBadgeClass: Record<Rarity, string> = {
 };
 
 const rarityBgGradient: Record<Rarity, string> = {
-  common: "from-zinc-800 via-zinc-500 to-white",     
-  rare: "from-violet-800 via-violet-400 to-white",   
+  common: "from-zinc-800 via-zinc-500 to-white",
+  rare: "from-violet-800 via-violet-400 to-white",
   legendary: "from-amber-600 via-amber-300 to-white",
 };
 
@@ -105,12 +105,17 @@ const SkinCard: React.FC<{ item: GameItem; onClick: (item: GameItem) => void }> 
           className={`bg-gradient-to-b ${rarityBgGradient[item.rarity]} p-[2px] rounded-2xl shadow-lg`}
         >
           <div className="rounded-[16px] bg-white/90 backdrop-blur-md border border-white/60">
-            
+
             {/* IMAGE agrandie */}
             <div className="aspect-[3/4] w-full overflow-hidden rounded-t-[16px] grid place-items-center">
-              <span className="text-7xl md:text-8xl" aria-hidden>
-                {item.image}
-              </span>
+              {/* IMAGE agrandie */}
+              <div className="aspect-[3/4] w-full overflow-hidden rounded-t-[16px]">
+                <img
+                  src={item.image || "https://picsum.photos/600/800"} // fallback si pas d’image
+                  alt={item.name}
+                  className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+                />
+              </div>
             </div>
 
             {/* TEXTE plus gros */}
@@ -192,18 +197,18 @@ const GamePage: React.FC<GamePageProps> = ({ game, onBack, onGoToSkin }) => {
             <img src={game.coverImage} alt={game.name} className="w-full h-full object-cover" />
           </div>
           <div className="mt-4 flex flex-wrap items-center justify-center gap-2 text-sm text-zinc-600">
-          {game.genres?.length ? (
-            <span>Genres: {game.genres.join(", ")}</span>
-          ) : null}
-          {game.releaseYear ? (
-            <span>• Sortie: {game.releaseYear}</span>
-          ) : null}
-          {game.developer ? (
-            <span>• Dev: {game.developer}</span>
-          ) : null}
-          {typeof game.rating === "number" ? (
-            <span>• Note: {game.rating}/5</span>
-          ) : null}
+            {game.genres?.length ? (
+              <span>Genres: {game.genres.join(", ")}</span>
+            ) : null}
+            {game.releaseYear ? (
+              <span>• Sortie: {game.releaseYear}</span>
+            ) : null}
+            {game.developer ? (
+              <span>• Dev: {game.developer}</span>
+            ) : null}
+            {typeof game.rating === "number" ? (
+              <span>• Note: {game.rating}/5</span>
+            ) : null}
           </div>
         </div>
 
@@ -234,11 +239,10 @@ const GamePage: React.FC<GamePageProps> = ({ game, onBack, onGoToSkin }) => {
                       type="button"
                       onClick={() => setRarityFilter(r)}
                       aria-pressed={active}
-                      className={`h-9 px-4 rounded-xl text-sm font-semibold transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 ${
-                        active
+                      className={`h-9 px-4 rounded-xl text-sm font-semibold transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 ${active
                           ? "bg-zinc-900 text-white shadow"
                           : "text-zinc-800 hover:bg-white"
-                      }`}
+                        }`}
                     >
                       {labelByFilter[r]}
                     </button>
