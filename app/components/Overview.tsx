@@ -23,16 +23,20 @@ export default function Overview({ onSelectGame }: OverviewProps) {
       <section className="w-full px-4 md:px-8 lg:px-12 pb-16">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           {selection.map((game) => (
-            <article
+            <button
               key={game.id}
+              type="button"
+              onClick={() => onSelectGame(game)}
+              aria-label={`Voir ${game.name}`}
               className="
-                group relative w-full overflow-hidden
+                group relative w-full overflow-hidden text-left
                 rounded-2xl bg-white
                 shadow-md hover:shadow-xl
                 transition-transform duration-300 hover:-translate-y-1
+                focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2
               "
             >
-              {/* Image avec overlay */}
+              {/* Image + overlay */}
               <div className="relative w-full aspect-[4/5]">
                 <img
                   src={game.coverImage}
@@ -48,20 +52,21 @@ export default function Overview({ onSelectGame }: OverviewProps) {
                 <p className="mt-1 text-sm text-gray-200 line-clamp-2">
                   {game.description}
                 </p>
-                <button
-                  onClick={() => onSelectGame(game)}
+
+                {/* Faux bouton visuel (pas interactif, toute la carte l'est) */}
+                <span
                   className="
-                    mt-3 w-full
+                    mt-3 inline-flex w-full justify-center
                     rounded-full px-4 py-2
-                    bg-black/80 hover:bg-black
+                    bg-black/80 group-hover:bg-black
                     text-sm font-semibold
                     transition-colors
                   "
                 >
                   View game
-                </button>
+                </span>
               </div>
-            </article>
+            </button>
           ))}
         </div>
       </section>
