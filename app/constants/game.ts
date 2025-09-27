@@ -2,8 +2,8 @@
 import type { GameItem } from "@/types/gameItem";
 
 
-export const gameItemsByGameId: Record<number, GameItem[]> = {
-  1: [
+export const gameItemsByGameId: Record<string, GameItem[]> = {
+  "1": [
     { id: 101, name: "Dragon Slayer", image: "https://th.bing.com/th/id/R.dcac0f4287b6eba2a325ff0a82c3e61b?rik=LJMv0WEL1Yst9A&riu=http%3a%2f%2fwww.pngall.com%2fwp-content%2fuploads%2f4%2fFortnite-Skin-PNG-Download-Image.png&ehk=CzrxLgTzB6Vk1VxeqM9yTtIeyUOK5lu1LYiVZ8P2njY%3d&risl=&pid=ImgRaw&r=0", description: "Épée mythique qui aboie sur les wyvernes.", rarity: "legendary", price: 250 },
     { id: 102, name: "Iron Shield",   image: "https://th.bing.com/th/id/R.dcac0f4287b6eba2a325ff0a82c3e61b?rik=LJMv0WEL1Yst9A&riu=http%3a%2f%2fwww.pngall.com%2fwp-content%2fuploads%2f4%2fFortnite-Skin-PNG-Download-Image.png&ehk=CzrxLgTzB6Vk1VxeqM9yTtIeyUOK5lu1LYiVZ8P2njY%3d&risl=&pid=ImgRaw&r=0", description: "Bouclier solide, compatible avec les fuites stratégiques.", rarity: "common", price: 30 },
     { id: 103, name: "Runic Bow",     image: "https://th.bing.com/th/id/R.dcac0f4287b6eba2a325ff0a82c3e61b?rik=LJMv0WEL1Yst9A&riu=http%3a%2f%2fwww.pngall.com%2fwp-content%2fuploads%2f4%2fFortnite-Skin-PNG-Download-Image.png&ehk=CzrxLgTzB6Vk1VxeqM9yTtIeyUOK5lu1LYiVZ8P2njY%3d&risl=&pid=ImgRaw&r=0", description: "Arc gravé de runes, siffle quand tu tires.", rarity: "rare", price: 95 },
@@ -17,7 +17,7 @@ export const gameItemsByGameId: Record<number, GameItem[]> = {
     { id: 110, name: "Thunder Hammer",image: "https://th.bing.com/th/id/R.dcac0f4287b6eba2a325ff0a82c3e61b?rik=LJMv0WEL1Yst9A&riu=http%3a%2f%2fwww.pngall.com%2fwp-content%2fuploads%2f4%2fFortnite-Skin-PNG-Download-Image.png&ehk=CzrxLgTzB6Vk1VxeqM9yTtIeyUOK5lu1LYiVZ8P2njY%3d&risl=&pid=ImgRaw&r=0", description: "Marteau qui gronde quand on bâille.", rarity: "legendary", price: 260 },
     { id: 110, name: "Thunder Hammer",image: "https://th.bing.com/th/id/R.dcac0f4287b6eba2a325ff0a82c3e61b?rik=LJMv0WEL1Yst9A&riu=http%3a%2f%2fwww.pngall.com%2fwp-content%2fuploads%2f4%2fFortnite-Skin-PNG-Download-Image.png&ehk=CzrxLgTzB6Vk1VxeqM9yTtIeyUOK5lu1LYiVZ8P2njY%3d&risl=&pid=ImgRaw&r=0", description: "Marteau qui gronde quand on bâille.", rarity: "legendary", price: 260 },
   ],
-  2: [
+  "2": [
     { id: 201, name: "Crystal Wand",   image: "https://purepng.com/public/uploads/large/fortnite-new-galaxy-skin-gm0.png", description: "Baguette translucide, cliquetis satisfaisant.", rarity: "rare", price: 90 },
     { id: 202, name: "Rune Grimoire",  image: "https://th.bing.com/th/id/R.dcac0f4287b6eba2a325ff0a82c3e61b?rik=LJMv0WEL1Yst9A&riu=http%3a%2f%2fwww.pngall.com%2fwp-content%2fuploads%2f4%2fFortnite-Skin-PNG-Download-Image.png&ehk=CzrxLgTzB6Vk1VxeqM9yTtIeyUOK5lu1LYiVZ8P2njY%3d&risl=&pid=ImgRaw&r=0", description: "Livre de sorts, pages qui se tournent toutes seules.", rarity: "rare", price: 75 },
     { id: 203, name: "Moon Amulet",    image: "https://th.bing.com/th/id/R.dcac0f4287b6eba2a325ff0a82c3e61b?rik=LJMv0WEL1Yst9A&riu=http%3a%2f%2fwww.pngall.com%2fwp-content%2fuploads%2f4%2fFortnite-Skin-PNG-Download-Image.png&ehk=CzrxLgTzB6Vk1VxeqM9yTtIeyUOK5lu1LYiVZ8P2njY%3d&risl=&pid=ImgRaw&r=0", description: "Amulette argentée, protège des cauchemars.", rarity: "common", price: 22 },
@@ -29,7 +29,7 @@ export const gameItemsByGameId: Record<number, GameItem[]> = {
     { id: 209, name: "Phoenix Feather",image: "https://th.bing.com/th/id/R.dcac0f4287b6eba2a325ff0a82c3e61b?rik=LJMv0WEL1Yst9A&riu=http%3a%2f%2fwww.pngall.com%2fwp-content%2fuploads%2f4%2fFortnite-Skin-PNG-Download-Image.png&ehk=CzrxLgTzB6Vk1VxeqM9yTtIeyUOK5lu1LYiVZ8P2njY%3d&risl=&pid=ImgRaw&r=0", description: "Plume tiède, rallume l’espoir.", rarity: "legendary", price: 310 },
     { id: 210, name: "Golem Pebble",   image: "https://th.bing.com/th/id/R.dcac0f4287b6eba2a325ff0a82c3e61b?rik=LJMv0WEL1Yst9A&riu=http%3a%2f%2fwww.pngall.com%2fwp-content%2fuploads%2f4%2fFortnite-Skin-PNG-Download-Image.png&ehk=CzrxLgTzB6Vk1VxeqM9yTtIeyUOK5lu1LYiVZ8P2njY%3d&risl=&pid=ImgRaw&r=0", description: "Caillou de golem. Oui, un caillou.", rarity: "common", price: 7 },
   ],
-  3: [
+  "3": [
     { id: 301, name: "Cyber Blade",   image: "https://th.bing.com/th/id/R.dcac0f4287b6eba2a325ff0a82c3e61b?rik=LJMv0WEL1Yst9A&riu=http%3a%2f%2fwww.pngall.com%2fwp-content%2fuploads%2f4%2fFortnite-Skin-PNG-Download-Image.png&ehk=CzrxLgTzB6Vk1VxeqM9yTtIeyUOK5lu1LYiVZ8P2njY%3d&risl=&pid=ImgRaw&r=0", description: "Katana ionique. Coupe les connexions instables.", rarity: "legendary", price: 300 },
     { id: 302, name: "Pulse Pistol",  image: "https://th.bing.com/th/id/R.dcac0f4287b6eba2a325ff0a82c3e61b?rik=LJMv0WEL1Yst9A&riu=http%3a%2f%2fwww.pngall.com%2fwp-content%2fuploads%2f4%2fFortnite-Skin-PNG-Download-Image.png&ehk=CzrxLgTzB6Vk1VxeqM9yTtIeyUOK5lu1LYiVZ8P2njY%3d&risl=&pid=ImgRaw&r=0", description: "Pistolet à impulsions, bruit satisfaisant.", rarity: "rare", price: 105 },
     { id: 303, name: "Drone Buddy",   image: "https://th.bing.com/th/id/R.dcac0f4287b6eba2a325ff0a82c3e61b?rik=LJMv0WEL1Yst9A&riu=http%3a%2f%2fwww.pngall.com%2fwp-content%2fuploads%2f4%2fFortnite-Skin-PNG-Download-Image.png&ehk=CzrxLgTzB6Vk1VxeqM9yTtIeyUOK5lu1LYiVZ8P2njY%3d&risl=&pid=ImgRaw&r=0", description: "Petit drone qui fait bip. Et pas que.", rarity: "rare", price: 140 },

@@ -5,7 +5,7 @@ import Navbar from "./components/Navbar";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Sui dApp Starter",
+  title: "Game Marketplace",
   icons: { icon: "/favicon.svg" },
 };
 

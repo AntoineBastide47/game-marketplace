@@ -1,10 +1,10 @@
 // app/components/Overview.tsx
 "use client";
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import type { Game } from "@/types/game";
-import { games as initialGames } from "../constants/game";
-import AddGameModal from "./addGameModal";
 import { useNavigate } from "react-router-dom";
+import { useNetworkVariable } from "@/networkConfig";
+import { SuiClient } from "@mysten/sui/client";
 
 type GameCreatedEvent = {
   game_id: string;
@@ -12,43 +12,53 @@ type GameCreatedEvent = {
   name: string;
 };
 
-export default async function Overview() {
-  const [showAdd, setShowAdd] = useState(false);
-  const [localGames, setLocalGames] = useState<Game[]>([]);
+type SuiClientProps = {
+  client: SuiClient
+}
 
+export default function Overview({ client }: SuiClientProps) {
   const navigate = useNavigate();
-  const selection = useMemo(() => localGames.slice(0), [localGames]);
+  const packageId = useNetworkVariable("packageId");
+  const [games, setGames] = useState<Game[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  const nodeUrl = useNetworkVariable("nodeUrl")
-  const packageId = useNetworkVariable("packageId")
-  const client = new SuiClient({ url: nodeUrl })
+  useEffect(() => {
+    let alive = true;
+    (async () => {
+      const { data } = await client.queryEvents({
+        query: { MoveEventType: `${packageId}::game::GameCreated` },
+      });
 
-  const { data } = await client.queryEvents({
-    query: { MoveEventType: `${packageId}::game::GameCreated` },
-  });
+      const ids = data.map((e) => (e.parsedJson as GameCreatedEvent).game_id);
 
-  const gameIds = data.map(e => {
-    const ev = e.parsedJson as GameCreatedEvent;
-    return ev.game_id;
-  });
+      const loaded: Game[] = await Promise.all(
+        ids.map(async (id) => {
+          const res = await client.getObject({ id, options: { showContent: true } });
+          const fields = (res.data?.content as any).fields;
+          return {
+            id,
+            owner: fields.owner as string,
+            name: fields.name as string,
+            description: fields.description as string,
+            imageUrl: fields.imageUrl as string,
+            pageUrl: fields.pageUrl as string,
+          };
+        })
+      );
 
-  const games: Game[] = await Promise.all(
-  gameIds.map(async (id) => {
-    const res = await client.getObject({ id, options: { showContent: true } });
+      if (alive) setGames(loaded);
+    })()
+      .catch(console.error)
+      .finally(() => {
+        if (alive) setLoading(false);
+      });
 
-    const fields = (res.data?.content as any).fields;
-
-    return {
-      id,
-      owner: fields.owner as string,
-      name: fields.name as string,
-      description: fields.description as string,
-      imageUrl: fields.imageUrl as string,
-      pageUrl: fields.pageUrl as string,
+    return () => {
+      alive = false;
     };
-  })
-);
+  }, [client, packageId]);
 
+  if (loading) return <div>Loading…</div>;
 
   return (
     <main className="min-h-screen w-full bg-white text-black">
@@ -92,13 +102,6 @@ export default async function Overview() {
           ))}
         </div>
       </section>
-
-      {/* Modal d'ajout (optionnel, tu peux aussi le virer si inutile) */}
-      <AddGameModal
-        open={showAdd}
-        onClose={() => setShowAdd(false)}
-        onCreated={(g) => setLocalGames((prev) => [...prev, g as Game])}
-      />
     </main>
   );
 }
