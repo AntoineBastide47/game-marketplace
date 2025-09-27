@@ -6,7 +6,7 @@ import AddGameModal from "../../other/components/AddGameModal";
 import { useCurrentAccount } from "@mysten/dapp-kit";
 import { Plus } from "lucide-react";
 import { useNetworkVariable } from "@/networkConfig";
-import { GameCreatedEvent } from "../../page.tsx (Overview)";
+import { GameCreatedEvent } from "../../page";
 import { useRouter } from "next/navigation";
 import { useSuiClient } from "@/other/contexts/SuiClientContext";
 

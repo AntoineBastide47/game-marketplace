@@ -1,13 +1,13 @@
 'use client'
 import Navbar from "./other/components/Navbar";
 import Sidebar from "./other/components/Sidebar";
-import Overview from "./page.tsx (Overview)";
-import GamePage from "./game/[id]/page.tsx (Game Page)";
-import SkinPage from "./game/[id]/[skin]/page.tsx (Skin Page)";
+import Overview from "./page";
+import GamePage from "./game/[id]/page";
+import SkinPage from "./game/[id]/[skin]/page";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { useNetworkVariable } from "./networkConfig";
 import { SuiClient } from "@mysten/sui/client";
-import MyGames from "./user/[id]/page.tsx (Browse Games)";
+import MyGames from "./user/[id]/page";
 
 export default function App() {
   const nodeUrl = useNetworkVariable("nodeUrl")
