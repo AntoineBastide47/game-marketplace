@@ -4,12 +4,10 @@ use std::string;
 use sui::event;
 
 const GAME_EMPTY_NAME: u64 = 1;
-const GAME_DESCRIPTION_NAME: u64 = 2;
-const GAME_NOT_OWNER: u64 = 3;
+const GAME_EMPTY_DESCRIPTION: u64 = 2;
 
 public struct Game has key, store {
     id: UID,
-    owner: address,
     name: string::String,
     description: string::String,
     imageUrl: string::String,
@@ -44,14 +42,13 @@ public fun create_game(
     assert!(string::length(&name) > 0, GAME_EMPTY_NAME);
 
     let description = string::utf8(_description);
-    assert!(string::length(&description) > 0, GAME_DESCRIPTION_NAME);
+    assert!(string::length(&description) > 0, GAME_EMPTY_DESCRIPTION);
 
     let imageUrl = string::utf8(_imageUrl);
     let pageUrl = string::utf8(_pageUrl);
 
     let game = Game {
         id: object::new(ctx),
-        owner: tx_context::sender(ctx),
         name: name,
         description: description,
         imageUrl: imageUrl,
@@ -69,21 +66,10 @@ public fun create_game(
 
 #[allow(unused_variable)]
 public fun burn_game(_game: Game) {
-    let Game { id, owner, name, description, imageUrl, pageUrl } = _game;
+    let Game { id, name, description, imageUrl, pageUrl } = _game;
     id.delete();
 }
 
-public fun transfer_game(_game: Game, _newOwner: address, ctx: &mut TxContext) {
-    assert!(_game.owner == tx_context::sender(ctx), GAME_NOT_OWNER);
-
-    let game = Game {
-        id: object::new(ctx),
-        owner: _newOwner,
-        name: _game.name,
-        description: _game.description,
-        imageUrl: _game.imageUrl,
-        pageUrl: _game.pageUrl,
-    };
-
-    transfer::public_transfer(game, _newOwner);
+public fun transfer_game(_game: Game, _newOwner: address) {
+    transfer::public_transfer(_game, _newOwner)
 }
