@@ -8,6 +8,7 @@ const GAME_EMPTY_DESCRIPTION: u64 = 2;
 
 public struct Game has key, store {
     id: UID,
+    owner: address,
     name: string::String,
     description: string::String,
     imageUrl: string::String,
@@ -23,6 +24,8 @@ public fun description(_g: &Game): &string::String { &_g.description }
 public fun imageUrl(_g: &Game): &string::String { &_g.imageUrl }
 
 public fun pageUrl(_g: &Game): &string::String { &_g.pageUrl }
+
+public fun owner(_g: &Game): address { _g.owner }
 
 public struct GameCreated has copy, drop {
     game_id: ID,
@@ -49,6 +52,7 @@ public fun create_game(
 
     let game = Game {
         id: object::new(ctx),
+        owner: tx_context::sender(ctx),
         name: name,
         description: description,
         imageUrl: imageUrl,
@@ -66,8 +70,12 @@ public fun create_game(
 
 #[allow(unused_variable)]
 public fun burn_game(_game: Game) {
-    let Game { id, name, description, imageUrl, pageUrl } = _game;
+    let Game { id, owner, name, description, imageUrl, pageUrl } = _game;
     id.delete();
+}
+
+public fun set_owner(_game: &mut Game, _newOwner: address) {
+    _game.owner = _newOwner
 }
 
 public fun transfer_game(_game: Game, _newOwner: address) {
@@ -85,6 +93,7 @@ public fun mk_game_for_test(
     ): Game {
         Game {
             id: object::new(ctx),
+            owner: tx_context::sender(ctx),
             name: string::utf8(name),
             description: string::utf8(description),
             imageUrl: string::utf8(imageUrl),
