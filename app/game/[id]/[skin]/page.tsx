@@ -4,6 +4,12 @@ import React, { useState } from 'react';
 import { Star, ShoppingCart, Wallet, Calendar, Trophy, ArrowLeft, Info } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useCurrentAccount } from '@mysten/dapp-kit';
+import { Transaction } from "@mysten/sui/transactions";
+import { useSignAndExecuteTransaction, useSuiClient } from "@mysten/dapp-kit";
+
+
+
+import { SuiClient } from '@mysten/sui/client';
 
 export type Skin = {
   id: string;
@@ -40,12 +46,27 @@ type SkinPageProps = {
   onPurchase?: (skinId: string) => void;
 };
 
+const tx = new Transaction();
+
+const buySkin = (skinId: string, packageId: string, signAndExecute: any, suiClient: any) => async () => {
+  const res = await suiClient.getObject({ skinId, options: { showContent: true } });
+  tx.moveCall({
+    
+    target: `${packageId}::asset::mint_to`,
+    arguments: [tx.pure.string(res), suiClient, tx.pure.u64(1)],
+  });
+  return ""
+}
+
+
+
 const SkinPage = ({
   skin = DEFAULT_SKIN,
   onPurchase = (id) => alert(`Achat de "${id}" pour ${skin.price}€`)
 }: SkinPageProps) => {
   const account = useCurrentAccount();
   const router = useRouter();
+    const client = useSuiClient();
 
   const formatPrice = (price: number) => price.toFixed(2).replace('.', ',');
 
@@ -111,7 +132,7 @@ const SkinPage = ({
                     onClick={() => onPurchase(skin.id)}
                     className="w-full bg-blue-700 hover:bg-blue-800 text-white font-bold py-4 px-8 text-lg rounded-lg shadow-lg transition flex items-center justify-center gap-2"
                   >
-                    <ShoppingCart size={19} /> Acheter maintenant
+                    <ShoppingCart size={19} onClick={buySkin(skin.id, "", "",client)}/> Acheter maintenant
                   </button>
                 ) : (
                   <button
