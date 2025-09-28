@@ -1,27 +1,40 @@
 // app/components/AddGameItemModal.tsx
 "use client";
 import * as React from "react";
-import type { GameItem } from "@/other/types/gameItem";
-import type { Rarity } from "@/other/types/game";
+import type { Asset, Rarity, MetaData, AssetMetaData } from "@/other/types/asset";
 import { X, Plus, Trash2 } from "lucide-react";
 
 type Props = {
   open: boolean;
   onClose: () => void;
-  onCreated: (item: GameItem) => void;
+  onCreated: (asset: Asset) => void;
+  gameId: string;              // nécessaire pour remplir Asset.gameId
+  gameOwner?: string;          // optionnel si tu l’as sous la main
 };
 
-const RARITY_OPTIONS: Rarity[] = ["common", "rare", "legendary"] as unknown as Rarity[];
+const RARITY_OPTIONS: Rarity[] = [
+  "common",
+  "uncommon",
+  "rare",
+  "epic",
+  "legendary",
+  "mythic",
+  "exotic",
+  "ancient",
+  "divine",
+  "transcendent",
+];
+
 const META_KEYS = ["color", "style", "material", "pattern"] as const;
 type MetaKey = (typeof META_KEYS)[number];
 const STYLE_OPTIONS = ["bold", "italic", "bold+italic"] as const;
 type MetaRow = { id: number; key: MetaKey; value: string };
 
-export default function AddGameItemModal({ open, onClose, onCreated }: Props) {
+export default function AddAssetModal({ open, onClose, onCreated, gameId, gameOwner = "" }: Props) {
   const [name, setName] = React.useState("");
   const [description, setDescription] = React.useState("");
   const [image, setImage] = React.useState("");
-  const [rarity, setRarity] = React.useState<Rarity>(RARITY_OPTIONS[0]);
+  const [rarity, setRarity] = React.useState<Rarity>("common");
   const [price, setPrice] = React.useState<number>(0);
 
   const [meta, setMeta] = React.useState<MetaRow[]>([
@@ -51,28 +64,51 @@ export default function AddGameItemModal({ open, onClose, onCreated }: Props) {
     setName("");
     setDescription("");
     setImage("");
-    setRarity(RARITY_OPTIONS[0]);
+    setRarity("common");
     setPrice(0);
     setMeta([
       { id: 1, key: "color", value: "#251818" },
       { id: 2, key: "style", value: "bold" },
     ]);
   }
+
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     if (!name.trim() || !description.trim()) return;
     setSubmitting(true);
 
-    const item: GameItem = {
-      id: Date.now(),
+    // id string correct (UUID si dispo)
+    const id = (typeof crypto !== "undefined" && "randomUUID" in crypto)
+      ? crypto.randomUUID()
+      : String(Date.now());
+
+    // MetaData obligatoires pour l’UI: rarity + image (si fournie)
+    const baseMeta: AssetMetaData[] = [
+      { name: "rarity", value: rarity, renderingMetaData: [] },
+    ];
+    if (image.trim()) {
+      baseMeta.push({ name: "image", value: image.trim(), renderingMetaData: [] });
+    }
+
+    // Meta libres de l’utilisateur, chacune comme une entrée AssetMetaData
+    const userMeta: AssetMetaData[] = meta.map(m => ({
+      name: m.key,
+      value: m.value,
+      renderingMetaData: [] as MetaData[],
+    }));
+
+    const asset: Asset = {
+      id,                               // UID Move côté client, remappé plus tard si besoin
       name: name.trim(),
       description: description.trim(),
-      image: image.trim() || "https://picsum.photos/600/800",
-      rarity,
+      count: 1,
       price,
+      gameId,
+      gameOwner,
+      metaData: [...baseMeta, ...userMeta],
     };
 
-    onCreated(item);
+    onCreated(asset);
     resetForm();
     setSubmitting(false);
     onClose();
@@ -93,7 +129,7 @@ export default function AddGameItemModal({ open, onClose, onCreated }: Props) {
         {/* Header fixé */}
         <div className="flex items-center justify-between px-6 py-4 border-b shrink-0">
           <h3 id="add-item-title" className="text-xl font-semibold tracking-tight">
-            Ajouter un item
+            Ajouter un asset
           </h3>
           <button
             type="button"
@@ -106,7 +142,7 @@ export default function AddGameItemModal({ open, onClose, onCreated }: Props) {
         </div>
 
         {/* Corps scrollable */}
-        <form onSubmit={handleSubmit} className="flex-1 overflow-y-auto px-6 py-6">
+        <form id="form" onSubmit={handleSubmit} className="flex-1 overflow-y-auto px-6 py-6">
           {/* MAIN */}
           <h4 className="mb-3 text-sm font-semibold uppercase tracking-wide text-gray-600">
             Main
@@ -115,8 +151,13 @@ export default function AddGameItemModal({ open, onClose, onCreated }: Props) {
             <Input label="Nom *" value={name} onChange={setName} required placeholder="Ex. Crimson Blade" />
             <Textarea label="Description *" value={description} onChange={setDescription} required />
             <Input label="URL de l’image (optionnel)" value={image} onChange={setImage} placeholder="https://…" />
-            <Select label="Rareté" value={rarity} onChange={(v) => setRarity(v as Rarity)} options={RARITY_OPTIONS} />
-            <Input label="Prix (€)" type="number" value={price.toString()} onChange={(v) => setPrice(parseFloat(v) || 0)} />
+            <Select label="Rareté" value={rarity} onChange={(v: Rarity) => setRarity(v)} options={RARITY_OPTIONS} />
+            <Input
+              label="Prix (€)"
+              type="number"
+              value={price.toString()}
+              onChange={(v: string) => setPrice(Number.isFinite(parseFloat(v)) ? parseFloat(v) : 0)}
+            />
           </div>
 
           {/* META DATA */}
@@ -124,7 +165,7 @@ export default function AddGameItemModal({ open, onClose, onCreated }: Props) {
             Meta data
           </h4>
           <div className="space-y-3">
-            {meta.map((row, idx) => (
+            {meta.map((row) => (
               <div key={row.id} className="grid grid-cols-1 md:grid-cols-[200px_1fr_auto] gap-2 items-center">
                 <select
                   value={row.key}
@@ -227,7 +268,7 @@ export default function AddGameItemModal({ open, onClose, onCreated }: Props) {
   );
 }
 
-// Petits composants utilitaires
+/* Petits composants utilitaires */
 function Input({ label, value, onChange, required = false, type = "text", placeholder = "" }: any) {
   return (
     <div className="space-y-1.5">

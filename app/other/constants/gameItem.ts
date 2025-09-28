@@ -1,7 +1,7 @@
 // app/constants/gameItem.ts
-import type { GameItem } from "@/other/types/gameItem";
+import type { Asset } from "@/other/types/asset";
 
-export const gameItems: GameItem[] = [
+export const gameItems: Asset[] = [
   {
     id: 1,
     name: "Crimson Blade",
