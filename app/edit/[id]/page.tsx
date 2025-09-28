@@ -176,18 +176,7 @@ const AddCard: React.FC<{ onClick: () => void }> = ({ onClick }) => (
         <div className="aspect-[3/4] w-full overflow-hidden rounded-t-[18px] grid place-items-center p-3">
           <div className="flex flex-col items-center justify-center gap-3 w-full h-full rounded-xl border-2 border-dashed border-zinc-300">
             <Plus className="h-7 w-7" aria-hidden />
-            <span className="font-semibold text-zinc-700">Ajouter</span>
-            <span className="text-xs text-zinc-500">Nouvel asset</span>
           </div>
-        </div>
-        <div className="p-5">
-          <div className="flex items-start justify-between gap-3">
-            <h3 className="font-bold text-lg md:text-xl text-zinc-900">Nouveau</h3>
-            <span className="px-3 py-1.5 rounded-full text-xs md:text-sm tracking-wide font-extrabold uppercase bg-zinc-200 text-zinc-900 ring-1 ring-zinc-300/60">
-              —
-            </span>
-          </div>
-          <p className="text-zinc-700 text-base md:text-lg mt-3 font-medium">—</p>
         </div>
       </div>
     </div>
