@@ -162,3 +162,4 @@ public fun consume_supply(_asset: &mut Asset, _amount: u64) {
 public fun transfer_asset(_asset: Asset, _newOwner: address) {
     transfer::public_transfer(_asset, _newOwner);
 }
+
