@@ -12,7 +12,7 @@ type AssetMintedCreatedEvent = {
   asset_token_id: string;
   asset_id: string;
   creator: string;
-}
+};
 
 export default function Overview() {
   const router = useRouter();
@@ -20,40 +20,55 @@ export default function Overview() {
   const packageId = useNetworkVariable("packageId");
   const [assets, setAssets] = useState<Asset[]>([]);
   const [loading, setLoading] = useState(true);
-  const userId = useParams<{ id: string }>()
+  const userId = useParams<{ id: string }>();
 
   useEffect(() => {
     let alive = true;
+
     (async () => {
       const { data } = await client.queryEvents({
         query: { MoveEventType: `${packageId}::asset::AssetMintedEvent` },
       });
 
-      console.log(data.length)
-      const ids = data.map((e) => (e.parsedJson as AssetMintedCreatedEvent));
+      const ids = data.map((e) => e.parsedJson as AssetMintedCreatedEvent);
 
-      const loaded: (Asset | null)[] = await Promise.all(
-        ids.map(async ({ asset_token_id, asset_id, creator }: AssetMintedCreatedEvent) => {
-          const id = asset_id
-          const res = await client.getObject({ id, options: { showContent: true } });
-          const fields = (res.data?.content as any).fields;
-          return creator == userId.id ? {
-            id: asset_id,
-            owner: creator,
-            name: fields.name as string,
-            description: fields.description as string,
-            imageUrl: fields.imageUrl as string,
-            count: fields.count as number,
-            price: fields.price as number,
-            gameId: fields.gameId as string,
-            gameOwner: fields.gameOwner as string,
-            metaData: [] as string[],
-            renderingMetaData: [] as string[],
-          } : null;
+      const loaded = await Promise.all(
+        ids.map(async ({ asset_token_id, asset_id, creator }) => {
+          try {
+            const res = await client.getObject({
+              id: asset_id,
+              options: { showContent: true },
+            });
+
+            const content = res.data?.content as any;
+            const fields = content?.fields;
+
+            if (!fields) return null;
+
+            return creator === userId.id
+              ? {
+                  id: asset_id,
+                  owner: creator,
+                  name: fields.name as string,
+                  description: fields.description as string,
+                  imageUrl: fields.imageUrl as string,
+                  count: fields.count as number,
+                  price: fields.price as number,
+                  gameId: fields.gameId as string,
+                  gameOwner: fields.gameOwner as string,
+                  metaData: [] as string[],
+                  renderingMetaData: [] as string[],
+                }
+              : null;
+          } catch {
+            return null;
+          }
         })
       );
 
-      if (alive) setAssets(loaded.filter(f => f != null));
+      if (alive) {
+        setAssets(loaded.filter((f): f is Asset => f !== null));
+      }
     })()
       .catch(console.error)
       .finally(() => {
@@ -63,7 +78,7 @@ export default function Overview() {
     return () => {
       alive = false;
     };
-  }, [client, packageId]);
+  }, [client, packageId, userId.id]);
 
   if (loading) return <div>Loading…</div>;
 
@@ -76,33 +91,33 @@ export default function Overview() {
         </h2>
       </header>
 
-      {/* Grille des jeux */}
+      {/* Grille des assets: 1/2/3/4/5 colonnes selon le breakpoint, 5 en xl */}
       <section className="w-full px-4 md:px-8 lg:px-12 pb-16">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {assets.map((game) => (
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-8">
+          {assets.map((asset) => (
             <button
-              key={game.gameId}
+              key={asset.id ?? asset.gameId}
               type="button"
-              onClick={() => router.push(`/game/${game.gameId}`)}
-              aria-label={`Voir ${game.name}`}
+              onClick={() => router.push(`/game/${asset.gameId}`)}
+              aria-label={`Voir ${asset.name}`}
               className="group relative w-full overflow-hidden text-left rounded-2xl bg-white shadow-md hover:shadow-xl transition-transform duration-300 hover:-translate-y-1 focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2"
             >
               <div className="relative w-full aspect-[4/5]">
                 <img
-                  src={game.imageUrl || "https://picsum.photos/600/800"}
-                  alt={game.name}
+                  src={asset.imageUrl || "https://picsum.photos/600/800"}
+                  alt={asset.name}
                   className="absolute inset-0 h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent" />
               </div>
 
               <div className="absolute inset-x-0 bottom-0 p-4 text-white">
-                <h3 className="text-xl font-bold">{game.name}</h3>
+                <h3 className="text-xl font-bold">{asset.name}</h3>
                 <p className="mt-1 text-sm text-gray-200 line-clamp-2">
-                  {game.description}
+                  {asset.description}
                 </p>
                 <span className="mt-3 inline-flex w-full justify-center rounded-full px-4 py-2 bg-black/80 group-hover:bg-black text-sm font-semibold transition-colors">
-                  View game
+                  View asset
                 </span>
               </div>
             </button>
