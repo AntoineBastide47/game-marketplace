@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import { Star, ShoppingCart, Wallet, Calendar, Trophy, ArrowLeft, Info } from 'lucide-react';
-import { useRouter } from 'next/navigation';
+import { useParams, useRouter } from 'next/navigation';
 import { useCurrentAccount } from '@mysten/dapp-kit';
 import { Transaction } from "@mysten/sui/transactions";
 import { useSignAndExecuteTransaction, useSuiClient } from "@mysten/dapp-kit";
@@ -59,14 +59,15 @@ const buySkin = (skinId: string, packageId: string, signAndExecute: any, suiClie
 }
 
 
-
 const SkinPage = ({
   skin = DEFAULT_SKIN,
   onPurchase = (id) => alert(`Achat de "${id}" pour ${skin.price}€`)
 }: SkinPageProps) => {
   const account = useCurrentAccount();
   const router = useRouter();
-    const client = useSuiClient();
+  const client = useSuiClient();
+  const { gameId } = useParams<{ id: string }>();
+  const { skinId } = useParams<{ skin: string }>();
 
   const formatPrice = (price: number) => price.toFixed(2).replace('.', ',');
 
