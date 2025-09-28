@@ -65,9 +65,9 @@ export default function Navbar() {
             {/* Gauche: Logo + Nom */}
             <div className="flex items-center gap-2 shrink-0">
               <img
-                src="https://assets.crypto.ro/logos/sui-sui-logo.png"
+                src="https://i.ibb.co/zT2YCCDT/photo-2025-09-28-11-05-48.jpg" 
                 alt="Logo"
-                className="h-8 w-8 rounded-full bg-white/10"
+                className="h-16 w-16 rounded-full bg-white/10"
               />
               <a
                 href="/"
