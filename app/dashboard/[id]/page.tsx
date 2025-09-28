@@ -81,9 +81,9 @@ export default function Overview() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           {assets.map((game) => (
             <button
-              key={game.id}
+              key={game.gameId}
               type="button"
-              onClick={() => router.push(`/game/${game.id}`)}
+              onClick={() => router.push(`/game/${game.gameId}`)}
               aria-label={`Voir ${game.name}`}
               className="group relative w-full overflow-hidden text-left rounded-2xl bg-white shadow-md hover:shadow-xl transition-transform duration-300 hover:-translate-y-1 focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2"
             >
