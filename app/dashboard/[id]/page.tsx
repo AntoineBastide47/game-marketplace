@@ -134,7 +134,7 @@ export default function DashboardPage() {
   if (loading) {
     return (
       <main className="min-h-screen w-full bg-white text-black grid place-items-center">
-        <div className="animate-pulse">Chargement…</div>
+        <div className="animate-pulse">Loading...</div>
       </main>
     );
   }

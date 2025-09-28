@@ -172,7 +172,7 @@ export default function TransferPage() {
           className="rounded-full px-4 py-2 border border-gray-300 hover:bg-gray-100 transition"
           aria-label="Retour au dashboard"
         >
-          ← Retour
+          ← Back
         </button>
         <h1 className="text-3xl md:text-4xl font-extrabold tracking-tight">
           Trade Center
@@ -184,7 +184,7 @@ export default function TransferPage() {
         <div className="grid grid-cols-1 lg:grid-cols-[1fr_auto_1fr] items-start gap-8">
           {/* Carte expéditeur */}
           <div className="rounded-3xl bg-white shadow-lg p-6">
-            <h2 className="text-xl font-bold mb-4">Vous</h2>
+            <h2 className="text-xl font-bold mb-4">From</h2>
             <div className="flex items-center gap-4">
               <div className="relative w-28 h-28 overflow-hidden rounded-2xl shadow">
                 <img
@@ -220,12 +220,12 @@ export default function TransferPage() {
 
           {/* Carte destinataire */}
           <div className="rounded-3xl bg-white shadow-lg p-6">
-            <h2 className="text-xl font-bold mb-4">Destinataire</h2>
+            <h2 className="text-xl font-bold mb-4">To</h2>
             <label
               htmlFor="recipient"
               className="block text-sm font-medium text-gray-700"
             >
-              Adresse Sui du destinataire
+              To SUI address
             </label>
             <input
               id="recipient"
@@ -248,7 +248,7 @@ export default function TransferPage() {
                   : "bg-gray-400 cursor-not-allowed"
                 }`}
             >
-              Confirmer le transfert
+              Confirme Transfer
             </button>
 
             {isPending && (
@@ -267,8 +267,7 @@ export default function TransferPage() {
         </div>
 
         <div className="mt-10 text-center text-xs text-gray-500">
-          Vérifie bien l’adresse. Une faute et ton asset fait sa vie ailleurs,
-          comme un Dracaufeu vexé.
+          Double-check the address. One mistake and your asset flies off on its own like an offended Charizard.
         </div>
       </section>
     </main>

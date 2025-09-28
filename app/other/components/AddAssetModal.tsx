@@ -206,7 +206,7 @@ export default function AddAssetModal({ open, onClose, onCreated }: Props) {
           <div className="space-y-4">
             <Input label="Nom *" value={name} onChange={setName} required placeholder="Ex. Crimson Blade" />
             <Textarea label="Description *" value={description} onChange={setDescription} required />
-            <Input label="URL de l’image (optionnel)" value={image} onChange={setImage} placeholder="https://…" />
+            <Input label="URL de l'image (optionnel)" value={image} onChange={setImage} placeholder="https://…" />
             <Select
               label="Rareté"
               value={rarity}
@@ -216,7 +216,7 @@ export default function AddAssetModal({ open, onClose, onCreated }: Props) {
 
             {/* Prix non négatif */}
             <Input
-              label="Prix (€)"
+              label="Prix (SUI)"
               type="number"
               min={0}
               value={Number.isFinite(price) ? String(price) : "0"}

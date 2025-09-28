@@ -104,7 +104,7 @@ const BackButton: React.FC<{ onClick: () => void }> = ({ onClick }) => (
     className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-white/80 border border-zinc-300 shadow-sm hover:bg-white transition"
   >
     <ArrowLeft className="h-4 w-4" aria-hidden />
-    <span className="font-semibold">Retour</span>
+    <span className="font-semibold">Back</span>
   </button>
 );
 
@@ -137,16 +137,16 @@ const SkinCard: React.FC<{ item: Asset; onClick: (item: Asset) => void }> = ({ i
 };
 
 const labelByFilter: Record<"all" | Rarity, string> = {
-  all: "Tous",
-  common: "Commun",
-  uncommon: "Peu commun",
+  all: "All",
+  common: "Common",
+  uncommon: "Uncommon",
   rare: "Rare",
-  epic: "Épique",
-  legendary: "Légendaire",
-  mythic: "Mythique",
+  epic: "Epic",
+  legendary: "Legendary",
+  mythic: "Mythical",
   exotic: "Exotique",
-  ancient: "Ancien",
-  divine: "Divin",
+  ancient: "Ancient",
+  divine: "Divine",
   transcendent: "Transcendant",
 };
 
@@ -334,7 +334,7 @@ export default function GamePage() {
                   id="search"
                   value={query}
                   onChange={(e) => setQuery(e.target.value)}
-                  placeholder="Rechercher un objet…"
+                  placeholder="Search for an asset..."
                   className="w-full h-11 pl-10 pr-3 rounded-2xl border bg-white/80 hover:bg-white focus:bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500 shadow-sm"
                 />
               </div>
@@ -346,7 +346,7 @@ export default function GamePage() {
                 onChange={(e) => setRarityFilter(e.target.value as any)}
                 className="h-11 pl-3 pr-9 rounded-2xl border bg-white/80 focus:outline-none focus:ring-2 focus:ring-indigo-500 shadow-sm text-sm font-medium"
               >
-                <option value="all">Toutes les raretés</option>
+                <option value="all">All</option>
                 {availableRarities.map((r) => (
                   <option key={r} value={r}>
                     {labelByFilter[r]}
@@ -361,9 +361,9 @@ export default function GamePage() {
                 onChange={(e) => setSort(e.target.value as any)}
                 className="h-11 pl-3 pr-9 rounded-2xl border bg-white/80 focus:outline-none focus:ring-2 focus:ring-indigo-500 shadow-sm text-sm font-medium"
               >
-                <option value="popular">Populaires</option>
-                <option value="priceAsc">Prix croissant</option>
-                <option value="priceDesc">Prix décroissant</option>
+                <option value="popular">Popular</option>
+                <option value="priceAsc">Price Ascending</option>
+                <option value="priceDesc">Price Descending</option>
               </select>
             </div>
           </div>
@@ -375,11 +375,11 @@ export default function GamePage() {
           if (showUnifiedGrid) {
             return filtered.length === 0 ? (
               <div className="p-6 md:p-8 bg-white/70 rounded-2xl border border-dashed text-zinc-600 backdrop-blur">
-                Aucun résultat. Essayez un autre terme ou filtre.
+                No results where found with the given filters
               </div>
             ) : (
               <div>
-                <p className="text-sm text-zinc-600 mb-3">{filtered.length} résultat{filtered.length > 1 ? "s" : ""}</p>
+                <p className="text-sm text-zinc-600 mb-3">{filtered.length} result{filtered.length > 1 ? "s" : ""}</p>
                 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
                   {filtered.map((s) => (
                     <SkinCard key={s.id} item={s} onClick={() => router.push(`/game/${gameId}/${s.id}`)} />

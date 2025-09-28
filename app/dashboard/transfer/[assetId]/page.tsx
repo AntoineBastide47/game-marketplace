@@ -112,7 +112,7 @@ export default function TransferPage() {
             onClick={() => router.push(`/dashboard/${dashboardId}`)}
             className="mt-4 rounded-full px-4 py-2 bg-black text-white hover:bg-black/80"
           >
-            Retour
+            Back
           </button>
         </div>
       </main>
@@ -137,7 +137,7 @@ export default function TransferPage() {
             className="rounded-full px-4 py-2 border border-gray-300 hover:bg-gray-100 transition"
             aria-label="Retour au dashboard"
           >
-            ← Retour
+            ← Back
           </button>
           <h1 className="text-xl md:text-2xl font-extrabold tracking-tight">Trade Center</h1>
           <div className="w-24" />

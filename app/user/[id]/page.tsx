@@ -110,7 +110,7 @@ export default function MyGames() {
           >
             <div className="flex flex-col items-center justify-center text-indigo-600 group-hover:text-indigo-700">
               <Plus className="h-10 w-10" />
-              <span className="mt-2 text-sm font-semibold">Ajouter un jeu</span>
+              <span className="mt-2 text-sm font-semibold">Add Game</span>
             </div>
           </button>
         </div>

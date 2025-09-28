@@ -135,7 +135,7 @@ export default function SkinPage() {
             options: { showEffects: true },
           })
 
-          router.push(`/dashboard/${gameId.id}`) // TODO: change to dashboard
+          router.push(`/dashboard/${account?.address || ""}`) // TODO: change to dashboard
           setSubmitting(false)
         },
         onError: () => setSubmitting(false),
@@ -146,6 +146,7 @@ export default function SkinPage() {
   const formatPrice = (price: number) => Number(price).toFixed(2).replace('.', ',');
 
   if (loading || !asset) return <div className="p-6">Loading...</div>;
+  const unavailable = submitting || asset.count === 0;
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-50 via-blue-50 to-gray-100">
@@ -171,7 +172,7 @@ export default function SkinPage() {
             className="mt-8 px-6 py-3 rounded-lg flex items-center gap-2 bg-gray-200 hover:bg-blue-100 text-blue-700 font-semibold shadow transition"
             onClick={() => router.push(`/game/${gameId.id}`)}
           >
-            <ArrowLeft size={22} /> Retour à la boutique
+            <ArrowLeft size={22} /> Back
           </button>
         </div>
 
@@ -204,13 +205,13 @@ export default function SkinPage() {
               {/* Prix centré en ligne */}
               <div className="bg-blue-50 border border-blue-200 px-7 py-6 mb-7 flex items-center justify-center gap-6 rounded-lg shadow-sm">
                 <span className="text-4xl font-extrabold text-blue-700">
-                  {formatPrice(asset.price)} €
+                  {formatPrice(asset.price)} SUI
                 </span>
                 {/*
                 {asset.price && (
                   <>
                     <span className="text-xl text-gray-400 line-through">
-                      {formatPrice(asset.price)} €
+                      {formatPrice(asset.price)} SUI
                     </span>
                     <span className="px-3 py-2 text-sm font-semibold bg-red-500 text-white rounded-lg shadow">
                       -15%
@@ -222,11 +223,10 @@ export default function SkinPage() {
 
               <div className="mb-7">
                 {account ? (
-                  // Bouton "Acheter maintenant" (orange) - exactement le même que vous aviez déjà
                   <button
                     onClick={purchase}
                     className="group w-full bg-gradient-to-r from-orange-400 to-orange-500 hover:from-orange-500 hover:to-orange-600 text-white font-bold py-6 px-8 rounded-xl transition-all duration-300 shadow-md hover:shadow-xl relative overflow-hidden"
-                    disabled={submitting}
+                    disabled={submitting || asset.count == 0}
                   >
                     <div className="absolute inset-0 w-full h-full bg-gradient-to-r from-orange-300 to-orange-400 transform scale-x-0 origin-left group-hover:scale-x-100 transition-transform duration-500 ease-out"></div>
 
@@ -236,7 +236,7 @@ export default function SkinPage() {
                         className="transform group-hover:rotate-12 transition-transform duration-300"
                       />
                       <span className="text-xl font-semibold group-hover:tracking-wider transition-all duration-300">
-                        Acheter maintenant
+                        Buy Now
                       </span>
                     </div>
 
@@ -252,13 +252,13 @@ export default function SkinPage() {
               <div className="rounded-2xl shadow bg-gradient-to-r from-white via-blue-50 to-pink-50 px-7 py-6 mt-8">
                 <h3 className="flex items-center gap-2 text-base font-bold text-gray-700 mb-5">
                   <span className="inline-block w-2 h-2 bg-orange-400 rounded-full"></span>
-                  Détails du skin
+                  Details
                 </h3>
 
                 <div className="flex flex-col gap-3 text-base">
                   {/* Rareté */}
                   <div className="flex items-center">
-                    <span className="text-gray-500 w-48">Rareté:</span>
+                    <span className="text-gray-500 w-48">Rarity:</span>
                     <span className="ml-auto px-4 py-1.5 text-sm rounded-full font-semibold bg-yellow-100 text-yellow-700 shadow-sm">
                       Legendary
                     </span>
@@ -266,7 +266,7 @@ export default function SkinPage() {
 
                   {/* Série */}
                   <div className="flex items-center">
-                    <span className="text-gray-500 w-48">Série:</span>
+                    <span className="text-gray-500 w-48">Series:</span>
                     <span className="ml-auto px-4 py-1.5 text-sm rounded-full font-semibold bg-blue-100 text-blue-500 shadow-sm">
                       Nevermore
                     </span>
@@ -274,18 +274,18 @@ export default function SkinPage() {
 
                   {/* Première apparition */}
                   <div className="flex items-center">
-                    <span className="text-gray-500 w-48">Première apparition:</span>
+                    <span className="text-gray-500 w-48">First Appearance:</span>
                     <span className="ml-auto px-4 py-1.5 text-sm rounded-full font-semibold bg-gray-100 text-gray-500 shadow-sm">
-                      Saison 3
+                      Season 3
                     </span>
                   </div>
 
                   {/* Disponibilité */}
                   <div className="flex items-center">
-                    <span className="text-gray-500 w-48">Disponibilité:</span>
+                    <span className="text-gray-500 w-48">Availability:</span>
                     <span className="ml-auto flex items-center gap-2 px-4 py-1.5 text-sm rounded-full font-semibold bg-green-100 text-green-700 shadow-sm">
                       <span className="w-2 h-2 rounded-full bg-green-500"></span>
-                      'Disponible maintenant'
+                      {asset.count > 0 ? 'Now Available' : 'Unavailable'}
                     </span>
                   </div>
                 </div>

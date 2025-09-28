@@ -128,7 +128,7 @@ const BackButton: React.FC<{ onClick: () => void }> = ({ onClick }) => (
     className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-white/80 border border-zinc-300 shadow-sm hover:bg-white transition"
   >
     <ArrowLeft className="h-4 w-4" aria-hidden />
-    <span className="font-semibold">Retour</span>
+    <span className="font-semibold">Back</span>
   </button>
 );
 
@@ -176,6 +176,7 @@ const AddCard: React.FC<{ onClick: () => void }> = ({ onClick }) => (
         <div className="aspect-[3/4] w-full overflow-hidden rounded-t-[18px] grid place-items-center p-3">
           <div className="flex flex-col items-center justify-center gap-3 w-full h-full rounded-xl border-2 border-dashed border-zinc-300">
             <Plus className="h-7 w-7" aria-hidden />
+            <span className="mt-2 text-sm font-semibold">Add Asset</span>
           </div>
         </div>
       </div>
@@ -184,16 +185,16 @@ const AddCard: React.FC<{ onClick: () => void }> = ({ onClick }) => (
 );
 
 const labelByFilter: Record<"all" | Rarity, string> = {
-  all: "Tous",
-  common: "Commun",
-  uncommon: "Peu commun",
+  all: "All",
+  common: "Common",
+  uncommon: "Uncommon",
   rare: "Rare",
-  epic: "Épique",
-  legendary: "Légendaire",
+  epic: "Epic",
+  legendary: "Legendary",
   mythic: "Mythique",
   exotic: "Exotique",
-  ancient: "Ancien",
-  divine: "Divin",
+  ancient: "Ancient",
+  divine: "Divine",
   transcendent: "Transcendant",
 };
 
@@ -346,8 +347,6 @@ export default function GamePage() {
     return map;
   }, [allItems]);
 
-  const showUnifiedGrid = rarityFilter !== "all" || query.trim() || sort !== "popular";
-
   // handler exigé par AddAssetModal
   const handleCreated = (a: Asset) => {
     setAssets((prev) => [a, ...prev]);
@@ -369,7 +368,7 @@ export default function GamePage() {
         </div>
         <div className="container mx-auto px-4 md:px-6">
           <div className="flex flex-col items-center gap-3 pt-12 md:pt-16 pb-6 md:pb-8">
-            
+
             <h1 className="text-3xl md:text-5xl font-extrabold bg-gradient-to-r from-violet-500 via-fuchsia-500 to-rose-500 bg-clip-text text-transparent drop-shadow-sm tracking-tight text-center">
               {game.name}
             </h1>
@@ -381,78 +380,78 @@ export default function GamePage() {
               </div>
             )}
             <div className="w-full max-w-4xl rounded-3xl overflow-hidden border border-white/60 bg-white/80 backdrop-blur shadow-xl group">
-  {game.pageUrl ? (
-    <a
-      href={game.pageUrl}
-      target="_blank"
-      rel="noopener noreferrer"
-      aria-label="Ouvrir la page du jeu"
-      className="block outline-none focus:ring-2 focus:ring-indigo-500 rounded-3xl"
-    >
-      <img
-        src={game.imageUrl || PLACEHOLDER_IMG}
-        alt={game.name}
-        className="w-full h-76 md:h-76 object-cover transition-transform duration-300 group-hover:scale-105 cursor-pointer"
-      />
-    </a>
-  ) : (
-    <img
-      src={game.imageUrl || PLACEHOLDER_IMG}
-      alt={game.name}
-      className="w-full h-76 md:h-76 object-cover"
-    />
-  )}
-</div>
+              {game.pageUrl ? (
+                <a
+                  href={game.pageUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label="Ouvrir la page du jeu"
+                  className="block outline-none focus:ring-2 focus:ring-indigo-500 rounded-3xl"
+                >
+                  <img
+                    src={game.imageUrl || PLACEHOLDER_IMG}
+                    alt={game.name}
+                    className="w-full h-76 md:h-76 object-cover transition-transform duration-300 group-hover:scale-105 cursor-pointer"
+                  />
+                </a>
+              ) : (
+                <img
+                  src={game.imageUrl || PLACEHOLDER_IMG}
+                  alt={game.name}
+                  className="w-full h-76 md:h-76 object-cover"
+                />
+              )}
+            </div>
           </div>
         </div>
       </div>
 
       <div className="container mx-auto px-4 md:px-6 pb-12">
         {/* BARRE D'OUTILS */}
-                <div className="sticky top-0 z-10 -mx-4 px-4 py-3 mb-6 backdrop-blur bg-white/80 border-b border-white/60">
-                  <div className="max-w-6xl mx-auto flex flex-wrap items-center gap-3">
-                    <BackButton onClick={() => router.back()} />
-                    <div className="flex-1 min-w-[200px]">
-                      <div className="relative">
-                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-zinc-500" />
-                        <input
-                          id="search"
-                          value={query}
-                          onChange={(e) => setQuery(e.target.value)}
-                          placeholder="Rechercher un objet…"
-                          className="w-full h-11 pl-10 pr-3 rounded-2xl border bg-white/80 hover:bg-white focus:bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500 shadow-sm"
-                        />
-                      </div>
-                    </div>
-                    <div>
-                      <select
-                        id="rarity"
-                        value={rarityFilter}
-                        onChange={(e) => setRarityFilter(e.target.value as any)}
-                        className="h-11 pl-3 pr-9 rounded-2xl border bg-white/80 focus:outline-none focus:ring-2 focus:ring-indigo-500 shadow-sm text-sm font-medium"
-                      >
-                        <option value="all">Toutes les raretés</option>
-                        {availableRarities.map((r) => (
-                          <option key={r} value={r}>
-                            {labelByFilter[r]}
-                          </option>
-                        ))}
-                      </select>
-                    </div>
-                    <div>
-                      <select
-                        id="sort"
-                        value={sort}
-                        onChange={(e) => setSort(e.target.value as any)}
-                        className="h-11 pl-3 pr-9 rounded-2xl border bg-white/80 focus:outline-none focus:ring-2 focus:ring-indigo-500 shadow-sm text-sm font-medium"
-                      >
-                        <option value="popular">Populaires</option>
-                        <option value="priceAsc">Prix croissant</option>
-                        <option value="priceDesc">Prix décroissant</option>
-                      </select>
-                    </div>
-                  </div>
-                </div>
+        <div className="sticky top-0 z-10 -mx-4 px-4 py-3 mb-6 backdrop-blur bg-white/80 border-b border-white/60">
+          <div className="max-w-6xl mx-auto flex flex-wrap items-center gap-3">
+            <BackButton onClick={() => router.back()} />
+            <div className="flex-1 min-w-[200px]">
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-zinc-500" />
+                <input
+                  id="search"
+                  value={query}
+                  onChange={(e) => setQuery(e.target.value)}
+                  placeholder="Search for an asset..."
+                  className="w-full h-11 pl-10 pr-3 rounded-2xl border bg-white/80 hover:bg-white focus:bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500 shadow-sm"
+                />
+              </div>
+            </div>
+            <div>
+              <select
+                id="rarity"
+                value={rarityFilter}
+                onChange={(e) => setRarityFilter(e.target.value as any)}
+                className="h-11 pl-3 pr-9 rounded-2xl border bg-white/80 focus:outline-none focus:ring-2 focus:ring-indigo-500 shadow-sm text-sm font-medium"
+              >
+                <option value="all">All</option>
+                {availableRarities.map((r) => (
+                  <option key={r} value={r}>
+                    {labelByFilter[r]}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div>
+              <select
+                id="sort"
+                value={sort}
+                onChange={(e) => setSort(e.target.value as any)}
+                className="h-11 pl-3 pr-9 rounded-2xl border bg-white/80 focus:outline-none focus:ring-2 focus:ring-indigo-500 shadow-sm text-sm font-medium"
+              >
+                <option value="popular">Popular</option>
+                <option value="priceAsc">Price Ascending</option>
+                <option value="priceDesc">Price Descending</option>
+              </select>
+            </div>
+          </div>
+        </div>
 
         {/* CONTENT */}
         {(() => {
@@ -461,13 +460,13 @@ export default function GamePage() {
           if (showUnifiedGrid) {
             return filtered.length === 0 ? (
               <div className="p-6 md:p-8 bg-white/70 rounded-2xl border border-dashed text-zinc-600 backdrop-blur">
-                Aucun résultat. Essayez un autre terme ou filtre.
+                No results where found with the given filters
               </div>
             ) : (
               <>
                 <div className="flex items-center justify-between mb-3">
                   <p className="text-sm text-zinc-600">
-                    {filtered.length} résultat{filtered.length > 1 ? "s" : ""}
+                    {filtered.length} result{filtered.length > 1 ? "s" : ""}
                   </p>
                 </div>
                 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-4 gap-6">
@@ -508,7 +507,7 @@ export default function GamePage() {
           );
         })()}
 
-        
+
         {/* MODAL d’ajout (conservé depuis la 2e page) */}
         <AddAssetModal
           open={showAdd}
