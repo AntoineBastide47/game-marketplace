@@ -2,7 +2,6 @@
 "use client";
 import React, { useEffect, useMemo, useState } from "react";
 import type { Game } from "@/other/types/game";
-import { assetsByGameId } from "@/other/constants/game";
 import { ArrowLeft, Search, ChevronDown, Plus } from "lucide-react";
 import type { Asset, Rarity } from "@/other/types/asset";
 import { useParams, useRouter } from "next/navigation";
@@ -281,13 +280,6 @@ export default function GamePage() {
       alive = false;
     };
   }, [client, id]);
-
-  /* Hydrate les assets depuis le mock quand le jeu est dispo */
-  useEffect(() => {
-    if (game?.id) {
-      setAssets(assetsByGameId[game.id] ?? []);
-    }
-  }, [game?.id]);
 
   /* Source unique des items pour l’UI */
   const allItems = assets;

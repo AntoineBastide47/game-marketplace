@@ -1,4 +1,4 @@
-// app/components/AddGameItemModal.tsx
+// app/components/AddAssetModal.tsx
 "use client";
 import * as React from "react";
 import type { Asset, Rarity, MetaData, AssetMetaData } from "@/other/types/asset";
@@ -7,9 +7,9 @@ import { X, Plus, Trash2 } from "lucide-react";
 type Props = {
   open: boolean;
   onClose: () => void;
-  onCreated: (asset: Asset) => void;
-  gameId: string;              // nécessaire pour remplir Asset.gameId
-  gameOwner?: string;          // optionnel si tu l’as sous la main
+  onCreated: (asset: Asset) => void; // OBLIGATOIRE: la page doit le passer
+  gameId: string;                    // pour remplir Asset.gameId
+  gameOwner?: string;                // optionnel si tu l’as sous la main
 };
 
 const RARITY_OPTIONS: Rarity[] = [
@@ -30,7 +30,13 @@ type MetaKey = (typeof META_KEYS)[number];
 const STYLE_OPTIONS = ["bold", "italic", "bold+italic"] as const;
 type MetaRow = { id: number; key: MetaKey; value: string };
 
-export default function AddAssetModal({ open, onClose, onCreated, gameId, gameOwner = "" }: Props) {
+export default function AddAssetModal({
+  open,
+  onClose,
+  onCreated,
+  gameId,
+  gameOwner = "",
+}: Props) {
   const [name, setName] = React.useState("");
   const [description, setDescription] = React.useState("");
   const [image, setImage] = React.useState("");
@@ -78,27 +84,26 @@ export default function AddAssetModal({ open, onClose, onCreated, gameId, gameOw
     setSubmitting(true);
 
     // id string correct (UUID si dispo)
-    const id = (typeof crypto !== "undefined" && "randomUUID" in crypto)
-      ? crypto.randomUUID()
-      : String(Date.now());
+    const id =
+      typeof crypto !== "undefined" && "randomUUID" in crypto
+        ? crypto.randomUUID()
+        : String(Date.now());
 
-    // MetaData obligatoires pour l’UI: rarity + image (si fournie)
-    const baseMeta: AssetMetaData[] = [
-      { name: "rarity", value: rarity, renderingMetaData: [] },
-    ];
+    // MetaData nécessaires pour l’UI: rarity + image (si fournie)
+    const baseMeta: AssetMetaData[] = [{ name: "rarity", value: rarity, renderingMetaData: [] }];
     if (image.trim()) {
       baseMeta.push({ name: "image", value: image.trim(), renderingMetaData: [] });
     }
 
-    // Meta libres de l’utilisateur, chacune comme une entrée AssetMetaData
-    const userMeta: AssetMetaData[] = meta.map(m => ({
+    // Meta libres de l’utilisateur
+    const userMeta: AssetMetaData[] = meta.map((m) => ({
       name: m.key,
       value: m.value,
       renderingMetaData: [] as MetaData[],
     }));
 
     const asset: Asset = {
-      id,                               // UID Move côté client, remappé plus tard si besoin
+      id, // UID client, remappé côté Move si besoin
       name: name.trim(),
       description: description.trim(),
       count: 1,
@@ -126,7 +131,7 @@ export default function AddAssetModal({ open, onClose, onCreated, gameId, gameOw
       <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={onClose} />
 
       <div className="relative z-10 w-full max-w-2xl rounded-2xl bg-white shadow-2xl flex flex-col max-h-[90vh]">
-        {/* Header fixé */}
+        {/* Header */}
         <div className="flex items-center justify-between px-6 py-4 border-b shrink-0">
           <h3 id="add-item-title" className="text-xl font-semibold tracking-tight">
             Ajouter un asset
@@ -141,17 +146,20 @@ export default function AddAssetModal({ open, onClose, onCreated, gameId, gameOw
           </button>
         </div>
 
-        {/* Corps scrollable */}
+        {/* Corps */}
         <form id="form" onSubmit={handleSubmit} className="flex-1 overflow-y-auto px-6 py-6">
-          {/* MAIN */}
-          <h4 className="mb-3 text-sm font-semibold uppercase tracking-wide text-gray-600">
-            Main
-          </h4>
+          {/* Main */}
+          <h4 className="mb-3 text-sm font-semibold uppercase tracking-wide text-gray-600">Main</h4>
           <div className="space-y-4">
             <Input label="Nom *" value={name} onChange={setName} required placeholder="Ex. Crimson Blade" />
             <Textarea label="Description *" value={description} onChange={setDescription} required />
             <Input label="URL de l’image (optionnel)" value={image} onChange={setImage} placeholder="https://…" />
-            <Select label="Rareté" value={rarity} onChange={(v: Rarity) => setRarity(v)} options={RARITY_OPTIONS} />
+            <Select
+              label="Rareté"
+              value={rarity}
+              onChange={(v: string) => setRarity(v as Rarity)}
+              options={RARITY_OPTIONS}
+            />
             <Input
               label="Prix (€)"
               type="number"
@@ -160,17 +168,18 @@ export default function AddAssetModal({ open, onClose, onCreated, gameId, gameOw
             />
           </div>
 
-          {/* META DATA */}
-          <h4 className="mt-8 mb-3 text-sm font-semibold uppercase tracking-wide text-gray-600">
-            Meta data
-          </h4>
+          {/* Meta data */}
+          <h4 className="mt-8 mb-3 text-sm font-semibold uppercase tracking-wide text-gray-600">Meta data</h4>
           <div className="space-y-3">
             {meta.map((row) => (
               <div key={row.id} className="grid grid-cols-1 md:grid-cols-[200px_1fr_auto] gap-2 items-center">
                 <select
                   value={row.key}
                   onChange={(e) =>
-                    updateMetaRow(row.id, { key: e.target.value as MetaKey, value: defaultValueFor(e.target.value as MetaKey) })
+                    updateMetaRow(row.id, {
+                      key: e.target.value as MetaKey,
+                      value: defaultValueFor(e.target.value as MetaKey),
+                    })
                   }
                   className="rounded-lg border px-3 py-2"
                 >
@@ -183,6 +192,7 @@ export default function AddAssetModal({ open, onClose, onCreated, gameId, gameOw
                     );
                   })}
                 </select>
+
                 <div className="flex items-center gap-2">
                   {row.key === "color" ? (
                     <>
@@ -222,6 +232,7 @@ export default function AddAssetModal({ open, onClose, onCreated, gameId, gameOw
                     />
                   )}
                 </div>
+
                 <button
                   type="button"
                   onClick={() => removeMetaRow(row.id)}
@@ -244,7 +255,7 @@ export default function AddAssetModal({ open, onClose, onCreated, gameId, gameOw
           </div>
         </form>
 
-        {/* Footer fixé */}
+        {/* Footer */}
         <div className="mt-auto flex items-center justify-end gap-3 border-t px-6 py-4 shrink-0">
           <button
             type="button"
@@ -269,7 +280,21 @@ export default function AddAssetModal({ open, onClose, onCreated, gameId, gameOw
 }
 
 /* Petits composants utilitaires */
-function Input({ label, value, onChange, required = false, type = "text", placeholder = "" }: any) {
+function Input({
+  label,
+  value,
+  onChange,
+  required = false,
+  type = "text",
+  placeholder = "",
+}: {
+  label: string;
+  value: string;
+  onChange: (v: string) => void;
+  required?: boolean;
+  type?: string;
+  placeholder?: string;
+}) {
   return (
     <div className="space-y-1.5">
       <label className="text-sm font-medium">{label}</label>
@@ -284,7 +309,18 @@ function Input({ label, value, onChange, required = false, type = "text", placeh
     </div>
   );
 }
-function Textarea({ label, value, onChange, required = false }: any) {
+
+function Textarea({
+  label,
+  value,
+  onChange,
+  required = false,
+}: {
+  label: string;
+  value: string;
+  onChange: (v: string) => void;
+  required?: boolean;
+}) {
   return (
     <div className="space-y-1.5">
       <label className="text-sm font-medium">{label}</label>
@@ -298,7 +334,18 @@ function Textarea({ label, value, onChange, required = false }: any) {
     </div>
   );
 }
-function Select({ label, value, onChange, options }: any) {
+
+function Select({
+  label,
+  value,
+  onChange,
+  options,
+}: {
+  label: string;
+  value: string;
+  onChange: (v: string) => void;
+  options: string[];
+}) {
   return (
     <div className="space-y-1.5">
       <label className="text-sm font-medium">{label}</label>
@@ -307,7 +354,7 @@ function Select({ label, value, onChange, options }: any) {
         onChange={(e) => onChange(e.target.value)}
         className="w-full rounded-lg border px-3 py-2 bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
       >
-        {options.map((opt: string) => (
+        {options.map((opt) => (
           <option key={opt} value={opt}>
             {opt}
           </option>
