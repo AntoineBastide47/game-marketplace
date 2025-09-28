@@ -49,14 +49,12 @@ export default function TransferPage() {
               options: { showContent: true, showOwner: true },
             });
 
-            console.log(res.data)
-
             const content = res.data?.content as any;
             const fields = content?.fields;
 
             const owner = res.data?.owner;
-            if (!owner || !fields)
-              return
+            if (!owner || !fields) return;
+
             const ownerAddr =
               typeof owner === "string" ? null :                 // "Immutable"
                 "AddressOwner" in owner ? owner.AddressOwner :
@@ -67,7 +65,7 @@ export default function TransferPage() {
             setAssetToken({
               id: asset_token_id,
               asset_id: asset_id,
-            })
+            });
 
             setAsset({
               id: asset_id,
@@ -81,7 +79,7 @@ export default function TransferPage() {
               gameOwner: fields.gameOwner as string,
               metaData: [] as string[],
               renderingMetaData: [] as string[],
-            })
+            });
           } catch {
           }
         })
@@ -105,25 +103,25 @@ export default function TransferPage() {
     return true;
   }, [assetToken, account?.address, recipient, isPending]);
 
-  if (loading) return <div>Loading ...</div>
-  if (asset == null) return <div>Loading ...</div>
-  if (assetToken == null) return <div>Loading ...</div>
+  if (loading) return <div className="min-h-screen grid place-items-center bg-neutral-50 text-neutral-800">Chargement…</div>;
+  if (asset == null) return <div className="min-h-screen grid place-items-center bg-neutral-50 text-neutral-800">Chargement…</div>;
+  if (assetToken == null) return <div className="min-h-screen grid place-items-center bg-neutral-50 text-neutral-800">Chargement…</div>;
 
   if (loading) {
     return (
-      <main className="min-h-screen w-full bg-white text-black flex items-center justify-center">
-        <div className="animate-pulse text-lg">Chargement de l'asset…</div>
+      <main className="min-h-screen w-full bg-neutral-50 text-neutral-900 flex items-center justify-center">
+        <div className="animate-pulse text-base">Chargement de l’asset…</div>
       </main>
     );
   }
 
   if (error) {
     return (
-      <main className="min-h-screen w-full bg-white text-black flex flex-col items-center justify-center p-6">
-        <p className="text-red-600 font-semibold">{error}</p>
+      <main className="min-h-screen w-full bg-neutral-50 text-neutral-900 flex flex-col items-center justify-center p-6">
+        <p className="text-red-600 font-medium">{error}</p>
         <button
           onClick={() => router.push(`/dashboard/${id}`)}
-          className="mt-4 rounded-full px-5 py-2 bg-black text-white hover:bg-black/80"
+          className="mt-4 rounded-xl px-4 py-2 bg-neutral-900 text-white hover:bg-neutral-800"
         >
           Retour
         </button>
@@ -133,14 +131,14 @@ export default function TransferPage() {
 
   if (!assetToken) {
     return (
-      <main className="min-h-screen w-full bg-white text-black grid place-items-center">
-        <p className="text-gray-700">Aucun asset trouvé.</p>
+      <main className="min-h-screen w-full bg-neutral-50 text-neutral-900 grid place-items-center">
+        <p className="text-neutral-600">Aucun asset trouvé.</p>
       </main>
     );
   }
 
   async function handleTransfer() {
-    if (!assetToken || !currentWallet) return
+    if (!assetToken || !currentWallet) return;
 
     const tx = new Transaction();
     tx.moveCall({
@@ -165,75 +163,59 @@ export default function TransferPage() {
   }
 
   return (
-    <main className="min-h-screen w-full bg-gradient-to-b from-indigo-50 via-white to-indigo-50 text-black">
-      <header className="w-full pt-10 pb-6 px-4 md:px-8 lg:px-12 flex items-center justify-between">
-        <button
-          onClick={() => router.push(`/dashboard/${id}`)}
-          className="rounded-full px-4 py-2 border border-gray-300 hover:bg-gray-100 transition"
-          aria-label="Retour au dashboard"
-        >
-          ← Back
-        </button>
-        <h1 className="text-3xl md:text-4xl font-extrabold tracking-tight">
-          Trade Center
-        </h1>
-        <div />
+    <main className="min-h-screen w-full bg-neutral-50 text-neutral-900">
+      {/* Header minimal */}
+      <header className="w-full px-16 md:px-16 lg:px-16 pt-16 pb-16 border-b border-neutral-200">
+        <div className="flex items-center justify-between gap-3">
+          <button
+            onClick={() => router.push(`/dashboard/${id}`)}
+            className="inline-flex items-center gap-2 rounded-lg px-3 py-2 border border-neutral-300 text-sm hover:bg-white transition"
+            aria-label="Retour au dashboard"
+          >
+            <span aria-hidden>←</span>
+            <span>Retour</span>
+          </button>
+          <h1 className="text-xl md:text-2xl font-semibold tracking-tight">Transférer l’asset</h1>
+          <div className="w-24" />
+        </div>
       </header>
 
-      <section className="w-full px-4 md:px-8 lg:px-12">
-        <div className="grid grid-cols-1 lg:grid-cols-[1fr_auto_1fr] items-start gap-8">
+      {/* Contenu */}
+      <section className="w-full px-4 md:px-8 lg:px-12 py-8">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
           {/* Carte expéditeur */}
-          <div className="rounded-3xl bg-white shadow-lg p-6">
-            <h2 className="text-xl font-bold mb-4">From</h2>
-            <div className="flex items-center gap-4">
-              <div className="relative w-28 h-28 overflow-hidden rounded-2xl shadow">
+          <div className="rounded-2xl border border-neutral-200 bg-white p-6 shadow-sm">
+            <h2 className="text-base font-semibold mb-4">Depuis</h2>
+            <div className="flex items-start gap-4">
+              <div className="relative w-24 h-24 overflow-hidden rounded-xl border border-neutral-200">
                 <img
                   src={asset.imageUrl || "https://picsum.photos/400/400"}
                   alt={asset.name}
                   className="w-full h-full object-cover"
                 />
               </div>
-              <div>
-                <p className="text-lg font-semibold">{asset.name}</p>
-                <p className="text-sm text-gray-600 line-clamp-2">
-                  {asset.description}
-                </p>
-                <p className="mt-2 text-xs text-gray-500">ID: {asset.id}</p>
-                <p className="text-xs text-gray-500">
-                  Owner: {asset.owner?.slice(0, 10)}…
-                </p>
+              <div className="flex-1 min-w-0">
+                <p className="text-lg font-medium truncate">{asset.name}</p>
+                <p className="text-sm text-neutral-600 line-clamp-2">{asset.description}</p>
+                <div className="mt-3 space-y-1 text-xs text-neutral-500">
+                  <p>ID: <span className="font-mono break-all">{asset.id}</span></p>
+                  <p>Propriétaire: <span className="font-mono">{asset.owner?.slice(0, 10)}…</span></p>
+                </div>
               </div>
             </div>
           </div>
 
-          {/* Pokéball */}
-          <div className="flex flex-col items-center justify-center gap-3">
-            <div className="w-20 h-20 rounded-full border-8 border-black relative overflow-hidden">
-              <div className="absolute inset-x-0 top-0 h-1/2 bg-red-500" />
-              <div className="absolute inset-x-0 bottom-0 h-1/2 bg-white" />
-              <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-8 h-8 rounded-full border-4 border-black bg-white" />
-            </div>
-            <div className="text-xs uppercase tracking-widest text-gray-500">
-              Exchange
-            </div>
-          </div>
-
           {/* Carte destinataire */}
-          <div className="rounded-3xl bg-white shadow-lg p-6">
-            <h2 className="text-xl font-bold mb-4">To</h2>
-            <label
-              htmlFor="recipient"
-              className="block text-sm font-medium text-gray-700"
-            >
-              To SUI address
-            </label>
+          <div className="rounded-2xl border border-neutral-200 bg-white p-6 shadow-sm">
+            <h2 className="text-base font-semibold mb-4">Vers</h2>
+            <label htmlFor="recipient" className="block text-sm font-medium text-neutral-800">Adresse SUI du destinataire</label>
             <input
               id="recipient"
               type="text"
-              placeholder="0x..."
+              placeholder="0x…"
               value={recipient}
               onChange={(e) => setRecipient(e.target.value.trim())}
-              className="mt-2 w-full rounded-xl border border-gray-300 px-4 py-3 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              className="mt-2 w-full rounded-lg border border-neutral-300 px-4 py-3 focus:outline-none focus:ring-2 focus:ring-neutral-800"
               autoComplete="off"
               spellCheck={false}
             />
@@ -242,33 +224,22 @@ export default function TransferPage() {
               type="button"
               onClick={handleTransfer}
               disabled={!canTransfer}
-              className={`mt-4 w-full rounded-full px-5 py-3 text-white font-semibold transition
-                ${canTransfer
-                  ? "bg-black hover:bg-black/80"
-                  : "bg-gray-400 cursor-not-allowed"
-                }`}
+              className={`mt-4 w-full rounded-lg px-5 py-3 text-white font-medium transition ${canTransfer ? "bg-neutral-900 hover:bg-neutral-800" : "bg-neutral-300 cursor-not-allowed"}`}
             >
-              Confirme Transfer
+              Confirmer le transfert
             </button>
 
             {isPending && (
-              <p className="mt-3 text-sm text-gray-600">Signature en cours…</p>
+              <p className="mt-3 text-sm text-neutral-600">Signature en cours…</p>
             )}
-            {/*
-            {txDigest && (
-              <div className="mt-3 text-sm">
-                <span className="font-semibold">Transfert confirmé.</span>{" "}
-                Tx digest: <span className="font-mono">{txDigest}</span>
-              </div>
-            )}
-              */}
             {error && <p className="mt-3 text-sm text-red-600">{error}</p>}
           </div>
         </div>
 
-        <div className="mt-10 text-center text-xs text-gray-500">
-          Double-check the address. One mistake and your asset flies off on its own like an offended Charizard.
-        </div>
+        {/* Indication */}
+        <p className="mt-10 text-center text-xs text-neutral-500">
+          Vérifiez l’adresse attentivement. Une seule erreur et l’asset est perdu.
+        </p>
       </section>
     </main>
   );
