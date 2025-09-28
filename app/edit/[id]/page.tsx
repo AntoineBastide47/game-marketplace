@@ -294,7 +294,8 @@ export default function GamePage() {
           const fields = (res.data?.content as any).fields;
           return fields.gameId === gameId
             ? {
-              id,
+              id: id,
+              owner: fields.owner as string,
               name: fields.name as string,
               description: fields.description as string,
               imageUrl: fields.imageUrl as string,

@@ -96,7 +96,7 @@ const SkinPage = ({
             options: { showEffects: true },
           })
 
-          router.push(`/game/${gameId.id}`) // TODO: change to dashboard
+          router.push(`/dashboard/${gameId.id}`) // TODO: change to dashboard
           setSubmitting(false)
         },
         onError: () => setSubmitting(false),
@@ -128,7 +128,7 @@ const SkinPage = ({
           </div>
           <button
             className="mt-8 px-6 py-3 rounded-lg flex items-center gap-2 bg-gray-200 hover:bg-blue-100 text-blue-700 font-semibold shadow transition"
-            onClick={() => router.push(`/game/${id}`)}
+            onClick={() => router.push(`/game/${gameId.id}`)}
           >
             <ArrowLeft size={22} /> Retour à la boutique
           </button>

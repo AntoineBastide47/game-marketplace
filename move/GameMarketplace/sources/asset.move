@@ -1,6 +1,7 @@
 module game_marketplace::asset;
 
 use game_marketplace::game;
+use std::address;
 use std::string;
 use sui::event;
 
@@ -16,7 +17,6 @@ const ASSET_INSUFFICIENT_SUPPLY: u64 = 8;
 const ASSET_INFINITE: u64 = 18446744073709551615;
 
 fun is_infinite(n: u64): bool { n == ASSET_INFINITE }
-
 
 public struct Asset has key, store {
     id: UID,
@@ -178,14 +178,32 @@ public fun transfer_asset(_asset: Asset, _newOwner: address) {
 public struct AssetToken has key, store {
     id: UID,
     asset_id: ID,
+    owner: address,
 }
 
-    public fun mint_to(_game: &game::Game, _asset: &mut Asset, _to: address, ctx: &mut TxContext) {
+public struct AssetMintedEvent has copy, drop {
+    asset_token_id: ID,
+    asset_id: ID,
+    creator: address,
+}
+
+public fun mint_to(_game: &game::Game, _asset: &mut Asset, _to: address, ctx: &mut TxContext) {
     check_permissions(_game, _asset, ctx);
     assert!(can_mint(_asset, 1), ASSET_INSUFFICIENT_SUPPLY);
 
     // create one NFT tied to this Asset
-    let token = AssetToken { id: object::new(ctx), asset_id: object::id(_asset) };
+    let token = AssetToken {
+        id: object::new(ctx),
+        asset_id: object::id(_asset),
+        owner: tx_context::sender(ctx),
+    };
     consume_supply(_asset, 1);
+
+    event::emit(AssetMintedEvent {
+        asset_token_id: object::id(&token),
+        asset_id: object::id(_asset),
+        creator: tx_context::sender(ctx),
+    });
+    
     transfer::public_transfer(token, _to);
 }

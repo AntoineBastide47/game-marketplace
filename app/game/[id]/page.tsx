@@ -224,7 +224,8 @@ export default function GamePage() {
           const fields = (res.data?.content as any).fields;
           return fields.gameId === gameId
             ? {
-              id,
+              id: id,
+              owner: fields.owner as string,
               name: fields.name,
               description: fields.description,
               imageUrl: fields.imageUrl,
@@ -325,7 +326,7 @@ export default function GamePage() {
         {/* BARRE D'OUTILS */}
         <div className="sticky top-0 z-10 -mx-4 px-4 py-3 mb-6 backdrop-blur bg-white/80 border-b border-white/60">
           <div className="max-w-6xl mx-auto flex flex-wrap items-center gap-3">
-            <BackButton onClick={() => router.back()} />
+            <BackButton onClick={() => router.push('/')} />
             <div className="flex-1 min-w-[200px]">
               <div className="relative">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-zinc-500" />

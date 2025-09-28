@@ -1,11 +1,12 @@
 "use client";
 import { useState } from "react";
-import { MenuIcon, X, Home, Gamepad2 } from "lucide-react";
+import { MenuIcon, X, Home, Gamepad2, Boxes } from "lucide-react";
 import { useCurrentAccount } from "@mysten/dapp-kit";
 
 const items = [
   { id: "home", label: "Home", href: (id: string) => "/", Icon: Home },
   { id: "games", label: "My Games", href: (id: string) => `/user/${id}`, Icon: Gamepad2 },
+  { id: "assets", label: "My Assets", href: (id: string) => `/dashboard/${id}`, Icon: Boxes },
 ];
 
 export default function Sidebar() {

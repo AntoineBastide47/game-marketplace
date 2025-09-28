@@ -12,6 +12,7 @@ export type Rarity =
 
 export interface Asset {
   id: string;             // correspond à UID dans Move
+  owner: string;
   name: string;
   description: string;
   imageUrl: string;
