@@ -1,14 +1,13 @@
 "use client";
 import React, { useEffect, useMemo, useState } from "react";
 import type { Game } from "@/other/types/game";
-import { assetsByGameId } from "@/other/constants/game"; // remplace l'ancien gameItemsByGameId
 import { ArrowLeft, Search, ChevronDown, Plus } from "lucide-react";
 import type { Asset, Rarity } from "@/other/types/asset";
 import { useParams, useRouter } from "next/navigation";
 import { useSuiClient } from "@/other/contexts/SuiClientContext";
-// tu as demandé "app/others/components" → alias suivant:
-import AddGameItemModal from "../../other/components/AddAssetModal";
-const [assets, setAssets] = useState<Asset[]>([]);
+// importe bien le default export du fichier AddAssetModal.tsx
+import AddAssetModal from "@/other/components/AddAssetModal";
+
 // Helpers
 const formatPrice = (v: number, locale = "fr-FR", currency = "EUR") =>
   new Intl.NumberFormat(locale, { style: "currency", currency }).format(v);
@@ -155,7 +154,7 @@ const BackButton: React.FC<{ onClick: () => void }> = ({ onClick }) => (
   >
     <span aria-hidden className="pointer-events-none absolute -inset-px rounded-2xl opacity-70 blur-[6px] transition-opacity duration-300 group-hover:opacity-100 bg-[conic-gradient(from_180deg_at_50%_50%,theme(colors.indigo.300)_0deg,transparent_90deg,theme(colors.fuchsia.300)_180deg,transparent_270deg,theme(colors.rose.300)_360deg)]" />
     <span className="relative z-10 inline-flex items-center gap-2 h-[42px] pl-3 pr-4 rounded-[14px] bg-white/75 backdrop-blur-md border border-white/70 shadow-sm">
-      <ArrowLeft className="h-4 w-4 transition-transform duration-200 group-hover:-translate-x-0.5" aria-hidden />
+      <ArrowLeft className="h-4 w-4" aria-hidden />
       <span className="font-semibold tracking-tight">Retour</span>
     </span>
     <span aria-hidden className="pointer-events-none absolute right-0 top-0 h-full w-24 translate-x-10 group-hover:translate-x-0 transition-transform duration-300 bg-gradient-to-l from-fuchsia-300/40 to-transparent rounded-2xl" />
@@ -206,7 +205,6 @@ const labelByFilter: Record<"all" | Rarity, string> = {
   transcendent: "Transcendant",
 };
 
-// Ordre d'affichage des catégories
 const rarityOrder: Rarity[] = [
   "common",
   "uncommon",
@@ -233,7 +231,8 @@ export default function GamePage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  // état du modal d'ajout
+  // état des assets (local) + modal
+  const [assets, setAssets] = useState<Asset[]>([]);
   const [showAdd, setShowAdd] = useState(false);
 
   useEffect(() => {
@@ -271,16 +270,10 @@ export default function GamePage() {
         if (alive) setLoading(false);
       }
     })();
-    return () => {
-      alive = false;
-    };
-    useEffect(() => {
-      if (game?.id) {
-        setAssets(assetsByGameId[game.id] ?? []);
-      }
-    }, [game?.id]);
+    return () => { alive = false; };
   }, [client, id]);
 
+  // liste à afficher = assets locaux
   const allItems = assets;
 
   const filtered = useMemo(() => {
@@ -302,6 +295,11 @@ export default function GamePage() {
   }, [allItems]);
 
   const showUnifiedGrid = rarityFilter !== "all" || query.trim() || sort !== "popular";
+
+  // handler exigé par AddAssetModal
+  const handleCreated = (a: Asset) => {
+    setAssets((prev) => [a, ...prev]);
+  };
 
   if (loading) return <div>Loading...</div>;
   if (error) return <div>{error}</div>;
@@ -342,17 +340,7 @@ export default function GamePage() {
             <div className="flex items-center gap-2">
               <div className="inline-flex p-1 rounded-2xl bg-white/80 border border-zinc-200 backdrop-blur shadow-sm">
                 {([
-                  "all",
-                  "common",
-                  "uncommon",
-                  "rare",
-                  "epic",
-                  "legendary",
-                  "mythic",
-                  "exotic",
-                  "ancient",
-                  "divine",
-                  "transcendent",
+                  "all","common","uncommon","rare","epic","legendary","mythic","exotic","ancient","divine","transcendent",
                 ] as const).map((r) => {
                   const active = rarityFilter === r;
                   return (
@@ -388,42 +376,52 @@ export default function GamePage() {
           </div>
         </div>
 
-        {showUnifiedGrid ? (
-          filtered.length === 0 ? (
-            <div className="p-6 md:p-8 bg-white/70 rounded-2xl border border-dashed text-zinc-600 backdrop-blur">
-              Aucun résultat. Essayez un autre terme ou filtre.
+        {(() => {
+          const showUnifiedGrid = rarityFilter !== "all" || query.trim() || sort !== "popular";
+          if (showUnifiedGrid) {
+            return filtered.length === 0 ? (
+              <div className="p-6 md:p-8 bg-white/70 rounded-2xl border border-dashed text-zinc-600 backdrop-blur">
+                Aucun résultat. Essayez un autre terme ou filtre.
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-4 gap-6">
+                {filtered.map((s) => (
+                  <SkinCard key={s.id} item={s} onClick={() => {}} />
+                ))}
+              </div>
+            );
+          }
+          return (
+            <div className="space-y-10">
+              {rarityOrder.map((r) =>
+                categorized[r].length > 0 ? (
+                  <section key={r}>
+                    <SectionHeader title={labelByFilter[r]} gradientClass={headerGradient[r]} />
+                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-4 gap-6">
+                      {categorized[r].map((s) => (
+                        <SkinCard key={s.id} item={s} onClick={() => {}} />
+                      ))}
+                    </div>
+                  </section>
+                ) : null
+              )}
             </div>
-          ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-4 gap-6">
-              {filtered.map((s) => (
-                <SkinCard key={s.id} item={s} onClick={() => router.push(`/game/${game.id}/${s.id}`)} />
-              ))}
-            </div>
-          )
-        ) : (
-          <div className="space-y-10">
-            {rarityOrder.map((r) => (
-              categorized[r].length > 0 ? (
-                <section key={r}>
-                  <SectionHeader title={labelByFilter[r]} gradientClass={headerGradient[r]} />
-                  <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-4 gap-6">
-                    {categorized[r].map((s) => (
-                      <SkinCard key={s.id} item={s} onClick={() => router.push(`/game/${game.id}/${s.id}`)} />
-                    ))}
-                  </div>
-                </section>
-              ) : null
-            ))}
-          </div>
-        )}
+          );
+        })()}
 
         {/* Carte d’ajout en bas */}
         <div className="mt-10">
           <AddCard onClick={() => setShowAdd(true)} />
         </div>
 
-        {/* Modal d’ajout */}
-        <AddGameItemModal open={showAdd} onClose={() => setShowAdd(false)} gameId={game.id} />
+        {/* Modal d’ajout — >>> onCreated est PASSÉ ici <<< */}
+        <AddAssetModal
+          open={showAdd}
+          onClose={() => setShowAdd(false)}
+          gameId={game.id}
+          gameOwner={game.owner}
+          onCreated={handleCreated}
+        />
       </div>
     </div>
   );
