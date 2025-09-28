@@ -84,7 +84,7 @@ public fun create_asset(
         gameId: _gameId,
         gameOwner: _gameOwner,
         metaData: _metaData,
-        renderingMetaData: _renderingMetaData
+        renderingMetaData: _renderingMetaData,
     };
 
     transfer::public_transfer(asset, tx_context::sender(ctx));
@@ -167,4 +167,19 @@ public fun consume_supply(_asset: &mut Asset, _amount: u64) {
 
 public fun transfer_asset(_asset: Asset, _newOwner: address) {
     transfer::public_transfer(_asset, _newOwner);
+}
+
+public struct AssetToken has key, store {
+    id: UID,
+    asset_id: ID,
+}
+
+public fun mint_to(_game: &game::Game, _asset: &mut Asset, _to: address, ctx: &mut TxContext) {
+    check_permissions(_game, _asset, ctx);
+    assert!(can_mint(_asset, 1), ASSET_INSUFFICIENT_SUPPLY);
+
+    // create one NFT tied to this Asset
+    let token = AssetToken { id: object::new(ctx), asset_id: object::id(_asset) };
+    consume_supply(_asset, 1);
+    transfer::public_transfer(token, _to);
 }

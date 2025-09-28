@@ -17,19 +17,15 @@ export interface MetaData {
   value: string;
 }
 
-export interface AssetMetaData {
-  name: string;
-  value: string;
-  renderingMetaData: MetaData[];
-}
-
 export interface Asset {
   id: string;             // correspond à UID dans Move
   name: string;
   description: string;
+  imageUrl: string;
   count: number;          // u64 → number
   price: number;          // u64 → number (EUR ou token, à clarifier)
   gameId: string;         // ID Move → string
   gameOwner: string;      // address Move → string (hex)
-  metaData: AssetMetaData[];
+  metaData: MetaData[];
+  renderingMetaData: MetaData[];
 }
