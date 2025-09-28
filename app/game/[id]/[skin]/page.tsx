@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import Image from 'next/image';
 import { ShoppingCart, Wallet, Calendar, Trophy, ArrowLeft } from 'lucide-react';
 import { useParams, useRouter } from 'next/navigation';
@@ -13,6 +13,7 @@ import { useNetworkVariable } from "@/networkConfig";
 
 import { SuiClient } from '@mysten/sui/client';
 import { FancyConnectButton } from '@/other/components/Navbar';
+import { Asset } from '@/other/types/asset';
 
 export type Skin = {
   id: string;
@@ -61,10 +62,7 @@ const buySkin = (skinId: string, packageId: string, gameId: string, suiClient: a
   return '';
 };
 
-const SkinPage = ({
-  skin = DEFAULT_SKIN,
-  onPurchase = (id) => alert(`Achat de "${id}" pour ${skin.price}€`),
-}: SkinPageProps) => {
+export default function SkinPage() {
   const account = useCurrentAccount();
   const router = useRouter();
   const client = useSuiClient();
@@ -74,6 +72,47 @@ const SkinPage = ({
   const { mutate: signAndExecute } = useSignAndExecuteTransaction();
   const tx = new Transaction();
   const [submitting, setSubmitting] = React.useState(false);
+  const [asset, setAsset] = useState<Asset | null>(null)
+  const assetId = useParams<{ skin: string }>()
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    let alive = true;
+    (async () => {
+      setLoading(true);
+      try {
+        if (!assetId.skin) throw new Error("Paramètre id manquant");
+        const id = assetId.skin
+        const res = await client.getObject({ id, options: { showContent: true } });
+        const content: any = res?.data?.content;
+        if (content?.dataType === "moveObject" && content?.fields) {
+          const fields = content.fields;
+          const loaded: Asset = {
+            id: assetId.skin,
+            owner: fields.owner as string,
+            name: fields.name,
+            description: fields.description,
+            imageUrl: fields.imageUrl,
+            count: fields.count,
+            price: fields.price,
+            gameId: fields.gameId,
+            gameOwner: fields.gameOwner,
+            metaData: [],
+            renderingMetaData: [],
+          };
+          if (alive) setAsset(loaded);
+        } else {
+          if (alive) setError("Objet introuvable ou sans contenu");
+        }
+      } catch (e: any) {
+        if (alive) setError(e?.message ?? "Erreur de chargement");
+      } finally {
+        if (alive) setLoading(false);
+      }
+    })();
+    return () => { alive = false; };
+  }, [client, assetId]);
 
   function purchase() {
     setSubmitting(true)
@@ -104,7 +143,9 @@ const SkinPage = ({
     );
   }
 
-  const formatPrice = (price: number) => price.toFixed(2).replace('.', ',');
+  const formatPrice = (price: number) => Number(price).toFixed(2).replace('.', ',');
+
+  if (loading || !asset) return <div className="p-6">Loading...</div>;
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-50 via-blue-50 to-gray-100">
@@ -112,10 +153,10 @@ const SkinPage = ({
         {/* Partie gauche */}
         <div className="flex-1 flex flex-col justify-center items-center py-14 bg-gradient-to-br from-gray-100 to-gray-200">
           <div className="relative w-full h-full flex-1 flex items-center justify-center">
-            {skin.imageUrl ? (
+            {asset.imageUrl ? (
               <Image
-                src={skin.imageUrl}
-                alt={skin.name}
+                src={asset.imageUrl}
+                alt={asset.name}
                 fill
                 unoptimized
                 className="object-contain p-6"
@@ -138,8 +179,9 @@ const SkinPage = ({
         <div className="flex-1 flex flex-col h-full px-12 py-14">
           <div className="flex flex-col h-full justify-between">
             <div>
-              <h1 className="text-4xl font-extrabold text-gray-900 mb-3 tracking-tight">{skin.name}</h1>
+              <h1 className="text-4xl font-extrabold text-gray-900 mb-3 tracking-tight">{asset.name}</h1>
 
+              {/*
               <div className="flex gap-7 text-base text-gray-500 mb-2">
                 {skin.series && (
                   <span className="flex items-center gap-2">
@@ -147,32 +189,35 @@ const SkinPage = ({
                   </span>
                 )}
                 {skin.gameName && <span>{skin.gameName}</span>}
-                {skin.firstAppearance && (
+                {asset.firstAppearance && (
                   <span className="flex items-center gap-2">
                     <Calendar size={18} /> {skin.firstAppearance}
                   </span>
                 )}
               </div>
+               */}
 
               {/* Badge de rareté retiré */}
 
-              <p className="text-gray-700 mb-6 text-lg leading-7">{skin.description}</p>
+              <p className="text-gray-700 mb-6 text-lg leading-7">{asset.description}</p>
 
               {/* Prix centré en ligne */}
               <div className="bg-blue-50 border border-blue-200 px-7 py-6 mb-7 flex items-center justify-center gap-6 rounded-lg shadow-sm">
                 <span className="text-4xl font-extrabold text-blue-700">
-                  {formatPrice(skin.price)} €
+                  {formatPrice(asset.price)} €
                 </span>
-                {skin.originalPrice && (
+                {/*
+                {asset.price && (
                   <>
                     <span className="text-xl text-gray-400 line-through">
-                      {formatPrice(skin.originalPrice)} €
+                      {formatPrice(asset.price)} €
                     </span>
                     <span className="px-3 py-2 text-sm font-semibold bg-red-500 text-white rounded-lg shadow">
-                      -{skin.discountPercentage}%
+                      -15%
                     </span>
                   </>
                 )}
+                */}
               </div>
 
               <div className="mb-7">
@@ -215,7 +260,7 @@ const SkinPage = ({
                   <div className="flex items-center">
                     <span className="text-gray-500 w-48">Rareté:</span>
                     <span className="ml-auto px-4 py-1.5 text-sm rounded-full font-semibold bg-yellow-100 text-yellow-700 shadow-sm">
-                      {skin.rarity}
+                      Legendary
                     </span>
                   </div>
 
@@ -223,7 +268,7 @@ const SkinPage = ({
                   <div className="flex items-center">
                     <span className="text-gray-500 w-48">Série:</span>
                     <span className="ml-auto px-4 py-1.5 text-sm rounded-full font-semibold bg-blue-100 text-blue-500 shadow-sm">
-                      {skin.series}
+                      Nevermore
                     </span>
                   </div>
 
@@ -231,7 +276,7 @@ const SkinPage = ({
                   <div className="flex items-center">
                     <span className="text-gray-500 w-48">Première apparition:</span>
                     <span className="ml-auto px-4 py-1.5 text-sm rounded-full font-semibold bg-gray-100 text-gray-500 shadow-sm">
-                      {skin.firstAppearance}
+                      Saison 3
                     </span>
                   </div>
 
@@ -240,7 +285,7 @@ const SkinPage = ({
                     <span className="text-gray-500 w-48">Disponibilité:</span>
                     <span className="ml-auto flex items-center gap-2 px-4 py-1.5 text-sm rounded-full font-semibold bg-green-100 text-green-700 shadow-sm">
                       <span className="w-2 h-2 rounded-full bg-green-500"></span>
-                      {skin.availability === 'available' ? 'Disponible maintenant' : 'Indisponible'}
+                      'Disponible maintenant'
                     </span>
                   </div>
                 </div>
@@ -252,5 +297,3 @@ const SkinPage = ({
     </div>
   );
 };
-
-export default SkinPage;
