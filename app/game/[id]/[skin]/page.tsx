@@ -6,6 +6,7 @@ import { useParams, useRouter } from 'next/navigation';
 import { useCurrentAccount } from '@mysten/dapp-kit';
 import { Transaction } from "@mysten/sui/transactions";
 import { useSignAndExecuteTransaction, useSuiClient } from "@mysten/dapp-kit";
+import { useNetworkVariable } from "@/networkConfig";
 
 
 
@@ -48,12 +49,12 @@ type SkinPageProps = {
 
 const tx = new Transaction();
 
-const buySkin = (skinId: string, packageId: string, signAndExecute: any, suiClient: any) => async () => {
+const buySkin = (skinId: string, packageId: string, gameId: string, suiClient: any) => async () => {
   const res = await suiClient.getObject({ skinId, options: { showContent: true } });
   tx.moveCall({
     
     target: `${packageId}::asset::mint_to`,
-    arguments: [tx.pure.string(res), suiClient, tx.pure.u64(1)],
+    arguments: [gameId, tx.pure.string(res), suiClient, tx.pure.u64(1)],
   });
   return ""
 }
@@ -66,8 +67,9 @@ const SkinPage = ({
   const account = useCurrentAccount();
   const router = useRouter();
   const client = useSuiClient();
-  const { gameId } = useParams<{ id: string }>();
-  const { skinId } = useParams<{ skin: string }>();
+  const  gameId  = useParams<{ id: string }>();
+  const  skinId  = useParams<{ skin: string }>();
+   const packageId = useNetworkVariable("packageId");
 
   const formatPrice = (price: number) => price.toFixed(2).replace('.', ',');
 
@@ -133,7 +135,7 @@ const SkinPage = ({
                     onClick={() => onPurchase(skin.id)}
                     className="w-full bg-blue-700 hover:bg-blue-800 text-white font-bold py-4 px-8 text-lg rounded-lg shadow-lg transition flex items-center justify-center gap-2"
                   >
-                    <ShoppingCart size={19} onClick={buySkin(skin.id, "", "",client)}/> Acheter maintenant
+                    <ShoppingCart size={19} onClick={buySkin(skinId.skin, packageId, gameId.id,client)}/> Acheter maintenant
                   </button>
                 ) : (
                   <button
