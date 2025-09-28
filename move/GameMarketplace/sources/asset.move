@@ -2,6 +2,7 @@ module game_marketplace::asset;
 
 use game_marketplace::game;
 use std::string;
+use sui::event;
 
 const ASSET_WRONG_GAME: u64 = 1;
 const ASSET_NOT_OWNER: u64 = 2;
@@ -44,6 +45,11 @@ public fun gameId(_asset: &Asset): ID { _asset.gameId }
 
 public fun gameOwner(_asset: &Asset): address { _asset.gameOwner }
 
+public struct AssetCreated has copy, drop {
+    asset_id: ID,
+    creator: address,
+}
+
 #[allow(lint(self_transfer))]
 public fun create_asset(
     _name: vector<u8>,
@@ -81,6 +87,11 @@ public fun create_asset(
         metaData: _metaData,
         renderingMetaData: _renderingMetaData,
     };
+
+    event::emit(AssetCreated {
+        asset_id: object::id(&asset),
+        creator: tx_context::sender(ctx),
+    });
 
     transfer::public_transfer(asset, tx_context::sender(ctx));
 }

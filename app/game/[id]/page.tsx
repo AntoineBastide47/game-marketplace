@@ -5,6 +5,8 @@ import { ArrowLeft, Search, ChevronDown, Sparkles } from "lucide-react";
 import type { Asset, Rarity } from "@/other/types/asset";
 import { useParams, useRouter } from "next/navigation";
 import { useSuiClient } from "@/other/contexts/SuiClientContext";
+import { useCurrentAccount } from "@mysten/dapp-kit";
+import { useNetworkVariable } from "@/networkConfig";
 
 // Helpers
 const formatPrice = (v: number, locale = "fr-FR", currency = "EUR") =>
@@ -75,16 +77,19 @@ const normalizeRarity = (value: string | undefined | null): Rarity => {
 };
 
 const getRarity = (a: Asset): Rarity => {
+  /*
   const direct = a.metaData?.find((m) => m.name.toLowerCase() === "rarity")?.value;
   if (direct) return normalizeRarity(direct);
   for (const m of a.metaData || []) {
     const r = m.renderingMetaData?.find((x) => x.name.toLowerCase() === "rarity")?.value;
     if (r) return normalizeRarity(r);
   }
+    */
   return "common";
 };
 
 const getImageUrl = (a: Asset): string => {
+  /*
   const tryKeys = ["image", "thumbnail", "img", "imageUrl", "cover"];
   for (const m of a.metaData || []) {
     if (tryKeys.includes(m.name.toLowerCase())) return m.value || PLACEHOLDER_IMG;
@@ -92,6 +97,7 @@ const getImageUrl = (a: Asset): string => {
       if (tryKeys.includes(r.name.toLowerCase())) return r.value || PLACEHOLDER_IMG;
     }
   }
+  */
   return PLACEHOLDER_IMG;
 };
 
@@ -185,6 +191,8 @@ export default function GamePage() {
   const router = useRouter();
   const { id } = useParams<{ id: string }>();
   const client = useSuiClient();
+  const account = useCurrentAccount();
+  const packageId = useNetworkVariable("packageId");
 
   const [query, setQuery] = useState("");
   const [rarityFilter, setRarityFilter] = useState<Rarity | "all">("all");
@@ -235,6 +243,49 @@ export default function GamePage() {
     return () => { alive = false; };
   }, [client, id]);
 
+  const gameId = id
+  useEffect(() => {
+    let alive = true;
+    (async () => {
+      const { data } = await client.queryEvents({
+        query: { MoveEventType: `${packageId}::asset::AssetCreated` },
+      });
+
+      const ids = data.map((e) => (e.parsedJson as AssetCreatedEvent).asset_id);
+
+      const loaded: (Asset | null)[] = await Promise.all(
+        ids.map(async (id) => {
+          const res = await client.getObject({ id, options: { showContent: true } });
+          const fields = (res.data?.content as any).fields;
+          return fields.gameId === gameId
+            ? {
+              id,
+              name: fields.name as string,
+              description: fields.description as string,
+              imageUrl: fields.imageUrl as string,
+              count: fields.count as number,
+              price: fields.price as number,
+              gameId: fields.gameId as string,
+              gameOwner: fields.gameOwner as string,
+              metaData: [] as string[],
+              renderingMetaData: [] as string[],
+            }
+            : null;
+        })
+      );
+
+      if (alive) setAssets(loaded.filter(g => g != null));
+    })()
+      .catch(console.error)
+      .finally(() => {
+        if (alive) setLoading(false);
+      });
+
+    return () => {
+      alive = false;
+    };
+  }, [client, packageId, account]);
+
   // liste à afficher = assets locaux
   const allItems = assets;
 
@@ -270,13 +321,6 @@ export default function GamePage() {
     return map;
   }, [allItems]);
 
-  const showUnifiedGrid = rarityFilter !== "all" || query.trim() || sort !== "popular";
-
-  // handler exigé par AddAssetModal
-  const handleCreated = (a: Asset) => {
-    setAssets((prev) => [a, ...prev]);
-  };
-
   if (loading) return <div className="p-6">Loading...</div>;
   if (error) return <div className="p-6 text-red-600">{error}</div>;
   if (!game) return <div className="p-6">Introuvable</div>;
@@ -296,24 +340,24 @@ export default function GamePage() {
             <h1 className="text-3xl md:text-5xl font-extrabold bg-gradient-to-r from-violet-500 via-fuchsia-500 to-rose-500 bg-clip-text text-transparent drop-shadow-sm tracking-tight text-center">
               {game.name}
               {(game.description || game.pageUrl) && (
-  <div className="w-full max-w-3xl text-center mt-2 md:mt-3 space-y-3">
-    {game.description && (
-      <p className="text-sm md:text-base text-zinc-700 whitespace-pre-line">
-        {game.description}
-      </p>
-    )}
-    {game.pageUrl && (
-      <a
-        href={game.pageUrl}
-        target="_blank"
-        rel="noopener noreferrer"
-        className="inline-flex items-center gap-2 px-3 py-2 rounded-xl border border-zinc-300 bg-white/80 hover:bg-white text-sm font-medium shadow-sm"
-      >
-        Visiter la page du jeu
-      </a>
-    )}
-  </div>
-)}
+                <div className="w-full max-w-3xl text-center mt-2 md:mt-3 space-y-3">
+                  {game.description && (
+                    <p className="text-sm md:text-base text-zinc-700 whitespace-pre-line">
+                      {game.description}
+                    </p>
+                  )}
+                  {game.pageUrl && (
+                    <a
+                      href={game.pageUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-2 px-3 py-2 rounded-xl border border-zinc-300 bg-white/80 hover:bg-white text-sm font-medium shadow-sm"
+                    >
+                      Visiter la page du jeu
+                    </a>
+                  )}
+                </div>
+              )}
             </h1>
             <div className="w-full max-w-4xl rounded-3xl overflow-hidden border border-white/60 bg-white/80 backdrop-blur shadow-xl">
               <img src={game.imageUrl || PLACEHOLDER_IMG} alt={game.name} className="w-full h-76 md:h-76 object-cover" />
@@ -414,7 +458,7 @@ export default function GamePage() {
                     </div>
                     <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-4 gap-6">
                       {categorized[r].map((s) => (
-                        <SkinCard key={s.id} item={s} onClick={() => { }} />
+                        <SkinCard key={s.id} item={s} onClick={() => { router.push(`/game/${gameId}/${s.id}`) }} />
                       ))}
                     </div>
                   </section>
@@ -423,8 +467,6 @@ export default function GamePage() {
             </div>
           );
         })()}
-
-        {/* MODAL */}
       </div>
     </div>
   );

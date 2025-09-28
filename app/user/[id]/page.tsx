@@ -123,8 +123,7 @@ export default function MyGames() {
         onCreated={() => {
           setShowAdd(false)
           window.location.reload();
-        }
-        }
+        }}
       />
     </main>
   );

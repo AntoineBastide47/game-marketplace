@@ -8,7 +8,7 @@ interface AddGameModalProps {
   open: boolean;
   onClose: () => void;
   onCreated: () => void;
-  
+
 }
 
 export default function AddGameModal({ open, onClose, onCreated }: AddGameModalProps) {
@@ -19,6 +19,7 @@ export default function AddGameModal({ open, onClose, onCreated }: AddGameModalP
   const [error, setError] = useState<string | null>(null);
   const packageId = useNetworkVariable("packageId");
   const suiClient = useSuiClient();
+
   const { mutate: signAndExecute, isSuccess, isPending } = useSignAndExecuteTransaction();
   const tx = new Transaction();
 
@@ -50,9 +51,7 @@ export default function AddGameModal({ open, onClose, onCreated }: AddGameModalP
     });
 
     signAndExecute(
-      {
-        transaction: tx,
-      },
+      { transaction: tx, },
       {
         onSuccess: async ({ digest }) => {
           const { effects } = await suiClient.waitForTransaction({
