@@ -371,7 +371,7 @@ export default function GamePage() {
         </div>
         <div className="container mx-auto px-4 md:px-6">
           <div className="flex flex-col items-center gap-3 pt-12 md:pt-16 pb-6 md:pb-8">
-            <BackButton onClick={() => router.push("/")} />
+            <BackButton onClick={() => router.push(`/user/${id}`)} />
             <h1 className="text-3xl md:text-5xl font-extrabold bg-gradient-to-r from-violet-500 via-fuchsia-500 to-rose-500 bg-clip-text text-transparent drop-shadow-sm tracking-tight text-center">
               {game.name}
             </h1>
