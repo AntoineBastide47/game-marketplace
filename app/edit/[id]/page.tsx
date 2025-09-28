@@ -134,7 +134,7 @@ const BackButton: React.FC<{ onClick: () => void }> = ({ onClick }) => (
 
 const SkinCard: React.FC<{ item: Asset; onClick: (item: Asset) => void }> = ({ item, onClick }) => {
   const rarity = getRarity(item);
-  const img = getImageUrl(item);
+  const img = item.imageUrl;
   return (
     <button
       type="button"

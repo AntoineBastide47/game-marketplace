@@ -225,6 +225,7 @@ export default function AddAssetModal({ open, onClose, onCreated }: Props) {
                 setPrice(Number.isFinite(n) ? n : 0);
               }}
             />
+
             {priceNegative && <FieldError message="Le prix ne peut pas être négatif." />}
             {priceZero && <FieldError message="Le prix doit être supérieur à 0." />}
 
