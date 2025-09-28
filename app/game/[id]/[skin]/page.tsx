@@ -12,6 +12,7 @@ import { useNetworkVariable } from "@/networkConfig";
 
 
 import { SuiClient } from '@mysten/sui/client';
+import { FancyConnectButton } from '@/other/components/Navbar';
 
 export type Skin = {
   id: string;
@@ -144,17 +145,27 @@ const SkinPage = ({
 
               <div className="mb-7">
                 {account ? (
+                  // Bouton "Acheter maintenant" (orange) - exactement le même que vous aviez déjà
                   <button
-                    onClick={() => onPurchase(skin.id)}
-                    className="w-full bg-blue-700 hover:bg-blue-800 text-white font-bold py-4 px-8 text-lg rounded-lg shadow-lg transition flex items-center justify-center gap-2"
+
+                    className="group w-full bg-gradient-to-r from-orange-400 to-orange-500 hover:from-orange-500 hover:to-orange-600 text-white font-bold py-6 px-8 rounded-xl transition-all duration-300 shadow-md hover:shadow-xl relative overflow-hidden"
                   >
-                    <ShoppingCart size={19} onClick={buySkin(skin.id, "", "",client)}/> Acheter maintenant
+                    <div className="absolute inset-0 w-full h-full bg-gradient-to-r from-orange-300 to-orange-400 transform scale-x-0 origin-left group-hover:scale-x-100 transition-transform duration-500 ease-out"></div>
+
+                    <div className="absolute top-0 left-0 w-full h-full flex items-center justify-center gap-4 transform group-hover:translate-y-0 group-hover:scale-105 transition-all duration-300 z-10">
+                      <ShoppingCart
+                        size={28}
+                        className="transform group-hover:rotate-12 transition-transform duration-300"
+                      />
+                      <span className="text-xl font-semibold group-hover:tracking-wider transition-all duration-300">
+                        Acheter maintenant
+                      </span>
+                    </div>
+
+                    {/* Effet de brillance au survol */}
+                    <div className="absolute inset-0 w-6 h-full bg-white/20 transform -skew-x-12 translate-x-full group-hover:translate-x-[-1000%] transition-transform duration-1000 ease-in-out"></div>
                   </button>
-                ) : (
-                  <button className="w-full bg-blue-700 hover:bg-blue-800 text-white font-semibold py-4 px-8 text-lg rounded-lg shadow-lg transition flex items-center justify-center gap-2">
-                    <Wallet size={19} /> Connecte ton wallet
-                  </button>
-                )}
+                ) : (<FancyConnectButton />)}
               </div>
 
               <hr className="my-6 border-gray-200" />
