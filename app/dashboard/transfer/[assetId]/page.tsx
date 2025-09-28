@@ -1,0 +1,128 @@
+"use client";
+import React, { useEffect, useState } from "react";
+import { useParams, useRouter } from "next/navigation";
+import { useSuiClient } from "@/other/contexts/SuiClientContext";
+import { useNetworkVariable } from "@/networkConfig";
+import { Asset } from "@/other/types/asset";
+
+type AssetMintedCreatedEvent = {
+  asset_token_id: string;
+  asset_id: string;
+  creator: string;
+};
+
+export default function DashboardPage() {
+  const router = useRouter();
+  const { id: dashboardId } = useParams<{ id: string }>();
+  const client = useSuiClient();
+  const packageId = useNetworkVariable("packageId");
+
+  const [assets, setAssets] = useState<Asset[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    let alive = true;
+
+    (async () => {
+      const { data } = await client.queryEvents({
+        query: { MoveEventType: `${packageId}::asset::AssetMintedEvent` },
+      });
+
+      const ids = data.map((e) => e.parsedJson as AssetMintedCreatedEvent);
+
+      const loaded = await Promise.all(
+        ids.map(async ({ asset_id, creator }) => {
+          try {
+            const res = await client.getObject({
+              id: asset_id,
+              options: { showContent: true },
+            });
+
+            const content = res.data?.content as any;
+            const fields = content?.fields;
+            if (!fields) return null;
+
+            return creator === dashboardId
+              ? {
+                  id: asset_id,
+                  owner: creator,
+                  name: fields.name as string,
+                  description: fields.description as string,
+                  imageUrl: fields.imageUrl as string,
+                  count: Number(fields.count) || 1,
+                  price: Number(fields.price) || 0,
+                  gameId: fields.gameId as string,
+                  gameOwner: fields.gameOwner as string,
+                  metaData: [] as string[],
+                  renderingMetaData: [] as string[],
+                }
+              : null;
+          } catch {
+            return null;
+          }
+        })
+      );
+
+      if (alive) setAssets(loaded.filter((x): x is Asset => x !== null));
+    })()
+      .catch(console.error)
+      .finally(() => {
+        if (alive) setLoading(false);
+      });
+
+    return () => {
+      alive = false;
+    };
+  }, [client, packageId, dashboardId]);
+
+  if (loading) {
+    return (
+      <main className="min-h-screen w-full bg-white text-black grid place-items-center">
+        <div className="animate-pulse">Chargement…</div>
+      </main>
+    );
+  }
+
+  return (
+    <main className="min-h-screen w-full bg-white text-black">
+      <header className="w-full pt-16 pb-8 px-4 md:px-8 lg:px-12 flex items-center justify-center">
+        <h2 className="text-center text-5xl md:text-6xl font-extrabold tracking-tight">
+          My Assets
+        </h2>
+      </header>
+
+      <section className="w-full px-4 md:px-8 lg:px-12 pb-16">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-8">
+          {assets.map((asset) => (
+            <button
+              key={asset.id ?? asset.gameId}
+              type="button"
+              onClick={() => router.push(`/dashboard/${dashboardId}/transfer/${asset.id}`)}
+              aria-label={`Échanger ${asset.name}`}
+              className="group relative w-full overflow-hidden text-left rounded-2xl bg-white shadow-md hover:shadow-xl transition-transform duration-300 hover:-translate-y-1 focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2"
+            >
+              <div className="relative w-full aspect-[4/5]">
+                <img
+                  src={asset.imageUrl || "https://picsum.photos/600/800"}
+                  alt={asset.name}
+                  className="absolute inset-0 h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent" />
+              </div>
+
+              <div className="absolute inset-x-0 bottom-0 p-4 text-white">
+                <h3 className="text-xl font-bold">{asset.name}</h3>
+                <p className="mt-1 text-sm text-gray-200 line-clamp-2">
+                  {asset.description}
+                </p>
+                <span className="mt-3 inline-flex w-full justify-center rounded-full px-4 py-2 bg-black/80 group-hover:bg-black text-sm font-semibold transition-colors">
+                  Trade / Transfer
+                </span>
+              </div>
+            </button>
+          ))}
+        </div>
+      </section>
+    </main>
+  );
+}
