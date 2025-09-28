@@ -68,9 +68,41 @@ const SkinPage = ({
   const account = useCurrentAccount();
   const router = useRouter();
   const client = useSuiClient();
-  const  gameId  = useParams<{ id: string }>();
-  const  skinId  = useParams<{ skin: string }>();
-   const packageId = useNetworkVariable("packageId");
+  const gameId = useParams<{ id: string }>();
+  const skinId = useParams<{ skin: string }>();
+  const packageId = useNetworkVariable("packageId");
+  const { mutate: signAndExecute } = useSignAndExecuteTransaction();
+  const tx = new Transaction();
+  const [submitting, setSubmitting] = React.useState(false);
+
+  function purchase() {
+    setSubmitting(true)
+
+    tx.moveCall({
+      target: `${packageId}::asset::mint_to`,
+      arguments: [
+        tx.object(gameId.id),
+        tx.object(skinId.skin),
+        tx.pure.address(account!.address)
+      ],
+    } as any);
+
+    signAndExecute(
+      { transaction: tx },
+      {
+        onSuccess: async ({ digest }) => {
+          await client.waitForTransaction({
+            digest,
+            options: { showEffects: true },
+          })
+
+          router.push(`/game/${gameId.id}`) // TODO: change to dashboard
+          setSubmitting(false)
+        },
+        onError: () => setSubmitting(false),
+      }
+    );
+  }
 
   const formatPrice = (price: number) => price.toFixed(2).replace('.', ',');
 
@@ -147,8 +179,9 @@ const SkinPage = ({
                 {account ? (
                   // Bouton "Acheter maintenant" (orange) - exactement le même que vous aviez déjà
                   <button
-
+                    onClick={purchase}
                     className="group w-full bg-gradient-to-r from-orange-400 to-orange-500 hover:from-orange-500 hover:to-orange-600 text-white font-bold py-6 px-8 rounded-xl transition-all duration-300 shadow-md hover:shadow-xl relative overflow-hidden"
+                    disabled={submitting}
                   >
                     <div className="absolute inset-0 w-full h-full bg-gradient-to-r from-orange-300 to-orange-400 transform scale-x-0 origin-left group-hover:scale-x-100 transition-transform duration-500 ease-out"></div>
 

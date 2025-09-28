@@ -180,7 +180,7 @@ public struct AssetToken has key, store {
     asset_id: ID,
 }
 
-public fun mint_to(_game: &game::Game, _asset: &mut Asset, _to: address, ctx: &mut TxContext) {
+    public fun mint_to(_game: &game::Game, _asset: &mut Asset, _to: address, ctx: &mut TxContext) {
     check_permissions(_game, _asset, ctx);
     assert!(can_mint(_asset, 1), ASSET_INSUFFICIENT_SUPPLY);
 
