@@ -82,6 +82,10 @@ export default function AddAssetModal({ open, onClose, onCreated }: Props) {
   const priceNegative = price < 0;
   const skinsNegative = !skinsInfinite && skinsCount < 0;
 
+  // nouveaux flags "zéro interdit"
+  const priceZero = price === 0;
+  const skinsZero = !skinsInfinite && skinsCount === 0;
+
   function addMetaRow() {
     // s’il reste des clés suggérées libres, on en prend une; sinon on ouvre un champ custom
     if (availableKeys.length > 0) {
@@ -119,30 +123,9 @@ export default function AddAssetModal({ open, onClose, onCreated }: Props) {
     if (!name.trim() || !description.trim()) return;
     if (hasDuplicateKeys || hasEmptyCustomKey) return;
     if (priceNegative || skinsNegative) return;
+    if (priceZero || skinsZero) return; // blocage si 0
 
     setSubmitting(true);
-
-    /*
-const baseMeta: MetaData[] = [{ name: "rarity", value: rarity, renderingMetaData: [] }];
-if (image.trim()) {
-  baseMeta.push({ name: "image", value: image.trim(), renderingMetaData: [] });
-}
-
-const userMeta: MetaData[] = meta
-  .filter((m) => m.key.trim())
-  .map((m) => (new MetaData(m.key.trim(), m.value)));
-  
-  const asset: Asset = {
-    id,
-    name: name.trim(),
-    description: description.trim(),
-    count: 1,
-    price,
-    gameId,
-    gameOwner,
-    metaData: [...baseMeta, ...userMeta],
-  };
-  */
 
     tx.moveCall({
       target: `${packageId}::asset::create_asset`,
@@ -166,18 +149,16 @@ const userMeta: MetaData[] = meta
           await suiClient.waitForTransaction({
             digest,
             options: { showEffects: true },
-          })
+          });
 
-          onCreated()
-          resetForm()
-          setSubmitting(false)
-          onClose()
+          onCreated();
+          resetForm();
+          setSubmitting(false);
+          onClose();
         },
         onError: () => setSubmitting(false),
       }
     );
-
-    return;
   }
 
   if (!open) return null;
@@ -189,7 +170,9 @@ const userMeta: MetaData[] = meta
     hasDuplicateKeys ||
     hasEmptyCustomKey ||
     priceNegative ||
-    skinsNegative;
+    skinsNegative ||
+    priceZero || // prix doit être > 0
+    skinsZero;   // nombre doit être > 0 si non infini
 
   return (
     <div
@@ -242,9 +225,8 @@ const userMeta: MetaData[] = meta
                 setPrice(Number.isFinite(n) ? n : 0);
               }}
             />
-            {priceNegative && (
-              <FieldError message="Le prix ne peut pas être négatif." />
-            )}
+            {priceNegative && <FieldError message="Le prix ne peut pas être négatif." />}
+            {priceZero && <FieldError message="Le prix doit être supérieur à 0." />}
 
             {/* Nombre de skins + option infini */}
             <div className="space-y-2">
@@ -273,9 +255,8 @@ const userMeta: MetaData[] = meta
                 placeholder={skinsInfinite ? "Infini" : "0"}
                 className="w-full rounded-lg border px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500 disabled:bg-gray-100"
               />
-              {skinsNegative && (
-                <FieldError message="Le nombre de skins ne peut pas être négatif." />
-              )}
+              {skinsNegative && <FieldError message="Le nombre de skins ne peut pas être négatif." />}
+              {skinsZero && <FieldError message="Le nombre de skins doit être supérieur à 0 (ou cochez Infini)." />}
             </div>
           </div>
 
@@ -286,7 +267,9 @@ const userMeta: MetaData[] = meta
             <div className="mb-3 flex items-start gap-2 rounded-lg border border-amber-300 bg-amber-50 px-3 py-2 text-amber-900">
               <AlertTriangle className="h-4 w-4 mt-0.5" />
               <p className="text-sm">
-                Corrigez les métadonnées: {hasDuplicateKeys ? "clés dupliquées" : ""}{hasDuplicateKeys && hasEmptyCustomKey ? " · " : ""}{hasEmptyCustomKey ? "clé personnalisée vide" : ""}
+                Corrigez les métadonnées: {hasDuplicateKeys ? "clés dupliquées" : ""}
+                {hasDuplicateKeys && hasEmptyCustomKey ? " · " : ""}
+                {hasEmptyCustomKey ? "clé personnalisée vide" : ""}
               </p>
             </div>
           )}
@@ -514,9 +497,7 @@ function Select({
 }
 
 function FieldError({ message }: { message: string }) {
-  return (
-    <p className="text-sm text-red-600">{message}</p>
-  );
+  return <p className="text-sm text-red-600">{message}</p>;
 }
 
 /* Helpers hex */

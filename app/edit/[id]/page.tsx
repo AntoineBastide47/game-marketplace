@@ -124,16 +124,11 @@ const BackButton: React.FC<{ onClick: () => void }> = ({ onClick }) => (
   <button
     type="button"
     onClick={onClick}
-    aria-label="Revenir à l'aperçu"
-    className="group relative inline-flex items-center h-11 rounded-2xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 active:translate-y-px transition-transform"
+    aria-label="Revenir"
+    className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-white/80 border border-zinc-300 shadow-sm hover:bg-white transition"
   >
-    <span aria-hidden className="pointer-events-none absolute -inset-px rounded-2xl opacity-70 blur-[6px] transition-opacity duration-300 group-hover:opacity-100 bg-[conic-gradient(from_180deg_at_50%_50%,theme(colors.indigo.300)_0deg,transparent_90deg,theme(colors.fuchsia.300)_180deg,transparent_270deg,theme(colors.rose.300)_360deg)]" />
-    <span className="relative z-10 inline-flex items-center gap-2 h-[42px] pl-3 pr-4 rounded-[14px] bg-white/75 backdrop-blur-md border border-white/70 shadow-sm">
-      <ArrowLeft className="h-4 w-4" aria-hidden />
-      <span className="font-semibold tracking-tight">Retour</span>
-    </span>
-    <span aria-hidden className="pointer-events-none absolute right-0 top-0 h-full w-24 translate-x-10 group-hover:translate-x-0 transition-transform duration-300 bg-gradient-to-l from-fuchsia-300/40 to-transparent rounded-2xl" />
-    <span aria-hidden className="pointer-events-none absolute inset-0 rounded-2xl [mask-image:radial-gradient(80%_50%_at_30%_0%,#000,transparent)] -translate-x-1/2 group-hover:translate-x-full transition-transform duration-700 ease-out bg-gradient-to-r from-white/0 via-white/60 to-white/0" />
+    <ArrowLeft className="h-4 w-4" aria-hidden />
+    <span className="font-semibold">Retour</span>
   </button>
 );
 
@@ -424,66 +419,50 @@ export default function GamePage() {
 
       <div className="container mx-auto px-4 md:px-6 pb-12">
         {/* BARRE D'OUTILS */}
-        <div className="sticky top-0 z-10 -mx-4 md:-mx-6 px-4 md:px-6 py-3 mb-6 backdrop-blur supports-[backdrop-filter]:bg-white/55 bg-white/80 border-b border-white/60">
-          <div className="max-w-6xl mx-auto grid grid-cols-12 gap-3 md:gap-4 items-center">
-            {/* Back button à gauche */}
-            <div className="col-span-12 md:col-span-2 order-1">
-              <BackButton onClick={() => router.push(`/user/${id}`)} />
-            </div>
-
-            {/* Search */}
-            <div className="col-span-12 md:col-span-5 order-2">
-              <label htmlFor="search" className="sr-only">Rechercher</label>
-              <div className="relative">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-zinc-500" aria-hidden />
-                <input
-                  id="search"
-                  value={query}
-                  onChange={(e) => setQuery(e.target.value)}
-                  placeholder="Rechercher un objet…"
-                  className="w-full h-11 pl-10 pr-3 rounded-2xl border border-zinc-300/80 bg-white/80 hover:bg-white focus:bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500 shadow-sm"
-                />
-              </div>
-            </div>
-
-            {/* Rarity select */}
-            <div className="col-span-6 md:col-span-3 order-3">
-              <div className="relative">
-                <ChevronDown className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-zinc-500" />
-                <select
-                  id="rarity"
-                  value={rarityFilter}
-                  onChange={(e) => setRarityFilter(e.target.value as any)}
-                  className="appearance-none h-11 pl-3 pr-9 w-full rounded-2xl border border-zinc-300/80 bg-white/80 hover:bg-white focus:bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500 shadow-sm text-sm font-medium"
-                >
-                  <option value="all">Toutes les raretés</option>
-                  {availableRarities.map((r) => (
-                    <option key={r} value={r}>
-                      {labelByFilter[r]}
-                    </option>
-                  ))}
-                </select>
-              </div>
-            </div>
-
-            {/* Sort */}
-            <div className="col-span-6 md:col-span-2 order-4">
-              <div className="relative">
-                <ChevronDown className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-zinc-500" />
-                <select
-                  id="sort"
-                  value={sort}
-                  onChange={(e) => setSort(e.target.value as any)}
-                  className="appearance-none h-11 pl-3 pr-9 w-full rounded-2xl border border-zinc-300/80 bg-white/80 hover:bg-white focus:bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500 shadow-sm text-sm font-medium"
-                >
-                  <option value="popular">Populaires</option>
-                  <option value="priceAsc">Prix croissant</option>
-                  <option value="priceDesc">Prix décroissant</option>
-                </select>
-              </div>
-            </div>
-          </div>
-        </div>
+                <div className="sticky top-0 z-10 -mx-4 px-4 py-3 mb-6 backdrop-blur bg-white/80 border-b border-white/60">
+                  <div className="max-w-6xl mx-auto flex flex-wrap items-center gap-3">
+                    <BackButton onClick={() => router.back()} />
+                    <div className="flex-1 min-w-[200px]">
+                      <div className="relative">
+                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-zinc-500" />
+                        <input
+                          id="search"
+                          value={query}
+                          onChange={(e) => setQuery(e.target.value)}
+                          placeholder="Rechercher un objet…"
+                          className="w-full h-11 pl-10 pr-3 rounded-2xl border bg-white/80 hover:bg-white focus:bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500 shadow-sm"
+                        />
+                      </div>
+                    </div>
+                    <div>
+                      <select
+                        id="rarity"
+                        value={rarityFilter}
+                        onChange={(e) => setRarityFilter(e.target.value as any)}
+                        className="h-11 pl-3 pr-9 rounded-2xl border bg-white/80 focus:outline-none focus:ring-2 focus:ring-indigo-500 shadow-sm text-sm font-medium"
+                      >
+                        <option value="all">Toutes les raretés</option>
+                        {availableRarities.map((r) => (
+                          <option key={r} value={r}>
+                            {labelByFilter[r]}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                    <div>
+                      <select
+                        id="sort"
+                        value={sort}
+                        onChange={(e) => setSort(e.target.value as any)}
+                        className="h-11 pl-3 pr-9 rounded-2xl border bg-white/80 focus:outline-none focus:ring-2 focus:ring-indigo-500 shadow-sm text-sm font-medium"
+                      >
+                        <option value="popular">Populaires</option>
+                        <option value="priceAsc">Prix croissant</option>
+                        <option value="priceDesc">Prix décroissant</option>
+                      </select>
+                    </div>
+                  </div>
+                </div>
 
         {/* CONTENT */}
         {(() => {
