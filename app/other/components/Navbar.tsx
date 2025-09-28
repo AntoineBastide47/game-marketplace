@@ -1,8 +1,10 @@
 "use client";
 
 import * as React from "react";
+import Link from "next/link";
 import { Search, Wallet } from "lucide-react";
 import { ConnectModal, useCurrentAccount, useDisconnectWallet } from '@mysten/dapp-kit';
+import '@mysten/dapp-kit/dist/index.css';
 
 export function FancyConnectButton() {
   const account = useCurrentAccount();
