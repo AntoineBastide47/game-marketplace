@@ -1,4 +1,3 @@
-// app/edit/[id]/page.tsx
 "use client";
 import React, { useEffect, useMemo, useState } from "react";
 import type { Game } from "@/other/types/game";
@@ -6,54 +5,20 @@ import { ArrowLeft, Search, ChevronDown, Plus } from "lucide-react";
 import type { Asset, Rarity } from "@/other/types/asset";
 import { useParams, useRouter } from "next/navigation";
 import { useSuiClient } from "@/other/contexts/SuiClientContext";
-import AddGameItemModal from "../../other/components/AddAssetModal";
+// importe bien le default export du fichier AddAssetModal.tsx
+import AddAssetModal from "@/other/components/AddAssetModal";
 
-/* Helpers */
+// Helpers
 const formatPrice = (v: number, locale = "fr-FR", currency = "EUR") =>
   new Intl.NumberFormat(locale, { style: "currency", currency }).format(v);
 
 const PLACEHOLDER_IMG = "https://picsum.photos/600/800";
 
-/* Styles décoratifs */
+// Décorations partagées
 const glowBorder =
   "relative before:absolute before:inset-0 before:rounded-[14px] before:p-[1px] before:bg-gradient-to-br before:from-white/40 before:via-white/10 before:to-white/0 before:[mask:linear-gradient(#000_0_0)_content-box,linear-gradient(#000_0_0)] before:[mask-composite:exclude]";
 
-/* Carte d’ajout */
-const AddCard: React.FC<{ onClick: () => void }> = ({ onClick }) => (
-  <button
-    type="button"
-    onClick={onClick}
-    aria-label="Ajouter un skin"
-    className={`group relative text-left cursor-pointer focus:outline-none rounded-2xl ${glowBorder}
-      transition-transform duration-300 hover:-translate-y-1 hover:scale-105`}
-  >
-    <span aria-hidden className="pointer-events-none absolute inset-0 rounded-2xl border-2 border-transparent transition-all duration-300 group-hover:border-indigo-500" />
-    <div className="relative p-[3px] rounded-2xl shadow-xl bg-gradient-to-b from-zinc-100 to-white">
-      <div className="rounded-[18px] bg-white/60 backdrop-blur-md border-2 border-dashed border-zinc-300">
-        <div className="aspect-[3/4] w-full overflow-hidden rounded-t-[18px] grid place-items-center p-3">
-          <div className="flex flex-col items-center justify-center gap-3 text-zinc-500">
-            <div className="h-16 w-16 rounded-2xl border-2 border-dashed grid place-items-center">
-              <Plus className="h-8 w-8" aria-hidden />
-            </div>
-            <span className="font-semibold">Ajouter un skin</span>
-            <span className="text-xs">Créer un nouvel asset pour ce jeu</span>
-          </div>
-        </div>
-        <div className="p-5">
-          <div className="flex items-start justify-between gap-3">
-            <h3 className="font-bold text-lg md:text-xl text-zinc-700 truncate">Nouveau</h3>
-            <span className="px-3 py-1.5 rounded-full text-xs md:text-sm tracking-wide font-extrabold uppercase bg-white text-zinc-500 ring-1 ring-zinc-200">
-              +
-            </span>
-          </div>
-          <p className="text-zinc-500 text-base md:text-lg mt-3 font-medium">Cliquer pour ajouter</p>
-        </div>
-      </div>
-    </div>
-  </button>
-);
-
-/* Couleurs par rareté */
+// Couleurs par rareté
 const rarityBadgeClass: Record<Rarity, string> = {
   common: "bg-zinc-200 text-zinc-900 ring-1 ring-zinc-300/60",
   uncommon: "bg-emerald-200 text-emerald-900 ring-1 ring-emerald-300/60",
@@ -80,7 +45,6 @@ const rarityBgGradient: Record<Rarity, string> = {
   transcendent: "from-rose-700 via-rose-400 to-rose-100",
 };
 
-/* Dégradés d’en-tête */
 const headerGradient: Record<Rarity, string> = {
   common: "from-zinc-400 to-zinc-700",
   uncommon: "from-emerald-400 to-emerald-700",
@@ -94,7 +58,6 @@ const headerGradient: Record<Rarity, string> = {
   transcendent: "from-rose-400 to-rose-700",
 };
 
-/* Rareté et image depuis metaData */
 const normalizeRarity = (value: string | undefined | null): Rarity => {
   const v = (value || "").toLowerCase().trim();
   const all: Rarity[] = [
@@ -109,21 +72,21 @@ const normalizeRarity = (value: string | undefined | null): Rarity => {
     "divine",
     "transcendent",
   ];
-  return (all.find(r => r === (v as Rarity)) ?? "common") as Rarity;
+  return (all.find((r) => r === (v as Rarity)) ?? "common") as Rarity;
 };
 
 const getRarity = (a: Asset): Rarity => {
-  const direct = a.metaData?.find(m => m.name.toLowerCase() === "rarity")?.value;
+  const direct = a.metaData?.find((m) => m.name.toLowerCase() === "rarity")?.value;
   if (direct) return normalizeRarity(direct);
   for (const m of a.metaData || []) {
-    const r = m.renderingMetaData?.find(x => x.name.toLowerCase() === "rarity")?.value;
+    const r = m.renderingMetaData?.find((x) => x.name.toLowerCase() === "rarity")?.value;
     if (r) return normalizeRarity(r);
   }
   return "common";
 };
 
 const getImageUrl = (a: Asset): string => {
-  const tryKeys = ["image", "thumbnail", "img", "imageurl", "cover"];
+  const tryKeys = ["image", "thumbnail", "img", "imageUrl", "cover"];
   for (const m of a.metaData || []) {
     if (tryKeys.includes(m.name.toLowerCase())) return m.value || PLACEHOLDER_IMG;
     for (const r of m.renderingMetaData || []) {
@@ -133,7 +96,6 @@ const getImageUrl = (a: Asset): string => {
   return PLACEHOLDER_IMG;
 };
 
-/* UI sous-composants */
 const Badge: React.FC<{ rarity: Rarity }> = ({ rarity }) => (
   <span className={`px-3 py-1.5 rounded-full text-xs md:text-sm tracking-wide font-extrabold uppercase ${rarityBadgeClass[rarity]}`}>
     {rarity}
@@ -156,7 +118,7 @@ const BackButton: React.FC<{ onClick: () => void }> = ({ onClick }) => (
   >
     <span aria-hidden className="pointer-events-none absolute -inset-px rounded-2xl opacity-70 blur-[6px] transition-opacity duration-300 group-hover:opacity-100 bg-[conic-gradient(from_180deg_at_50%_50%,theme(colors.indigo.300)_0deg,transparent_90deg,theme(colors.fuchsia.300)_180deg,transparent_270deg,theme(colors.rose.300)_360deg)]" />
     <span className="relative z-10 inline-flex items-center gap-2 h-[42px] pl-3 pr-4 rounded-[14px] bg-white/75 backdrop-blur-md border border-white/70 shadow-sm">
-      <ArrowLeft className="h-4 w-4 transition-transform duration-200 group-hover:-translate-x-0.5" aria-hidden />
+      <ArrowLeft className="h-4 w-4" aria-hidden />
       <span className="font-semibold tracking-tight">Retour</span>
     </span>
     <span aria-hidden className="pointer-events-none absolute right-0 top-0 h-full w-24 translate-x-10 group-hover:translate-x-0 transition-transform duration-300 bg-gradient-to-l from-fuchsia-300/40 to-transparent rounded-2xl" />
@@ -176,7 +138,7 @@ const SkinCard: React.FC<{ item: Asset; onClick: (item: Asset) => void }> = ({ i
     >
       <span aria-hidden className="pointer-events-none absolute inset-0 rounded-2xl border-2 border-transparent transition-all duration-300 group-hover:border-indigo-500" />
       <div className={`relative bg-gradient-to-b ${rarityBgGradient[rarity]} p-[3px] rounded-2xl shadow-xl`}>
-        <div className="rounded-[18px] bg-white/50 backdrop-blur-md border border-white/60">
+        <div className="rounded-[18px] bg-white/60 backdrop-blur-md border border-white/60">
           <div className="aspect-[3/4] w-full overflow-hidden rounded-t-[18px] grid place-items-center p-3">
             <img src={img} alt={item.name} className="w-full h-full object-contain transition-transform duration-300 group-hover:scale-110" />
           </div>
@@ -193,6 +155,26 @@ const SkinCard: React.FC<{ item: Asset; onClick: (item: Asset) => void }> = ({ i
   );
 };
 
+
+const AddCard: React.FC<{ onClick: () => void }> = ({ onClick }) => (
+  <div className="flex justify-center">
+    <button
+      type="button"
+      onClick={onClick}
+      aria-label="Ajouter un asset"
+      className="aspect-square w-48 rounded-2xl border-2 border-dashed border-zinc-300 bg-white
+                 hover:bg-zinc-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-colors
+                 flex flex-col items-center justify-center gap-2 p-4"
+    >
+      <div className="h-12 w-12 rounded-xl border-2 border-dashed border-zinc-300 grid place-items-center">
+        <Plus className="h-6 w-6" aria-hidden />
+      </div>
+      <span className="font-semibold text-zinc-700">Ajouter</span>
+      <span className="text-xs text-zinc-500">Nouvel asset</span>
+    </button>
+  </div>
+);
+
 const labelByFilter: Record<"all" | Rarity, string> = {
   all: "Tous",
   common: "Commun",
@@ -207,7 +189,6 @@ const labelByFilter: Record<"all" | Rarity, string> = {
   transcendent: "Transcendant",
 };
 
-/* Ordre des sections */
 const rarityOrder: Rarity[] = [
   "common",
   "uncommon",
@@ -234,13 +215,10 @@ export default function GamePage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  // état du modal d'ajout
+  // état des assets (local) + modal
+  const [assets, setAssets] = useState<Asset[]>([]);
   const [showAdd, setShowAdd] = useState(false);
 
-  // état local des assets (pour voir immédiatement ce qu’on ajoute)
-  const [assets, setAssets] = useState<Asset[]>([]);
-
-  /* Chargement du jeu */
   useEffect(() => {
     let alive = true;
     (async () => {
@@ -276,15 +254,26 @@ export default function GamePage() {
         if (alive) setLoading(false);
       }
     })();
-    return () => {
-      alive = false;
-    };
+    return () => { alive = false; };
   }, [client, id]);
 
-  /* Source unique des items pour l’UI */
+  // liste à afficher = assets locaux
   const allItems = assets;
 
-  /* Filtres et tri */
+  // Raretés présentes dans les assets (sert au <select>)
+  const availableRarities = useMemo(() => {
+    const present = new Set<Rarity>();
+    for (const a of allItems) present.add(getRarity(a));
+    return rarityOrder.filter((r) => present.has(r));
+  }, [allItems]);
+
+  // Si la rareté choisie n'est plus disponible (ex: filtrage dynamique), on revient à "all"
+  useEffect(() => {
+    if (rarityFilter !== "all" && !availableRarities.includes(rarityFilter)) {
+      setRarityFilter("all");
+    }
+  }, [availableRarities, rarityFilter]);
+
   const filtered = useMemo(() => {
     let list = allItems;
     if (rarityFilter !== "all") list = list.filter((i) => getRarity(i) === rarityFilter);
@@ -297,7 +286,6 @@ export default function GamePage() {
     return list;
   }, [allItems, rarityFilter, query, sort]);
 
-  /* Catégories effectives */
   const categorized = useMemo(() => {
     const map = {} as Record<Rarity, Asset[]>;
     for (const r of rarityOrder) map[r] = allItems.filter((i) => getRarity(i) === r);
@@ -306,29 +294,61 @@ export default function GamePage() {
 
   const showUnifiedGrid = rarityFilter !== "all" || query.trim() || sort !== "popular";
 
-  if (loading) return <div>Loading...</div>;
-  if (error) return <div>{error}</div>;
-  if (!game) return <div>Introuvable</div>;
+  // handler exigé par AddAssetModal
+  const handleCreated = (a: Asset) => {
+    setAssets((prev) => [a, ...prev]);
+    setShowAdd(false);
+  };
+
+  if (loading) return <div className="p-6">Loading...</div>;
+  if (error) return <div className="p-6 text-red-600">{error}</div>;
+  if (!game) return <div className="p-6">Introuvable</div>;
 
   return (
-    <div className="min-h-screen bg-white text-zinc-800">
-      <div className="container mx-auto px-4 md:px-6 py-6 md:py-8">
-        <div className="flex flex-col items-center gap-3 mb-6 mt-6 md:mt-8">
-          <BackButton onClick={() => router.push("/")} />
-          <h1 className="text-3xl md:text-5xl font-extrabold bg-gradient-to-r from-violet-500 via-fuchsia-500 to-rose-500 bg-clip-text text-transparent drop-shadow-sm tracking-tight text-center">
-            {game.name}
-          </h1>
-        </div>
-
-        <div className="grid md:grid-cols-[320px,1fr] gap-6 items-start mb-8 md:mb-10">
-          <div className={`w-full h-[220px] md:h-[260px] overflow-hidden rounded-3xl border border-white/60 bg-white/70 backdrop-blur-md shadow-xl ${glowBorder}`}>
-            <img src={game.imageUrl || PLACEHOLDER_IMG} alt={game.name} className="w-full h-full object-cover" />
+    <div className="min-h-screen bg-gradient-to-b from-white to-zinc-50 text-zinc-800">
+      {/* HERO */}
+      <div className="relative">
+        <div className="absolute inset-0 -z-10">
+          <div className="h-76 md:h-76 w-full overflow-hidden">
+            <img src={game.imageUrl || PLACEHOLDER_IMG} alt="cover" className="w-full h-full object-cover blur-sm scale-105 opacity-70" />
           </div>
         </div>
+        <div className="container mx-auto px-4 md:px-6">
+          <div className="flex flex-col items-center gap-3 pt-12 md:pt-16 pb-6 md:pb-8">
+            <BackButton onClick={() => router.push("/") } />
+            <h1 className="text-3xl md:text-5xl font-extrabold bg-gradient-to-r from-violet-500 via-fuchsia-500 to-rose-500 bg-clip-text text-transparent drop-shadow-sm tracking-tight text-center">
+              {game.name}
+            </h1>
+            {(game.description || game.pageUrl) && (
+              <div className="w-full max-w-3xl text-center mt-2 md:mt-3 space-y-3">
+                {game.description && (
+                  <p className="text-sm md:text-base text-zinc-700 whitespace-pre-line">{game.description}</p>
+                )}
+                {game.pageUrl && (
+                  <a
+                    href={game.pageUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-2 px-3 py-2 rounded-xl border border-zinc-300 bg-white/80 hover:bg-white text-sm font-medium shadow-sm"
+                  >
+                    Visiter la page du jeu
+                  </a>
+                )}
+              </div>
+            )}
+            <div className="w-full max-w-4xl rounded-3xl overflow-hidden border border-white/60 bg-white/80 backdrop-blur shadow-xl">
+              <img src={game.imageUrl || PLACEHOLDER_IMG} alt={game.name} className="w-full h-76 md:h-76 object-cover" />
+            </div>
+          </div>
+        </div>
+      </div>
 
+      <div className="container mx-auto px-4 md:px-6 pb-12">
+        {/* BARRE D'OUTILS */}
         <div className="sticky top-0 z-10 -mx-4 md:-mx-6 px-4 md:px-6 py-3 mb-6 backdrop-blur supports-[backdrop-filter]:bg-white/55 bg-white/80 border-b border-white/60">
-          <div className="max-w-6xl mx-auto flex flex-col md:flex-row md:items-center gap-3 md:gap-4">
-            <div className="flex-1 min-w-[220px]">
+          <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-12 gap-3 md:gap-4 items-center">
+            {/* Search */}
+            <div className="md:col-span-6">
               <label htmlFor="search" className="sr-only">Rechercher</label>
               <div className="relative">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-zinc-500" aria-hidden />
@@ -342,45 +362,35 @@ export default function GamePage() {
               </div>
             </div>
 
-            <div className="flex items-center gap-2">
-              <div className="inline-flex p-1 rounded-2xl bg-white/80 border border-zinc-200 backdrop-blur shadow-sm">
-                {([
-                  "all",
-                  "common",
-                  "uncommon",
-                  "rare",
-                  "epic",
-                  "legendary",
-                  "mythic",
-                  "exotic",
-                  "ancient",
-                  "divine",
-                  "transcendent",
-                ] as const).map((r) => {
-                  const active = rarityFilter === r;
-                  return (
-                    <button
-                      key={r}
-                      type="button"
-                      onClick={() => setRarityFilter(r as any)}
-                      aria-pressed={active}
-                      className={`h-9 px-4 rounded-xl text-sm font-semibold transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 ${active ? "bg-zinc-900 text-white shadow" : "text-zinc-800 hover:bg-white"}`}
-                    >
-                      {labelByFilter[r as keyof typeof labelByFilter]}
-                    </button>
-                  );
-                })}
+            {/* Rarity select (dynamique) */}
+            <div className="md:col-span-3">
+              <div className="relative">
+                <ChevronDown className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-zinc-500" />
+                <select
+                  id="rarity"
+                  value={rarityFilter}
+                  onChange={(e) => setRarityFilter(e.target.value as any)}
+                  className="appearance-none h-11 pl-3 pr-9 w-full rounded-2xl border border-zinc-300/80 bg-white/80 hover:bg-white focus:bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500 shadow-sm text-sm font-medium"
+                >
+                  <option value="all">Toutes les raretés</option>
+                  {availableRarities.map((r) => (
+                    <option key={r} value={r}>
+                      {labelByFilter[r]}
+                    </option>
+                  ))}
+                </select>
               </div>
             </div>
 
-            <div>
+            {/* Sort */}
+            <div className="md:col-span-2">
               <div className="relative">
                 <ChevronDown className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-zinc-500" />
                 <select
                   id="sort"
                   value={sort}
                   onChange={(e) => setSort(e.target.value as any)}
-                  className="appearance-none h-11 pl-3 pr-9 rounded-2xl border border-zinc-300/80 bg-white/80 hover:bg-white focus:bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500 shadow-sm text-sm font-medium"
+                  className="appearance-none h-11 pl-3 pr-9 w-full rounded-2xl border border-zinc-300/80 bg-white/80 hover:bg-white focus:bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500 shadow-sm text-sm font-medium"
                 >
                   <option value="popular">Populaires</option>
                   <option value="priceAsc">Prix croissant</option>
@@ -388,52 +398,71 @@ export default function GamePage() {
                 </select>
               </div>
             </div>
+
+            
           </div>
         </div>
 
-        {showUnifiedGrid ? (
-          filtered.length === 0 ? (
-            <div className="p-6 md:p-8 bg-white/70 rounded-2xl border border-dashed text-zinc-600 backdrop-blur">
-              Aucun résultat. Essayez un autre terme ou filtre.
+        {/* CONTENT */}
+        {(() => {
+          const showUnifiedGrid = rarityFilter !== "all" || query.trim() || sort !== "popular";
+          if (showUnifiedGrid) {
+            return filtered.length === 0 ? (
+              <div className="p-6 md:p-8 bg-white/70 rounded-2xl border border-dashed text-zinc-600 backdrop-blur">
+                Aucun résultat. Essayez un autre terme ou filtre.
+              </div>
+            ) : (
+              <>
+                <div className="flex items-center justify-between mb-3">
+                  <p className="text-sm text-zinc-600">
+                    {filtered.length} résultat{filtered.length > 1 ? "s" : ""}
+                  </p>
+                </div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-4 gap-6">
+                  {/* Carte d'ajout en tête de grille */}
+                  <AddCard onClick={() => setShowAdd(true)} />
+                  {filtered.map((s) => (
+                    <SkinCard key={s.id} item={s} onClick={() => { }} />
+                  ))}
+                </div>
+              </>
+            );
+          }
+          return (
+            <div className="space-y-10">
+              {rarityOrder.map((r) =>
+                categorized[r].length > 0 ? (
+                  <section key={r}>
+                    <div className="flex items-center justify-between">
+                      <SectionHeader title={labelByFilter[r]} gradientClass={headerGradient[r]} />
+                      <span className="text-sm text-zinc-600">{categorized[r].length} item{categorized[r].length > 1 ? "s" : ""}</span>
+                    </div>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-4 gap-6">
+                      {/* Carte d'ajout en tête de chaque section */}
+                      <AddCard onClick={() => setShowAdd(true)} />
+                      {categorized[r].map((s) => (
+                        <SkinCard key={s.id} item={s} onClick={() => { }} />
+                      ))}
+                    </div>
+                  </section>
+                ) : null
+              )}
             </div>
-          ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-4 gap-6">
-              {filtered.map((s) => (
-                <SkinCard key={s.id} item={s} onClick={() => router.push(`/game/${game.id}/${s.id}`)} />
-              ))}
-            </div>
-          )
-        ) : (
-          <div className="space-y-10">
-            {rarityOrder.map((r) =>
-              categorized[r].length > 0 ? (
-                <section key={r}>
-                  <SectionHeader title={labelByFilter[r]} gradientClass={headerGradient[r]} />
-                  <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-4 gap-6">
-                    {categorized[r].map((s) => (
-                      <SkinCard key={s.id} item={s} onClick={() => router.push(`/game/${game.id}/${s.id}`)} />
-                    ))}
-                  </div>
-                </section>
-              ) : null
-            )}
-          </div>
-        )}
+          );
+        })()}
 
-        {/* Carte d’ajout en bas */}
+        {/* Carte d’ajout en bas (fallback) */}
         <div className="mt-10">
           <AddCard onClick={() => setShowAdd(true)} />
         </div>
 
-        {/* Modal d’ajout */}
-        <AddGameItemModal
+        {/* MODAL d’ajout (conservé depuis la 2e page) */}
+        <AddAssetModal
           open={showAdd}
           onClose={() => setShowAdd(false)}
           gameId={game.id}
-          onCreated={(asset) => {
-            setAssets((prev) => [asset, ...prev]);
-            setShowAdd(false);
-          }}
+          gameOwner={game.owner}
+          onCreated={handleCreated}
         />
       </div>
     </div>
