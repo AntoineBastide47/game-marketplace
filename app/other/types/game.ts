@@ -1,5 +1,3 @@
-// app/types/game.ts
-export type Rarity = "common" | "rare" | "legendary";
 
 export type Game = {
   id: string;
