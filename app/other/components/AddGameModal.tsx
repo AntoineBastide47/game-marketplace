@@ -9,6 +9,7 @@ interface AddGameModalProps {
   open: boolean;
   onClose: () => void;
   onCreated: () => void;
+  
 }
 
 export default function AddGameModal({ open, onClose, onCreated }: AddGameModalProps) {

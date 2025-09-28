@@ -9,29 +9,36 @@ const ASSET_INVALID_COUNT: u64 = 3;
 const ASSET_INVALID_PRICE: u64 = 4;
 const ASSET_EMPTY_NAME: u64 = 5;
 const ASSET_EMPTY_DESCRIPTION: u64 = 6;
+const ASSET_EMPTY_URL: u64 = 7;
+const ASSET_INSUFFICIENT_SUPPLY: u64 = 8;
+
+const ASSET_INFINITE: u64 = 18446744073709551615;
+
+fun is_infinite(n: u64): bool { n == ASSET_INFINITE }
 
 #[allow(unused_field)]
-public struct MetaData has store, copy, drop {
+public struct MetaData has copy, drop, store {
     name: string::String,
     value: string::String,
 }
 
 #[allow(unused_field)]
-public struct AssetMetaData has store, copy, drop {
+public struct AssetMetaData has copy, drop, store {
     name: string::String,
     value: string::String,
-    renderingMetaData: vector<MetaData>
+    renderingMetaData: vector<MetaData>,
 }
 
 public struct Asset has key, store {
     id: UID,
     name: string::String,
     description: string::String,
+    imageUrl: string::String,
     count: u64,
     price: u64,
     gameId: ID,
     gameOwner: address,
-    metaData: vector<AssetMetaData>
+    metaData: vector<AssetMetaData>,
 }
 
 public fun id(_asset: &Asset): ID { object::id(_asset) }
@@ -52,6 +59,7 @@ public fun gameOwner(_asset: &Asset): address { _asset.gameOwner }
 public fun create_asset(
     _name: vector<u8>,
     _description: vector<u8>,
+    _imageUrl: vector<u8>,
     _count: u64,
     _price: u64,
     _gameId: ID,
@@ -65,18 +73,22 @@ public fun create_asset(
     let description = string::utf8(_description);
     assert!(!string::is_empty(&description), ASSET_EMPTY_DESCRIPTION);
 
-    assert!(_count > 0, ASSET_INVALID_COUNT);
+    let imageUrl = string::utf8(_imageUrl);
+    assert!(!string::is_empty(&imageUrl), ASSET_EMPTY_URL);
+
+    assert!(_count == ASSET_INFINITE || _count > 0, ASSET_INVALID_COUNT);
     assert!(_price > 0, ASSET_INVALID_PRICE);
 
     let asset = Asset {
         id: object::new(ctx),
         name: name,
         description: description,
+        imageUrl: imageUrl,
         count: _count,
         price: _price,
         gameId: _gameId,
         gameOwner: _gameOwner,
-        metaData: _metaData
+        metaData: _metaData,
     };
 
     transfer::public_transfer(asset, tx_context::sender(ctx));
@@ -105,14 +117,24 @@ public fun set_description(
     _asset.description = description;
 }
 
-public fun set_name(_game: &game::Game, _asset: &mut Asset, _name: vector<u8>, ctx: &mut TxContext) {
+public fun set_name(
+    _game: &game::Game,
+    _asset: &mut Asset,
+    _name: vector<u8>,
+    ctx: &mut TxContext,
+) {
     check_permissions(_game, _asset, ctx);
     let name = string::utf8(_name);
     assert!(!string::is_empty(&name), ASSET_EMPTY_NAME);
     _asset.name = name;
 }
 
-public fun set_metadata(_game: &game::Game, _asset: &mut Asset, _metaData: vector<AssetMetaData>, ctx: &mut TxContext) {
+public fun set_metadata(
+    _game: &game::Game,
+    _asset: &mut Asset,
+    _metaData: vector<AssetMetaData>,
+    ctx: &mut TxContext,
+) {
     check_permissions(_game, _asset, ctx);
     _asset.metaData = _metaData
 }
@@ -120,7 +142,21 @@ public fun set_metadata(_game: &game::Game, _asset: &mut Asset, _metaData: vecto
 public fun increase_by(_game: &game::Game, _asset: &mut Asset, _amount: u64, ctx: &mut TxContext) {
     check_permissions(_game, _asset, ctx);
     assert!(_amount > 0, ASSET_INVALID_COUNT);
-    _asset.count = _asset.count + _amount;
+    if (!is_infinite(_asset.count)) {
+        _asset.count = _asset.count + _amount;
+    }
+}
+
+public fun can_mint(_asset: &Asset, _amount: u64): bool {
+    _amount > 0 && (is_infinite(_asset.count) || _asset.count >= _amount)
+}
+
+public fun consume_supply(_asset: &mut Asset, _amount: u64) {
+    assert!(_amount > 0, ASSET_INVALID_COUNT);
+    if (!is_infinite(_asset.count)) {
+        assert!(_asset.count >= _amount, ASSET_INSUFFICIENT_SUPPLY);
+        _asset.count = _asset.count - _amount;
+    }
 }
 
 public fun transfer_asset(_asset: Asset, _newOwner: address) {
