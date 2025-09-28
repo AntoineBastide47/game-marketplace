@@ -1,12 +1,17 @@
 "use client";
 import React, { useEffect, useMemo, useState } from "react";
 import type { Game } from "@/other/types/game";
-import { ArrowLeft, Search, ChevronDown, Sparkles } from "lucide-react";
+import { ArrowLeft, Search, ChevronDown } from "lucide-react";
 import type { Asset, Rarity } from "@/other/types/asset";
 import { useParams, useRouter } from "next/navigation";
 import { useSuiClient } from "@/other/contexts/SuiClientContext";
 import { useCurrentAccount } from "@mysten/dapp-kit";
 import { useNetworkVariable } from "@/networkConfig";
+
+export type AssetCreatedEvent = {
+  asset_id: string;
+  creator: string;
+};
 
 // Helpers
 const formatPrice = (v: number, locale = "fr-FR", currency = "EUR") =>
@@ -17,7 +22,6 @@ const PLACEHOLDER_IMG = "https://picsum.photos/600/800";
 // Décorations partagées
 const glowBorder =
   "relative before:absolute before:inset-0 before:rounded-[14px] before:p-[1px] before:bg-gradient-to-br before:from-white/40 before:via-white/10 before:to-white/0 before:[mask:linear-gradient(#000_0_0)_content-box,linear-gradient(#000_0_0)] before:[mask-composite:exclude]";
-
 
 // Couleurs par rareté
 const rarityBadgeClass: Record<Rarity, string> = {
@@ -76,30 +80,8 @@ const normalizeRarity = (value: string | undefined | null): Rarity => {
   return (all.find((r) => r === (v as Rarity)) ?? "common") as Rarity;
 };
 
-const getRarity = (a: Asset): Rarity => {
-  /*
-  const direct = a.metaData?.find((m) => m.name.toLowerCase() === "rarity")?.value;
-  if (direct) return normalizeRarity(direct);
-  for (const m of a.metaData || []) {
-    const r = m.renderingMetaData?.find((x) => x.name.toLowerCase() === "rarity")?.value;
-    if (r) return normalizeRarity(r);
-  }
-    */
-  return "common";
-};
-
-const getImageUrl = (a: Asset): string => {
-  /*
-  const tryKeys = ["image", "thumbnail", "img", "imageUrl", "cover"];
-  for (const m of a.metaData || []) {
-    if (tryKeys.includes(m.name.toLowerCase())) return m.value || PLACEHOLDER_IMG;
-    for (const r of m.renderingMetaData || []) {
-      if (tryKeys.includes(r.name.toLowerCase())) return r.value || PLACEHOLDER_IMG;
-    }
-  }
-  */
-  return PLACEHOLDER_IMG;
-};
+const getRarity = (a: Asset): Rarity => "common";
+const getImageUrl = (a: Asset): string => PLACEHOLDER_IMG;
 
 const Badge: React.FC<{ rarity: Rarity }> = ({ rarity }) => (
   <span className={`px-3 py-1.5 rounded-full text-xs md:text-sm tracking-wide font-extrabold uppercase ${rarityBadgeClass[rarity]}`}>
@@ -109,7 +91,7 @@ const Badge: React.FC<{ rarity: Rarity }> = ({ rarity }) => (
 
 const SectionHeader: React.FC<{ title: string; gradientClass: string }> = ({ title, gradientClass }) => (
   <div className="flex items-center mb-4 md:mb-6">
-    <div className={`h-8 w-1 rounded bg-gradient-to-b ${gradientClass} shadow-[0_0_0_1px_rgba(255,255,255,0.4)_inset] mr-4`} aria-hidden />
+    <div className={`h-8 w-1 rounded bg-gradient-to-b ${gradientClass} mr-4`} aria-hidden />
     <h2 className="text-2xl md:text-3xl font-black tracking-tight">{title}</h2>
   </div>
 );
@@ -118,16 +100,11 @@ const BackButton: React.FC<{ onClick: () => void }> = ({ onClick }) => (
   <button
     type="button"
     onClick={onClick}
-    aria-label="Revenir à l'aperçu"
-    className="group relative inline-flex items-center h-11 rounded-2xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 active:translate-y-px transition-transform"
+    aria-label="Revenir"
+    className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-white/80 border border-zinc-300 shadow-sm hover:bg-white transition"
   >
-    <span aria-hidden className="pointer-events-none absolute -inset-px rounded-2xl opacity-70 blur-[6px] transition-opacity duration-300 group-hover:opacity-100 bg-[conic-gradient(from_180deg_at_50%_50%,theme(colors.indigo.300)_0deg,transparent_90deg,theme(colors.fuchsia.300)_180deg,transparent_270deg,theme(colors.rose.300)_360deg)]" />
-    <span className="relative z-10 inline-flex items-center gap-2 h-[42px] pl-3 pr-4 rounded-[14px] bg-white/75 backdrop-blur-md border border-white/70 shadow-sm">
-      <ArrowLeft className="h-4 w-4" aria-hidden />
-      <span className="font-semibold tracking-tight">Retour</span>
-    </span>
-    <span aria-hidden className="pointer-events-none absolute right-0 top-0 h-full w-24 translate-x-10 group-hover:translate-x-0 transition-transform duration-300 bg-gradient-to-l from-fuchsia-300/40 to-transparent rounded-2xl" />
-    <span aria-hidden className="pointer-events-none absolute inset-0 rounded-2xl [mask-image:radial-gradient(80%_50%_at_30%_0%,#000,transparent)] -translate-x-1/2 group-hover:translate-x-full transition-transform duration-700 ease-out bg-gradient-to-r from-white/0 via-white/60 to-white/0" />
+    <ArrowLeft className="h-4 w-4" aria-hidden />
+    <span className="font-semibold">Retour</span>
   </button>
 );
 
@@ -141,7 +118,6 @@ const SkinCard: React.FC<{ item: Asset; onClick: (item: Asset) => void }> = ({ i
       onClick={() => onClick(item)}
       className={`group relative text-left cursor-pointer focus:outline-none rounded-2xl ${glowBorder} transition-transform duration-300 hover:-translate-y-1 hover:scale-105`}
     >
-      <span aria-hidden className="pointer-events-none absolute inset-0 rounded-2xl border-2 border-transparent transition-all duration-300 group-hover:border-indigo-500" />
       <div className={`relative bg-gradient-to-b ${rarityBgGradient[rarity]} p-[3px] rounded-2xl shadow-xl`}>
         <div className="rounded-[18px] bg-white/60 backdrop-blur-md border border-white/60">
           <div className="aspect-[3/4] w-full overflow-hidden rounded-t-[18px] grid place-items-center p-3">
@@ -149,7 +125,7 @@ const SkinCard: React.FC<{ item: Asset; onClick: (item: Asset) => void }> = ({ i
           </div>
           <div className="p-5">
             <div className="flex items-start justify-between gap-3">
-              <h3 className="font-bold text-lg md:text-xl text-zinc-900 truncate" title={item.name}>{item.name}</h3>
+              <h3 className="font-bold text-lg md:text-xl text-zinc-900 truncate">{item.name}</h3>
               <Badge rarity={rarity} />
             </div>
             <p className="text-zinc-700 text-base md:text-lg mt-3 font-medium">{formatPrice(item.price)}</p>
@@ -201,23 +177,14 @@ export default function GamePage() {
   const [game, setGame] = useState<Game | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-
-  // état des assets (local) + modal
   const [assets, setAssets] = useState<Asset[]>([]);
 
   useEffect(() => {
     let alive = true;
     (async () => {
       setLoading(true);
-      setError(null);
-      if (!id) {
-        if (alive) {
-          setError("Paramètre id manquant");
-          setLoading(false);
-        }
-        return;
-      }
       try {
+        if (!id) throw new Error("Paramètre id manquant");
         const res = await client.getObject({ id, options: { showContent: true } });
         const content: any = res?.data?.content;
         if (content?.dataType === "moveObject" && content?.fields) {
@@ -243,16 +210,14 @@ export default function GamePage() {
     return () => { alive = false; };
   }, [client, id]);
 
-  const gameId = id
+  const gameId = id;
   useEffect(() => {
     let alive = true;
     (async () => {
       const { data } = await client.queryEvents({
         query: { MoveEventType: `${packageId}::asset::AssetCreated` },
       });
-
       const ids = data.map((e) => (e.parsedJson as AssetCreatedEvent).asset_id);
-
       const loaded: (Asset | null)[] = await Promise.all(
         ids.map(async (id) => {
           const res = await client.getObject({ id, options: { showContent: true } });
@@ -260,43 +225,33 @@ export default function GamePage() {
           return fields.gameId === gameId
             ? {
               id,
-              name: fields.name as string,
-              description: fields.description as string,
-              imageUrl: fields.imageUrl as string,
-              count: fields.count as number,
-              price: fields.price as number,
-              gameId: fields.gameId as string,
-              gameOwner: fields.gameOwner as string,
-              metaData: [] as string[],
-              renderingMetaData: [] as string[],
-            }
+              name: fields.name,
+              description: fields.description,
+              imageUrl: fields.imageUrl,
+              count: fields.count,
+              price: fields.price,
+              gameId: fields.gameId,
+              gameOwner: fields.gameOwner,
+              metaData: [],
+              renderingMetaData: [],
+            } as Asset
             : null;
         })
       );
+      if (alive) setAssets(loaded.filter((g): g is Asset => g != null));
+    })().catch(console.error).finally(() => {
+      if (alive) setLoading(false);
+    });
+    return () => { alive = false; };
+  }, [client, packageId, account, gameId]);
 
-      if (alive) setAssets(loaded.filter(g => g != null));
-    })()
-      .catch(console.error)
-      .finally(() => {
-        if (alive) setLoading(false);
-      });
-
-    return () => {
-      alive = false;
-    };
-  }, [client, packageId, account]);
-
-  // liste à afficher = assets locaux
   const allItems = assets;
-
-  // Raretés présentes dans les assets (sert au <select>)
   const availableRarities = useMemo(() => {
     const present = new Set<Rarity>();
     for (const a of allItems) present.add(getRarity(a));
     return rarityOrder.filter((r) => present.has(r));
   }, [allItems]);
 
-  // Si la rareté choisie n'est plus disponible (ex: filtrage dynamique), on revient à "all"
   useEffect(() => {
     if (rarityFilter !== "all" && !availableRarities.includes(rarityFilter)) {
       setRarityFilter("all");
@@ -330,37 +285,37 @@ export default function GamePage() {
       {/* HERO */}
       <div className="relative">
         <div className="absolute inset-0 -z-10">
-          <div className="h-76 md:h-76 w-full overflow-hidden">
+          <div className="h-76 w-full overflow-hidden">
             <img src={game.imageUrl || PLACEHOLDER_IMG} alt="cover" className="w-full h-full object-cover blur-sm scale-105 opacity-70" />
           </div>
         </div>
         <div className="container mx-auto px-4 md:px-6">
-          <div className="flex flex-col items-center gap-3 pt-12 md:pt-16 pb-6 md:pb-8">
-            <BackButton onClick={() => router.push("/")} />
-            <h1 className="text-3xl md:text-5xl font-extrabold bg-gradient-to-r from-violet-500 via-fuchsia-500 to-rose-500 bg-clip-text text-transparent drop-shadow-sm tracking-tight text-center">
+          <div className="flex flex-col items-center gap-3 pt-12 pb-6">
+            <h1 className="text-3xl md:text-5xl font-extrabold bg-gradient-to-r from-violet-500 via-fuchsia-500 to-rose-500 bg-clip-text text-transparent text-center">
               {game.name}
-              {(game.description || game.pageUrl) && (
-                <div className="w-full max-w-3xl text-center mt-2 md:mt-3 space-y-3">
-                  {game.description && (
-                    <p className="text-sm md:text-base text-zinc-700 whitespace-pre-line">
-                      {game.description}
-                    </p>
-                  )}
-                  {game.pageUrl && (
-                    <a
-                      href={game.pageUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="inline-flex items-center gap-2 px-3 py-2 rounded-xl border border-zinc-300 bg-white/80 hover:bg-white text-sm font-medium shadow-sm"
-                    >
-                      Visiter la page du jeu
-                    </a>
-                  )}
-                </div>
-              )}
             </h1>
-            <div className="w-full max-w-4xl rounded-3xl overflow-hidden border border-white/60 bg-white/80 backdrop-blur shadow-xl">
-              <img src={game.imageUrl || PLACEHOLDER_IMG} alt={game.name} className="w-full h-76 md:h-76 object-cover" />
+            {game.description && (
+              <p className="text-sm md:text-base text-zinc-700 whitespace-pre-line max-w-3xl text-center">{game.description}</p>
+            )}
+            {/* Image clickable */}
+            <div className="w-full max-w-4xl rounded-3xl overflow-hidden border border-white/60 bg-white/80 backdrop-blur shadow-xl group">
+              {game.pageUrl ? (
+                <a
+                  href={game.pageUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label="Ouvrir la page du jeu"
+                  className="block outline-none focus:ring-2 focus:ring-indigo-500 rounded-3xl"
+                >
+                  <img
+                    src={game.imageUrl || PLACEHOLDER_IMG}
+                    alt={game.name}
+                    className="w-full h-76 object-cover transition-transform duration-300 group-hover:scale-105 cursor-pointer"
+                  />
+                </a>
+              ) : (
+                <img src={game.imageUrl || PLACEHOLDER_IMG} alt={game.name} className="w-full h-76 object-cover" />
+              )}
             </div>
           </div>
         </div>
@@ -368,58 +323,47 @@ export default function GamePage() {
 
       <div className="container mx-auto px-4 md:px-6 pb-12">
         {/* BARRE D'OUTILS */}
-        <div className="sticky top-0 z-10 -mx-4 md:-mx-6 px-4 md:px-6 py-3 mb-6 backdrop-blur supports-[backdrop-filter]:bg-white/55 bg-white/80 border-b border-white/60">
-          <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-12 gap-3 md:gap-4 items-center">
-            {/* Search */}
-            <div className="md:col-span-6">
-              <label htmlFor="search" className="sr-only">Rechercher</label>
+        <div className="sticky top-0 z-10 -mx-4 px-4 py-3 mb-6 backdrop-blur bg-white/80 border-b border-white/60">
+          <div className="max-w-6xl mx-auto flex flex-wrap items-center gap-3">
+            <BackButton onClick={() => router.back()} />
+            <div className="flex-1 min-w-[200px]">
               <div className="relative">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-zinc-500" aria-hidden />
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-zinc-500" />
                 <input
                   id="search"
                   value={query}
                   onChange={(e) => setQuery(e.target.value)}
                   placeholder="Rechercher un objet…"
-                  className="w-full h-11 pl-10 pr-3 rounded-2xl border border-zinc-300/80 bg-white/80 hover:bg-white focus:bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500 shadow-sm"
+                  className="w-full h-11 pl-10 pr-3 rounded-2xl border bg-white/80 hover:bg-white focus:bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500 shadow-sm"
                 />
               </div>
             </div>
-
-            {/* Rarity select (dynamique) */}
-            <div className="md:col-span-3">
-              <div className="relative">
-                <ChevronDown className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-zinc-500" />
-                <select
-                  id="rarity"
-                  value={rarityFilter}
-                  onChange={(e) => setRarityFilter(e.target.value as any)}
-                  className="appearance-none h-11 pl-3 pr-9 w-full rounded-2xl border border-zinc-300/80 bg-white/80 hover:bg-white focus:bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500 shadow-sm text-sm font-medium"
-                >
-                  <option value="all">Toutes les raretés</option>
-                  {availableRarities.map((r) => (
-                    <option key={r} value={r}>
-                      {labelByFilter[r]}
-                    </option>
-                  ))}
-                </select>
-              </div>
+            <div>
+              <select
+                id="rarity"
+                value={rarityFilter}
+                onChange={(e) => setRarityFilter(e.target.value as any)}
+                className="h-11 pl-3 pr-9 rounded-2xl border bg-white/80 focus:outline-none focus:ring-2 focus:ring-indigo-500 shadow-sm text-sm font-medium"
+              >
+                <option value="all">Toutes les raretés</option>
+                {availableRarities.map((r) => (
+                  <option key={r} value={r}>
+                    {labelByFilter[r]}
+                  </option>
+                ))}
+              </select>
             </div>
-
-            {/* Sort */}
-            <div className="md:col-span-3">
-              <div className="relative">
-                <ChevronDown className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-zinc-500" />
-                <select
-                  id="sort"
-                  value={sort}
-                  onChange={(e) => setSort(e.target.value as any)}
-                  className="appearance-none h-11 pl-3 pr-9 w-full rounded-2xl border border-zinc-300/80 bg-white/80 hover:bg-white focus:bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500 shadow-sm text-sm font-medium"
-                >
-                  <option value="popular">Populaires</option>
-                  <option value="priceAsc">Prix croissant</option>
-                  <option value="priceDesc">Prix décroissant</option>
-                </select>
-              </div>
+            <div>
+              <select
+                id="sort"
+                value={sort}
+                onChange={(e) => setSort(e.target.value as any)}
+                className="h-11 pl-3 pr-9 rounded-2xl border bg-white/80 focus:outline-none focus:ring-2 focus:ring-indigo-500 shadow-sm text-sm font-medium"
+              >
+                <option value="popular">Populaires</option>
+                <option value="priceAsc">Prix croissant</option>
+                <option value="priceDesc">Prix décroissant</option>
+              </select>
             </div>
           </div>
         </div>
@@ -433,18 +377,14 @@ export default function GamePage() {
                 Aucun résultat. Essayez un autre terme ou filtre.
               </div>
             ) : (
-              <>
-                <div className="flex items-center justify-between mb-3">
-                  <p className="text-sm text-zinc-600">
-                    {filtered.length} résultat{filtered.length > 1 ? "s" : ""}
-                  </p>
-                </div>
-                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-4 gap-6">
+              <div>
+                <p className="text-sm text-zinc-600 mb-3">{filtered.length} résultat{filtered.length > 1 ? "s" : ""}</p>
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
                   {filtered.map((s) => (
-                    <SkinCard key={s.id} item={s} onClick={() => { }} />
+                    <SkinCard key={s.id} item={s} onClick={() => router.push(`/game/${gameId}/${s.id}`)} />
                   ))}
                 </div>
-              </>
+              </div>
             );
           }
           return (
@@ -456,9 +396,9 @@ export default function GamePage() {
                       <SectionHeader title={labelByFilter[r]} gradientClass={headerGradient[r]} />
                       <span className="text-sm text-zinc-600">{categorized[r].length} item{categorized[r].length > 1 ? "s" : ""}</span>
                     </div>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-4 gap-6">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
                       {categorized[r].map((s) => (
-                        <SkinCard key={s.id} item={s} onClick={() => { router.push(`/game/${gameId}/${s.id}`) }} />
+                        <SkinCard key={s.id} item={s} onClick={() => router.push(`/game/${gameId}/${s.id}`)} />
                       ))}
                     </div>
                   </section>
