@@ -3,6 +3,7 @@
 import * as React from "react";
 import type { Asset, Rarity, MetaData, AssetMetaData } from "@/other/types/asset";
 import { X, Plus, Trash2 } from "lucide-react";
+import { useSuiClient } from "@mysten/dapp-kit";
 
 type Props = {
   open: boolean;
@@ -36,6 +37,7 @@ export default function AddAssetModal({ open, onClose, onCreated, gameId, gameOw
   const [image, setImage] = React.useState("");
   const [rarity, setRarity] = React.useState<Rarity>("common");
   const [price, setPrice] = React.useState<number>(0);
+  const suiClient = useSuiClient();
 
   const [meta, setMeta] = React.useState<MetaRow[]>([
     { id: 1, key: "color", value: "#251818" },

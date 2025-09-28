@@ -22,13 +22,6 @@ public struct MetaData has copy, drop, store {
     value: string::String,
 }
 
-#[allow(unused_field)]
-public struct AssetMetaData has copy, drop, store {
-    name: string::String,
-    value: string::String,
-    renderingMetaData: vector<MetaData>,
-}
-
 public struct Asset has key, store {
     id: UID,
     name: string::String,
@@ -38,7 +31,8 @@ public struct Asset has key, store {
     price: u64,
     gameId: ID,
     gameOwner: address,
-    metaData: vector<AssetMetaData>,
+    metaData: vector<MetaData>,
+    renderingMetaData: vector<MetaData>,
 }
 
 public fun id(_asset: &Asset): ID { object::id(_asset) }
@@ -64,7 +58,8 @@ public fun create_asset(
     _price: u64,
     _gameId: ID,
     _gameOwner: address,
-    _metaData: vector<AssetMetaData>,
+    _metaData: vector<MetaData>,
+    _renderingMetaData: vector<MetaData>,
     ctx: &mut TxContext,
 ) {
     let name = string::utf8(_name);
@@ -89,6 +84,7 @@ public fun create_asset(
         gameId: _gameId,
         gameOwner: _gameOwner,
         metaData: _metaData,
+        renderingMetaData: _renderingMetaData
     };
 
     transfer::public_transfer(asset, tx_context::sender(ctx));
@@ -132,11 +128,21 @@ public fun set_name(
 public fun set_metadata(
     _game: &game::Game,
     _asset: &mut Asset,
-    _metaData: vector<AssetMetaData>,
+    _metaData: vector<MetaData>,
     ctx: &mut TxContext,
 ) {
     check_permissions(_game, _asset, ctx);
     _asset.metaData = _metaData
+}
+
+public fun set_rendering_metadata(
+    _game: &game::Game,
+    _asset: &mut Asset,
+    _metaData: vector<MetaData>,
+    ctx: &mut TxContext,
+) {
+    check_permissions(_game, _asset, ctx);
+    _asset.renderingMetaData = _metaData
 }
 
 public fun increase_by(_game: &game::Game, _asset: &mut Asset, _amount: u64, ctx: &mut TxContext) {
