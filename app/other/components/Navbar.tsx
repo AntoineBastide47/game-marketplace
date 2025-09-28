@@ -72,9 +72,9 @@ export default function Navbar() {
               <a
                 href="/"
                 className="font-semibold tracking-wide text-white text-base md:text-lg"
-                aria-label="Accueil GAME-MARKETPLACE"
+                aria-label="Accueil SkinChain"
               >
-                GAME-MARKETPLACE
+                SkinChain
               </a>
             </div>
 
