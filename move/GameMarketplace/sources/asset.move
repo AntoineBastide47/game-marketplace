@@ -1,7 +1,6 @@
 module game_marketplace::asset;
 
 use game_marketplace::game;
-use std::address;
 use std::string;
 use sui::event;
 
@@ -13,6 +12,7 @@ const ASSET_EMPTY_NAME: u64 = 5;
 const ASSET_EMPTY_DESCRIPTION: u64 = 6;
 const ASSET_EMPTY_URL: u64 = 7;
 const ASSET_INSUFFICIENT_SUPPLY: u64 = 8;
+const ASSET_SAME_ADDRESS: u64 = 9;
 
 const ASSET_INFINITE: u64 = 18446744073709551615;
 
@@ -171,21 +171,28 @@ public fun consume_supply(_asset: &mut Asset, _amount: u64) {
     }
 }
 
-public fun transfer_asset(_asset: Asset, _newOwner: address) {
-    transfer::public_transfer(_asset, _newOwner);
-}
-
 public struct AssetToken has key, store {
     id: UID,
     asset_id: ID,
-    owner: address,
 }
 
 public struct AssetMintedEvent has copy, drop {
     asset_token_id: ID,
     asset_id: ID,
-    creator: address,
 }
+
+public struct AssetTransferredEvent has copy, drop {
+    asset_token_id: ID,
+    from: address,
+    to: address,
+}
+
+public fun transfer_asset(asset: AssetToken, to: address, ctx: &mut TxContext) {
+    let token_id = object::id(&asset);
+    event::emit(AssetTransferredEvent { asset_token_id: token_id, from: tx_context::sender(ctx), to });
+    transfer::public_transfer(asset, to);
+}
+
 
 public fun mint_to(_game: &game::Game, _asset: &mut Asset, _to: address, ctx: &mut TxContext) {
     check_permissions(_game, _asset, ctx);
@@ -195,15 +202,13 @@ public fun mint_to(_game: &game::Game, _asset: &mut Asset, _to: address, ctx: &m
     let token = AssetToken {
         id: object::new(ctx),
         asset_id: object::id(_asset),
-        owner: tx_context::sender(ctx),
     };
     consume_supply(_asset, 1);
 
     event::emit(AssetMintedEvent {
         asset_token_id: object::id(&token),
         asset_id: object::id(_asset),
-        creator: tx_context::sender(ctx),
     });
-    
+
     transfer::public_transfer(token, _to);
 }
