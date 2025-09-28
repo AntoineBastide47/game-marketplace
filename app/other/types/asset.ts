@@ -10,13 +10,6 @@ export type Rarity =
   | "divine"        // quasi sacré
   | "transcendent"; // carrément hors du monde connu
 
-
-
-export interface MetaData {
-  name: string;
-  value: string;
-}
-
 export interface Asset {
   id: string;             // correspond à UID dans Move
   name: string;
@@ -26,6 +19,6 @@ export interface Asset {
   price: number;          // u64 → number (EUR ou token, à clarifier)
   gameId: string;         // ID Move → string
   gameOwner: string;      // address Move → string (hex)
-  metaData: MetaData[];
-  renderingMetaData: MetaData[];
+  metaData: string[];
+  renderingMetaData: string[];
 }

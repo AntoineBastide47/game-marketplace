@@ -16,11 +16,6 @@ const ASSET_INFINITE: u64 = 18446744073709551615;
 
 fun is_infinite(n: u64): bool { n == ASSET_INFINITE }
 
-#[allow(unused_field)]
-public struct MetaData has copy, drop, store {
-    name: string::String,
-    value: string::String,
-}
 
 public struct Asset has key, store {
     id: UID,
@@ -31,8 +26,8 @@ public struct Asset has key, store {
     price: u64,
     gameId: ID,
     gameOwner: address,
-    metaData: vector<MetaData>,
-    renderingMetaData: vector<MetaData>,
+    metaData: vector<string::String>,
+    renderingMetaData: vector<string::String>,
 }
 
 public fun id(_asset: &Asset): ID { object::id(_asset) }
@@ -58,8 +53,8 @@ public fun create_asset(
     _price: u64,
     _gameId: ID,
     _gameOwner: address,
-    _metaData: vector<MetaData>,
-    _renderingMetaData: vector<MetaData>,
+    _metaData: vector<string::String>,
+    _renderingMetaData: vector<string::String>,
     ctx: &mut TxContext,
 ) {
     let name = string::utf8(_name);
@@ -128,7 +123,7 @@ public fun set_name(
 public fun set_metadata(
     _game: &game::Game,
     _asset: &mut Asset,
-    _metaData: vector<MetaData>,
+    _metaData: vector<string::String>,
     ctx: &mut TxContext,
 ) {
     check_permissions(_game, _asset, ctx);
@@ -138,7 +133,7 @@ public fun set_metadata(
 public fun set_rendering_metadata(
     _game: &game::Game,
     _asset: &mut Asset,
-    _metaData: vector<MetaData>,
+    _metaData: vector<string::String>,
     ctx: &mut TxContext,
 ) {
     check_permissions(_game, _asset, ctx);
