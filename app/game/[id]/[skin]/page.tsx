@@ -66,7 +66,7 @@ const SkinPage = ({
   const account = useCurrentAccount();
   const router = useRouter();
   const client = useSuiClient();
-  const { gameId } = useParams<{ id: string }>();
+  const { id } = useParams<{ id: string }>();
   const { skinId } = useParams<{ skin: string }>();
 
   const formatPrice = (price: number) => price.toFixed(2).replace('.', ',');
@@ -97,7 +97,7 @@ const SkinPage = ({
           </div>
           <button
             className="mt-8 px-6 py-3 rounded-lg flex items-center gap-2 bg-gray-200 hover:bg-blue-100 text-blue-700 font-semibold shadow transition"
-            onClick={() => router.push('/boutique')}
+            onClick={() => router.push(`/game/${id}`)}
           >
             <ArrowLeft size={22} /> Retour à la boutique
           </button>

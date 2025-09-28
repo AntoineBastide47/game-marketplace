@@ -8,6 +8,8 @@ import { Transaction } from "@mysten/sui/transactions";
 import { useNetworkVariable } from "@/networkConfig";
 import { useParams } from "next/navigation";
 
+const U64_MAX = BigInt("18446744073709551615");
+
 type Props = {
   open: boolean;
   onClose: () => void;
@@ -148,8 +150,8 @@ const userMeta: MetaData[] = meta
         tx.pure.string(name),
         tx.pure.string(description),
         tx.pure.string(image || "https://picsum.photos/600/800"),
-        tx.pure.u64(10),
-        tx.pure.u64(10),
+        tx.pure.u64(skinsInfinite ? U64_MAX : skinsCount),
+        tx.pure.u64(price),
         tx.pure.id(id),
         tx.pure.address(account?.address || ""),
         tx.pure.vector("string", []),
