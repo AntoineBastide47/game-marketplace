@@ -1,16 +1,17 @@
 // app/components/AddAssetModal.tsx
 "use client";
 import * as React from "react";
-import type { Asset, Rarity, MetaData, AssetMetaData } from "@/other/types/asset";
-import { X, Plus, Trash2 } from "lucide-react";
-import { useSuiClient } from "@mysten/dapp-kit";
+import type { Rarity } from "@/other/types/asset";
+import { X, Plus, Trash2, AlertTriangle } from "lucide-react";
+import { useSuiClient, useSignAndExecuteTransaction, useCurrentAccount } from "@mysten/dapp-kit";
+import { Transaction } from "@mysten/sui/transactions";
+import { useNetworkVariable } from "@/networkConfig";
+import { useParams } from "next/navigation";
 
 type Props = {
   open: boolean;
   onClose: () => void;
-  onCreated: (asset: Asset) => void;
-  gameId: string;
-  gameOwner?: string;
+  onCreated: () => void;
 };
 
 const RARITY_OPTIONS: Rarity[] = [
@@ -32,19 +33,18 @@ type MetaRow = { id: number; key: string; isCustom?: boolean; value: string };
 
 const STYLE_OPTIONS = ["bold", "italic", "bold+italic"] as const;
 
-export default function AddAssetModal({
-  open,
-  onClose,
-  onCreated,
-  gameId,
-  gameOwner = "",
-}: Props) {
+export default function AddAssetModal({ open, onClose, onCreated }: Props) {
   const [name, setName] = React.useState("");
   const [description, setDescription] = React.useState("");
   const [image, setImage] = React.useState("");
   const [rarity, setRarity] = React.useState<Rarity>("common");
   const [price, setPrice] = React.useState<number>(0);
   const suiClient = useSuiClient();
+  const account = useCurrentAccount();
+  const packageId = useNetworkVariable("packageId");
+  const { mutate: signAndExecute } = useSignAndExecuteTransaction();
+  const tx = new Transaction();
+  const { id } = useParams<{ id: string }>();
 
   // nouveau: gestion du nombre de skins, avec option "infini"
   const [skinsCount, setSkinsCount] = React.useState<number>(0);
@@ -120,42 +120,62 @@ export default function AddAssetModal({
 
     setSubmitting(true);
 
-    const id =
-      typeof crypto !== "undefined" && "randomUUID" in crypto
-        ? crypto.randomUUID()
-        : String(Date.now());
+    /*
+const baseMeta: MetaData[] = [{ name: "rarity", value: rarity, renderingMetaData: [] }];
+if (image.trim()) {
+  baseMeta.push({ name: "image", value: image.trim(), renderingMetaData: [] });
+}
 
-    const baseMeta: AssetMetaData[] = [{ name: "rarity", value: rarity, renderingMetaData: [] }];
-    if (image.trim()) {
-      baseMeta.push({ name: "image", value: image.trim(), renderingMetaData: [] });
-    }
+const userMeta: MetaData[] = meta
+  .filter((m) => m.key.trim())
+  .map((m) => (new MetaData(m.key.trim(), m.value)));
+  
+  const asset: Asset = {
+    id,
+    name: name.trim(),
+    description: description.trim(),
+    count: 1,
+    price,
+    gameId,
+    gameOwner,
+    metaData: [...baseMeta, ...userMeta],
+  };
+  */
 
-    const userMeta: AssetMetaData[] = meta
-      .filter((m) => m.key.trim())
-      .map((m) => ({
-        name: m.key.trim(),
-        value: m.value,
-        renderingMetaData: [] as MetaData[],
-      }));
+    tx.moveCall({
+      target: `${packageId}::asset::create_asset`,
+      arguments: [
+        tx.pure.string(name),
+        tx.pure.string(description),
+        tx.pure.string(image || "https://picsum.photos/600/800"),
+        tx.pure.u64(10),
+        tx.pure.u64(10),
+        tx.pure.id(id),
+        tx.pure.address(account?.address || ""),
+        tx.pure.vector("string", []),
+        tx.pure.vector("string", []),
+      ],
+    } as any);
 
-    // Convention simple et robuste: count = -1 signifie "infini"
-    const count = skinsInfinite ? -1 : Math.max(0, Math.floor(Number.isFinite(skinsCount) ? skinsCount : 0));
+    signAndExecute(
+      { transaction: tx },
+      {
+        onSuccess: async ({ digest }) => {
+          await suiClient.waitForTransaction({
+            digest,
+            options: { showEffects: true },
+          })
 
-    const asset: Asset = {
-      id,
-      name: name.trim(),
-      description: description.trim(),
-      count,
-      price: Math.max(0, price),
-      gameId,
-      gameOwner,
-      metaData: [...baseMeta, ...userMeta],
-    };
+          onCreated()
+          resetForm()
+          setSubmitting(false)
+          onClose()
+        },
+        onError: () => setSubmitting(false),
+      }
+    );
 
-    onCreated(asset);
-    resetForm();
-    setSubmitting(false);
-    onClose();
+    return;
   }
 
   if (!open) return null;

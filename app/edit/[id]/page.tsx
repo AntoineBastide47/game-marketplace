@@ -7,6 +7,13 @@ import { useParams, useRouter } from "next/navigation";
 import { useSuiClient } from "@/other/contexts/SuiClientContext";
 // importe bien le default export du fichier AddAssetModal.tsx
 import AddAssetModal from "@/other/components/AddAssetModal";
+import { useCurrentAccount } from "@mysten/dapp-kit";
+import { useNetworkVariable } from "@/networkConfig";
+
+export type AssetCreatedEvent = {
+  asset_id: string;
+  creator: string;
+};
 
 // Helpers
 const formatPrice = (v: number, locale = "fr-FR", currency = "EUR") =>
@@ -76,16 +83,19 @@ const normalizeRarity = (value: string | undefined | null): Rarity => {
 };
 
 const getRarity = (a: Asset): Rarity => {
+  /*
   const direct = a.metaData?.find((m) => m.name.toLowerCase() === "rarity")?.value;
   if (direct) return normalizeRarity(direct);
   for (const m of a.metaData || []) {
     const r = m.renderingMetaData?.find((x) => x.name.toLowerCase() === "rarity")?.value;
     if (r) return normalizeRarity(r);
   }
+    */
   return "common";
 };
 
 const getImageUrl = (a: Asset): string => {
+  /*
   const tryKeys = ["image", "thumbnail", "img", "imageUrl", "cover"];
   for (const m of a.metaData || []) {
     if (tryKeys.includes(m.name.toLowerCase())) return m.value || PLACEHOLDER_IMG;
@@ -93,6 +103,7 @@ const getImageUrl = (a: Asset): string => {
       if (tryKeys.includes(r.name.toLowerCase())) return r.value || PLACEHOLDER_IMG;
     }
   }
+    */
   return PLACEHOLDER_IMG;
 };
 
@@ -206,6 +217,8 @@ export default function GamePage() {
   const router = useRouter();
   const { id } = useParams<{ id: string }>();
   const client = useSuiClient();
+  const account = useCurrentAccount();
+  const packageId = useNetworkVariable("packageId");
 
   const [query, setQuery] = useState("");
   const [rarityFilter, setRarityFilter] = useState<Rarity | "all">("all");
@@ -256,6 +269,49 @@ export default function GamePage() {
     })();
     return () => { alive = false; };
   }, [client, id]);
+
+  const gameId = id
+  useEffect(() => {
+    let alive = true;
+    (async () => {
+      const { data } = await client.queryEvents({
+        query: { MoveEventType: `${packageId}::asset::AssetCreated` },
+      });
+
+      const ids = data.map((e) => (e.parsedJson as AssetCreatedEvent).asset_id);
+
+      const loaded: (Asset | null)[] = await Promise.all(
+        ids.map(async (id) => {
+          const res = await client.getObject({ id, options: { showContent: true } });
+          const fields = (res.data?.content as any).fields;
+          return fields.gameId === gameId
+            ? {
+              id,
+              name: fields.name as string,
+              description: fields.description as string,
+              imageUrl: fields.imageUrl as string,
+              count: fields.count as number,
+              price: fields.price as number,
+              gameId: fields.gameId as string,
+              gameOwner: fields.gameOwner as string,
+              metaData: [] as string[],
+              renderingMetaData: [] as string[],
+            }
+            : null;
+        })
+      );
+
+      if (alive) setAssets(loaded.filter(g => g != null));
+    })()
+      .catch(console.error)
+      .finally(() => {
+        if (alive) setLoading(false);
+      });
+
+    return () => {
+      alive = false;
+    };
+  }, [client, packageId, account]);
 
   // liste à afficher = assets locaux
   const allItems = assets;
@@ -315,7 +371,7 @@ export default function GamePage() {
         </div>
         <div className="container mx-auto px-4 md:px-6">
           <div className="flex flex-col items-center gap-3 pt-12 md:pt-16 pb-6 md:pb-8">
-            <BackButton onClick={() => router.push("/") } />
+            <BackButton onClick={() => router.push("/")} />
             <h1 className="text-3xl md:text-5xl font-extrabold bg-gradient-to-r from-violet-500 via-fuchsia-500 to-rose-500 bg-clip-text text-transparent drop-shadow-sm tracking-tight text-center">
               {game.name}
             </h1>
@@ -399,7 +455,7 @@ export default function GamePage() {
               </div>
             </div>
 
-            
+
           </div>
         </div>
 
@@ -460,9 +516,10 @@ export default function GamePage() {
         <AddAssetModal
           open={showAdd}
           onClose={() => setShowAdd(false)}
-          gameId={game.id}
-          gameOwner={game.owner}
-          onCreated={handleCreated}
+          onCreated={() => {
+            setShowAdd(false)
+            window.location.reload();
+          }}
         />
       </div>
     </div>

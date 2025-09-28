@@ -75,16 +75,19 @@ const normalizeRarity = (value: string | undefined | null): Rarity => {
 };
 
 const getRarity = (a: Asset): Rarity => {
+  /*
   const direct = a.metaData?.find((m) => m.name.toLowerCase() === "rarity")?.value;
   if (direct) return normalizeRarity(direct);
   for (const m of a.metaData || []) {
     const r = m.renderingMetaData?.find((x) => x.name.toLowerCase() === "rarity")?.value;
     if (r) return normalizeRarity(r);
   }
+    */
   return "common";
 };
 
 const getImageUrl = (a: Asset): string => {
+  /*
   const tryKeys = ["image", "thumbnail", "img", "imageUrl", "cover"];
   for (const m of a.metaData || []) {
     if (tryKeys.includes(m.name.toLowerCase())) return m.value || PLACEHOLDER_IMG;
@@ -92,6 +95,7 @@ const getImageUrl = (a: Asset): string => {
       if (tryKeys.includes(r.name.toLowerCase())) return r.value || PLACEHOLDER_IMG;
     }
   }
+  */
   return PLACEHOLDER_IMG;
 };
 
@@ -423,8 +427,6 @@ export default function GamePage() {
             </div>
           );
         })()}
-
-        {/* MODAL */}
       </div>
     </div>
   );
