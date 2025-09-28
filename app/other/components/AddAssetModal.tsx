@@ -46,6 +46,10 @@ export default function AddAssetModal({
   const [price, setPrice] = React.useState<number>(0);
   const suiClient = useSuiClient();
 
+  // nouveau: gestion du nombre de skins, avec option "infini"
+  const [skinsCount, setSkinsCount] = React.useState<number>(0);
+  const [skinsInfinite, setSkinsInfinite] = React.useState<boolean>(false);
+
   const [meta, setMeta] = React.useState<MetaRow[]>([
     { id: 1, key: "color", value: "#251818" },
     { id: 2, key: "style", value: "bold" },
@@ -73,6 +77,9 @@ export default function AddAssetModal({
     [meta]
   );
 
+  const priceNegative = price < 0;
+  const skinsNegative = !skinsInfinite && skinsCount < 0;
+
   function addMetaRow() {
     // s’il reste des clés suggérées libres, on en prend une; sinon on ouvre un champ custom
     if (availableKeys.length > 0) {
@@ -97,6 +104,8 @@ export default function AddAssetModal({
     setImage("");
     setRarity("common");
     setPrice(0);
+    setSkinsCount(0);
+    setSkinsInfinite(false);
     setMeta([
       { id: 1, key: "color", value: "#251818" },
       { id: 2, key: "style", value: "bold" },
@@ -107,6 +116,7 @@ export default function AddAssetModal({
     e.preventDefault();
     if (!name.trim() || !description.trim()) return;
     if (hasDuplicateKeys || hasEmptyCustomKey) return;
+    if (priceNegative || skinsNegative) return;
 
     setSubmitting(true);
 
@@ -128,12 +138,15 @@ export default function AddAssetModal({
         renderingMetaData: [] as MetaData[],
       }));
 
+    // Convention simple et robuste: count = -1 signifie "infini"
+    const count = skinsInfinite ? -1 : Math.max(0, Math.floor(Number.isFinite(skinsCount) ? skinsCount : 0));
+
     const asset: Asset = {
       id,
       name: name.trim(),
       description: description.trim(),
-      count: 1,
-      price,
+      count,
+      price: Math.max(0, price),
       gameId,
       gameOwner,
       metaData: [...baseMeta, ...userMeta],
@@ -152,7 +165,9 @@ export default function AddAssetModal({
     !description.trim() ||
     submitting ||
     hasDuplicateKeys ||
-    hasEmptyCustomKey;
+    hasEmptyCustomKey ||
+    priceNegative ||
+    skinsNegative;
 
   return (
     <div
@@ -193,12 +208,53 @@ export default function AddAssetModal({
               onChange={(v: string) => setRarity(v as Rarity)}
               options={RARITY_OPTIONS}
             />
+
+            {/* Prix non négatif */}
             <Input
               label="Prix (€)"
               type="number"
-              value={price.toString()}
-              onChange={(v: string) => setPrice(Number.isFinite(parseFloat(v)) ? parseFloat(v) : 0)}
+              min={0}
+              value={Number.isFinite(price) ? String(price) : "0"}
+              onChange={(v: string) => {
+                const n = parseFloat(v);
+                setPrice(Number.isFinite(n) ? n : 0);
+              }}
             />
+            {priceNegative && (
+              <FieldError message="Le prix ne peut pas être négatif." />
+            )}
+
+            {/* Nombre de skins + option infini */}
+            <div className="space-y-2">
+              <div className="flex items-center justify-between">
+                <label className="text-sm font-medium">Nombre de skins</label>
+                <label className="inline-flex items-center gap-2 text-sm">
+                  <input
+                    type="checkbox"
+                    checked={skinsInfinite}
+                    onChange={(e) => setSkinsInfinite(e.target.checked)}
+                    className="h-4 w-4 rounded border-gray-300"
+                  />
+                  <span>Infini</span>
+                </label>
+              </div>
+              <input
+                type="number"
+                min={0}
+                step={1}
+                disabled={skinsInfinite}
+                value={skinsInfinite ? "" : String(Number.isFinite(skinsCount) ? skinsCount : 0)}
+                onChange={(e) => {
+                  const n = parseInt(e.target.value, 10);
+                  setSkinsCount(Number.isFinite(n) ? n : 0);
+                }}
+                placeholder={skinsInfinite ? "Infini" : "0"}
+                className="w-full rounded-lg border px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500 disabled:bg-gray-100"
+              />
+              {skinsNegative && (
+                <FieldError message="Le nombre de skins ne peut pas être négatif." />
+              )}
+            </div>
           </div>
 
           {/* Meta data */}
@@ -352,6 +408,8 @@ function Input({
   required = false,
   type = "text",
   placeholder = "",
+  min,
+  disabled = false,
 }: {
   label: string;
   value: string;
@@ -359,6 +417,8 @@ function Input({
   required?: boolean;
   type?: string;
   placeholder?: string;
+  min?: number;
+  disabled?: boolean;
 }) {
   return (
     <div className="space-y-1.5">
@@ -369,7 +429,9 @@ function Input({
         required={required}
         placeholder={placeholder}
         onChange={(e) => onChange(e.target.value)}
-        className="w-full rounded-lg border px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+        min={min}
+        disabled={disabled}
+        className="w-full rounded-lg border px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500 disabled:bg-gray-100"
       />
     </div>
   );
@@ -426,6 +488,12 @@ function Select({
         ))}
       </select>
     </div>
+  );
+}
+
+function FieldError({ message }: { message: string }) {
+  return (
+    <p className="text-sm text-red-600">{message}</p>
   );
 }
 
