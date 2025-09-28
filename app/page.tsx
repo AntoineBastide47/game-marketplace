@@ -9,7 +9,6 @@ import { useSuiClient } from "@/other/contexts/SuiClientContext";
 export type GameCreatedEvent = {
   game_id: string;
   creator: string;
-  name: string;
 };
 
 export default function Overview() {

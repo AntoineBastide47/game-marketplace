@@ -31,7 +31,6 @@ public fun owner(_g: &Game): address { _g.owner }
 public struct GameCreated has copy, drop {
     game_id: ID,
     creator: address,
-    name: string::String,
 }
 
 #[allow(lint(self_transfer))]
@@ -63,7 +62,6 @@ public fun create_game(
     event::emit(GameCreated {
         game_id: object::id(&game),
         creator: tx_context::sender(ctx),
-        name: game.name,
     });
 
     transfer::public_transfer(game, tx_context::sender(ctx))
@@ -82,23 +80,4 @@ public fun transfer_game(_game: Game, _newOwner: address) {
 public fun set_owner(_game: &mut Game, _newOwner: address, ctx: &mut TxContext) {
     assert!(_game.owner == tx_context::sender(ctx), GAME_NOT_OWNER);
     _game.owner = _newOwner
-}
-
-// Pour les tests uniquement
-#[test_only]
-public fun mk_game_for_test(
-    name: vector<u8>,
-    description: vector<u8>,
-    imageUrl: vector<u8>,
-    pageUrl: vector<u8>,
-    ctx: &mut TxContext
-    ): Game {
-        Game {
-            id: object::new(ctx),
-            owner: tx_context::sender(ctx),
-            name: string::utf8(name),
-            description: string::utf8(description),
-            imageUrl: string::utf8(imageUrl),
-            pageUrl: string::utf8(pageUrl),
-        }
 }
